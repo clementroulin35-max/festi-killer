@@ -270,6 +270,93 @@ export const GameProvider = ({ children }) => {
     return upperCode;
   };
 
+  // 13. Dynamic Player Insertion Mid-Game
+  const insertPlayerMidGame = async (playerName, customPin = "0000") => {
+    const cleanName = playerName.trim();
+    if (!cleanName || !gameCode) return;
+
+    if (gameState.players.some(p => p.name.toLowerCase() === cleanName.toLowerCase())) {
+      throw new Error(`Le joueur "${cleanName}" existe déjà dans la partie.`);
+    }
+
+    setLoading(true);
+    try {
+      const players = gameState.players;
+      
+      const randomIndex = Math.floor(Math.random() * players.length);
+      const playerA = players[randomIndex];
+      const playerBName = playerA.target;
+      
+      const usedActionIds = players.map(p => p.actionId);
+      const pool = gameState.actionPool;
+      
+      const available = pool.filter(a => !usedActionIds.includes(a.id));
+      const initialAction = available.length > 0
+        ? available[Math.floor(Math.random() * available.length)]
+        : pool[Math.floor(Math.random() * pool.length)];
+
+      const initialActionId = initialAction ? initialAction.id : null;
+
+      // 1. Insert new player (targets B)
+      await supabase
+        .from("players")
+        .insert([{
+          game_code: gameCode,
+          name: cleanName,
+          pin: customPin,
+          lives: GAME_CONFIG.INITIAL_LIVES,
+          score: 0,
+          skips: GAME_CONFIG.INITIAL_SKIPS,
+          is_zombie: false,
+          target: playerBName,
+          action_id: initialActionId,
+          action_ephemeral: Math.random() < 0.25
+        }]);
+
+      // 2. Update player A to target new player
+      await supabase
+        .from("players")
+        .update({ target: cleanName })
+        .eq("game_code", gameCode)
+        .eq("name", playerA.name);
+
+      await logEvent("player_joined", {
+        status: "approved",
+        message: `📢 Nouveau participant inséré en cours de partie ! ${cleanName} rejoint la partie.`
+      });
+
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error(err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removePlayer = async (playerName) => {
+    if (!gameCode) return;
+    setLoading(true);
+    try {
+      await supabase
+        .from("players")
+        .delete()
+        .eq("game_code", gameCode)
+        .eq("name", playerName);
+      
+      await logEvent("player_kicked", {
+        status: "approved",
+        message: `${playerName} a été retiré de la partie par le GM.`
+      });
+      
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error("Erreur suppression joueur :", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loginPlayer = async (code, name, pin) => {
     const cleanName = name.trim();
     const cleanPin = pin.trim();
@@ -290,26 +377,26 @@ export const GameProvider = ({ children }) => {
         throw new Error("Code PIN incorrect pour ce joueur.");
       }
     } else {
-      // If game started, do not allow arbitrary new signups without GM injection
+      // If game started, dynamically inject the player with their chosen pin!
       const { data: game } = await supabase.from("games").select("started").eq("game_code", code).single();
       if (game?.started) {
-        throw new Error("La partie a déjà commencé. Demandez au GM de vous injecter à la volée.");
+        await insertPlayerMidGame(cleanName, cleanPin);
+      } else {
+        // Allow signup during setup
+        const { error: insertError } = await supabase
+          .from("players")
+          .insert([{
+            game_code: code,
+            name: cleanName,
+            pin: cleanPin,
+            lives: GAME_CONFIG.INITIAL_LIVES,
+            score: 0,
+            skips: GAME_CONFIG.INITIAL_SKIPS,
+            is_zombie: false
+          }]);
+
+        if (insertError) throw insertError;
       }
-
-      // Allow signup during setup
-      const { error: insertError } = await supabase
-        .from("players")
-        .insert([{
-          game_code: code,
-          name: cleanName,
-          pin: cleanPin,
-          lives: GAME_CONFIG.INITIAL_LIVES,
-          score: 0,
-          skips: GAME_CONFIG.INITIAL_SKIPS,
-          is_zombie: false
-        }]);
-
-      if (insertError) throw insertError;
     }
 
     setCurrentUser(cleanName);
@@ -944,69 +1031,7 @@ export const GameProvider = ({ children }) => {
     }
   };
 
-  // 13. Dynamic Player Insertion Mid-Game
-  const insertPlayerMidGame = async (playerName) => {
-    const cleanName = playerName.trim();
-    if (!cleanName || !gameCode) return;
-
-    if (gameState.players.some(p => p.name.toLowerCase() === cleanName.toLowerCase())) {
-      throw new Error(`Le joueur "${cleanName}" existe déjà dans la partie.`);
-    }
-
-    setLoading(true);
-    try {
-      const players = gameState.players;
-      
-      const randomIndex = Math.floor(Math.random() * players.length);
-      const playerA = players[randomIndex];
-      const playerBName = playerA.target;
-      
-      const usedActionIds = players.map(p => p.actionId);
-      const pool = gameState.actionPool;
-      
-      const available = pool.filter(a => !usedActionIds.includes(a.id));
-      const initialAction = available.length > 0
-        ? available[Math.floor(Math.random() * available.length)]
-        : pool[Math.floor(Math.random() * pool.length)];
-
-      const initialActionId = initialAction ? initialAction.id : null;
-
-      // 1. Insert new player (targets B)
-      await supabase
-        .from("players")
-        .insert([{
-          game_code: gameCode,
-          name: cleanName,
-          pin: "0000", // Default PIN for direct injection, player can change it or just use it
-          lives: GAME_CONFIG.INITIAL_LIVES,
-          score: 0,
-          skips: GAME_CONFIG.INITIAL_SKIPS,
-          is_zombie: false,
-          target: playerBName,
-          action_id: initialActionId,
-          action_ephemeral: Math.random() < 0.25
-        }]);
-
-      // 2. Update player A to target new player
-      await supabase
-        .from("players")
-        .update({ target: cleanName })
-        .eq("game_code", gameCode)
-        .eq("name", playerA.name);
-
-      await logEvent("player_joined", {
-        status: "approved",
-        message: `📢 Nouveau participant inséré en cours de partie ! ${cleanName} rejoint la partie.`
-      });
-
-      await fetchGameState(gameCode);
-    } catch (err) {
-      console.error(err);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+  // (insertPlayerMidGame has been moved up to resolve reference in loginPlayer)
 
   // 14. Suggest action (Player)
   const suggestAction = async (playerName, title, description, points, damage, isEphemeral) => {
@@ -1244,6 +1269,7 @@ export const GameProvider = ({ children }) => {
       createRoom,
       joinRoom,
       loginPlayer,
+      removePlayer,
       initializeGame,
       resetGame,
       declareHit,

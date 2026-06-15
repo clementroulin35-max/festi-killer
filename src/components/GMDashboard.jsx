@@ -18,7 +18,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     resurrectZombie,
     manualEditPlayer,
     triggerMorningSkips,
-    insertPlayerMidGame,
+    removePlayer,
     approveSuggestedAction,
     rejectSuggestedAction,
     addCustomActionDirectly,
@@ -26,22 +26,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     editAction
   } = useGame();
 
-  // Form states
-  const [newPlayerName, setNewPlayerName] = useState("");
-  const [initPlayerList, setInitPlayerList] = useState([
-    "YoshiMat",
-    "Zoé",
-    "Lucas",
-    "Koilkn",
-    "Sophie",
-    "Thomas",
-    "Chloé"
-  ]);
   const [initError, setInitError] = useState("");
-
-  // Live injection state
-  const [injectName, setInjectName] = useState("");
-  const [injectError, setInjectError] = useState("");
 
   // Editing player state
   const [editingPlayer, setEditingPlayer] = useState(null);
@@ -72,45 +57,13 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   const pendingEvents = gameState.history.filter((h) => h.status === "pending");
   const approvedEvents = gameState.history.filter((h) => h.status === "approved");
 
-  // Handlers for game initialization
-  const handleAddInitPlayer = (e) => {
-    e.preventDefault();
-    const name = newPlayerName.trim();
-    if (!name) return;
-    if (initPlayerList.includes(name)) {
-      setInitError("Ce joueur est déjà dans la liste.");
-      return;
-    }
-    setInitPlayerList([...initPlayerList, name]);
-    setNewPlayerName("");
-    setInitError("");
-  };
-
-  const handleRemoveInitPlayer = (name) => {
-    setInitPlayerList(initPlayerList.filter((p) => p !== name));
-  };
-
   const handleStartGame = () => {
-    if (initPlayerList.length < 3) {
-      setInitError("Il faut au moins 3 joueurs pour démarrer la partie.");
+    const playerNames = gameState.players.map(p => p.name);
+    if (playerNames.length < 3) {
+      setInitError("Il faut au moins 3 joueurs connectés pour démarrer la partie.");
       return;
     }
-    initializeGame(initPlayerList);
-  };
-
-  // Live injection handler
-  const handleInjectPlayer = (e) => {
-    e.preventDefault();
-    const name = injectName.trim();
-    if (!name) return;
-    try {
-      insertPlayerMidGame(name);
-      setInjectName("");
-      setInjectError("");
-      alert(`Joueur "${name}" inséré avec succès dans la boucle !`);
-    } catch (err) {
-      setInjectError(err.message);
-    }
+    initializeGame(playerNames);
   };
 
   // Direct action handler (Create or Edit)
@@ -224,34 +177,27 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         </div>
         
         <div className="admin-card">
-          <h3>Configuration des Joueurs</h3>
-          <p className="admin-subtitle" style={{ margin: 0 }}>Saisissez les participants pour former la boucle initiale</p>
+          <h3>Joueurs Connectés ({gameState.players.length})</h3>
+          <p className="admin-subtitle" style={{ margin: 0 }}>Les joueurs apparaissent ici en temps réel au fur et à mesure de leurs inscriptions</p>
 
-          <form onSubmit={handleAddInitPlayer} className="player-form">
-            <input
-              type="text"
-              placeholder="Pseudo du joueur..."
-              value={newPlayerName}
-              onChange={(e) => setNewPlayerName(e.target.value)}
-              className="neon-input"
-            />
-            <button type="submit" className="add-player-btn">
-              <Plus size={18} /> Ajouter
-            </button>
-          </form>
+          {initError && <div className="error-message" style={{ marginTop: 10 }}><ShieldAlert size={16} />{initError}</div>}
 
-          {initError && <div className="error-message"><ShieldAlert size={16} />{initError}</div>}
-
-          <div className="player-list-chips">
-            {initPlayerList.map((name) => (
-              <div key={name} className="player-chip animate-fade-in">
-                <span>{name}</span>
-                <button type="button" onClick={() => handleRemoveInitPlayer(name)} className="chip-remove-btn">
-                  <Trash size={12} />
-                </button>
-              </div>
-            ))}
-          </div>
+          {gameState.players.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text-muted)", fontSize: "13px", fontWeight: 600 }}>
+              Aucun joueur connecté pour l'instant.
+            </div>
+          ) : (
+            <div className="player-list-chips" style={{ marginTop: 12 }}>
+              {gameState.players.map((p) => (
+                <div key={p.name} className="player-chip animate-fade-in">
+                  <span>{p.name}</span>
+                  <button type="button" onClick={() => removePlayer(p.name)} className="chip-remove-btn">
+                    <Trash size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="admin-card actions-preview">
@@ -426,26 +372,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 2. GM MODE TAB (PLAYERS & GOD MODE) --- */}
         {gmTab === "players" && (
           <div className="gm-sub-section">
-            {/* Live Player Injection */}
-            <div className="admin-card live-inject-card">
-              <h3>Injecter un joueur à la volée</h3>
-              <p className="admin-subtitle">Ajoute un joueur au milieu de la boucle de cibles actuelle sans la casser</p>
-              
-              <form onSubmit={handleInjectPlayer} className="player-form">
-                <input
-                  type="text"
-                  placeholder="Nom du joueur en retard..."
-                  value={injectName}
-                  onChange={(e) => setInjectName(e.target.value)}
-                  className="neon-input"
-                  required
-                />
-                <button type="submit" className="add-player-btn inject-btn">
-                  <Plus size={18} /> Injecter
-                </button>
-              </form>
-              {injectError && <div className="error-message"><ShieldAlert size={16} />{injectError}</div>}
-            </div>
+            {/* (Les joueurs en retard rejoignent en direct en scannant le QR code) */}
 
             {/* God Form Editing */}
             {editingPlayer && (
@@ -715,6 +642,27 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        )}
+
+        {/* --- 5. QR CODE TAB --- */}
+        {gmTab === "qrcode" && (
+          <div className="gm-sub-section animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div className="admin-card text-center" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 10 }}>
+              <h3>Rejoindre la Partie</h3>
+              <p className="admin-subtitle" style={{ margin: 0 }}>Faites scanner ce QR Code aux joueurs sur leur téléphone pour qu'ils s'enregistrent</p>
+              <div style={{ backgroundColor: "#fff", padding: 12, borderRadius: "var(--border-radius-sm)", display: "inline-block", marginTop: 4, boxShadow: "0 0 15px rgba(255, 255, 255, 0.1)" }}>
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin + "/?join=" + gameCode)}`} 
+                  alt="QR Code de partage" 
+                  style={{ display: "block", width: 150, height: 150 }}
+                />
+              </div>
+              <div style={{ fontSize: "16px", fontWeight: "900", color: "var(--neon-purple)", letterSpacing: "0.05em", marginTop: 4 }}>
+                CODE SALON : <span style={{ color: "#fff", background: "var(--bg-input)", padding: "4px 10px", borderRadius: 4, border: "1px solid var(--border-color)" }}>{gameCode}</span>
+              </div>
+              <span style={{ fontSize: "10px", color: "var(--text-muted)", wordBreak: "break-all" }}>Lien direct : {window.location.origin}/?join={gameCode}</span>
             </div>
           </div>
         )}

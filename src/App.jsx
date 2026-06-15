@@ -146,6 +146,8 @@ function MainAppContent() {
         return <GMDashboard gmTab="actions" />;
       case "logs":
         return <GMDashboard gmTab="history" />;
+      case "qrcode":
+        return <GMDashboard gmTab="qrcode" />;
       case "feed":
         const filteredHistory = currentUser === "GM"
           ? gameState.history
@@ -483,6 +485,14 @@ function MainAppContent() {
                 >
                   <Users size={20} />
                   <span>GM Mode</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab("qrcode")}
+                  className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
+                >
+                  <QrCode size={20} />
+                  <span>QR Code</span>
                 </button>
 
                 <button
