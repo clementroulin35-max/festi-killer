@@ -514,39 +514,34 @@ function MainAppContent() {
 
       {/* 4. Bottom Navigation Bar */}
       <nav className="bottom-nav">
-        {currentUser !== "GM" && (
+        {/* Players waiting (not started) */}
+        {!gameState.started && currentUser !== "GM" && (
           <button
             onClick={() => setActiveTab("dashboard")}
             className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
           >
             <Skull size={20} />
-            <span>Dashboard</span>
+            <span>Mission</span>
           </button>
         )}
 
-        {/* GM Bottom Tabs Navigation */}
+        {/* GM Bottom Tabs Navigation (available always once logged in) */}
         {currentUser === "GM" && (
           <>
             <button
-              onClick={() => setActiveTab("arbitrage")}
-              className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
-              style={{ position: "relative" }}
+              onClick={() => setActiveTab("logs")}
+              className={`nav-item ${activeTab === "logs" ? "active" : ""}`}
             >
-              <Shield size={20} />
-              <span>Arbitrage</span>
-              {pendingEvents.length > 0 && (
-                <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
-                  {pendingEvents.length}
-                </span>
-              )}
+              <FileText size={20} />
+              <span>Activités</span>
             </button>
 
             <button
-              onClick={() => setActiveTab("gm_mode")}
-              className={`nav-item ${activeTab === "gm_mode" ? "active" : ""}`}
+              onClick={() => setActiveTab("leaderboard")}
+              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
             >
-              <Users size={20} />
-              <span>GM Mode</span>
+              <Trophy size={20} />
+              <span>Classement</span>
             </button>
 
             <button
@@ -558,11 +553,46 @@ function MainAppContent() {
             </button>
 
             <button
+              onClick={() => setActiveTab("gm_mode")}
+              className={`nav-item ${activeTab === "gm_mode" ? "active" : ""}`}
+            >
+              <Users size={20} />
+              <span>Joueurs</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("arbitrage")}
+              className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
+              style={{ position: "relative" }}
+            >
+              <Shield size={20} />
+              <span>Événements</span>
+              {pendingEvents.length > 0 && (
+                <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
+                  {pendingEvents.length}
+                </span>
+              )}
+            </button>
+
+            <button
               onClick={() => setActiveTab("actions")}
               className={`nav-item ${activeTab === "actions" ? "active" : ""}`}
             >
               <Award size={20} />
-              <span>Actions</span>
+              <span>Défis</span>
+            </button>
+          </>
+        )}
+
+        {/* Players Bottom Tabs Navigation (only when started) */}
+        {gameState.started && currentUser !== "GM" && (
+          <>
+            <button
+              onClick={() => setActiveTab("feed")}
+              className={`nav-item ${activeTab === "feed" ? "active" : ""}`}
+            >
+              <FileText size={20} />
+              <span>Activités</span>
             </button>
 
             <button
@@ -574,18 +604,13 @@ function MainAppContent() {
             </button>
 
             <button
-              onClick={() => setActiveTab("logs")}
-              className={`nav-item ${activeTab === "logs" ? "active" : ""}`}
+              onClick={() => setActiveTab("dashboard")}
+              className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
             >
-              <FileText size={20} />
-              <span>Logs</span>
+              <Skull size={20} />
+              <span>Mission</span>
             </button>
-          </>
-        )}
 
-        {/* Players Bottom Tabs Navigation (only when started) */}
-        {gameState.started && currentUser !== "GM" && (
-          <>
             <button
               onClick={() => setActiveTab("counter")}
               className={`nav-item ${activeTab === "counter" ? "active" : ""}`}
@@ -595,27 +620,11 @@ function MainAppContent() {
             </button>
 
             <button
-              onClick={() => setActiveTab("leaderboard")}
-              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
-            >
-              <Trophy size={20} />
-              <span>Classement</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab("suggest")}
               className={`nav-item ${activeTab === "suggest" ? "active" : ""}`}
             >
               <Lightbulb size={20} />
-              <span>Idée Défi</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("feed")}
-              className={`nav-item ${activeTab === "feed" ? "active" : ""}`}
-            >
-              <FileText size={20} />
-              <span>Flux Live</span>
+              <span>Idées</span>
             </button>
           </>
         )}

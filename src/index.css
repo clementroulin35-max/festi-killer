@@ -1150,7 +1150,7 @@ body {
 .pending-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
 }
 
 .pending-card {
@@ -1193,7 +1193,7 @@ body {
 
 .pending-body {
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.7;
   color: var(--text-primary);
 }
 
@@ -1458,16 +1458,16 @@ body {
 .activity-feed {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   max-height: 240px;
   overflow-y: auto;
 }
 
 .feed-item {
-  font-size: 11px;
-  padding: 6px 8px;
-  border-radius: 4px;
-  line-height: 1.4;
+  font-size: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  line-height: 1.6;
   color: var(--text-secondary);
 }
 
