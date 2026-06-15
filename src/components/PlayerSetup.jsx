@@ -32,6 +32,13 @@ export default function PlayerSetup({ playerName }) {
     };
   }, [currentSlide]);
 
+  // Connect stream to video element when it becomes available
+  useEffect(() => {
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream, cameraActive]);
+
   const startCamera = async () => {
     setError(null);
     setLoading(true);
@@ -46,9 +53,6 @@ export default function PlayerSetup({ playerName }) {
       });
       
       setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
       setCameraActive(true);
     } catch (err) {
       console.error("Impossible d'accéder à la caméra :", err);
@@ -154,7 +158,7 @@ export default function PlayerSetup({ playerName }) {
         return (
           <div className="tutorial-slide animate-fade-in">
             <div className="slide-icon-container">
-              <Skull size={64} className="glowing-icon-pink" />
+              <Skull size={36} className="glowing-icon-pink" />
             </div>
             <h3>Bienvenue dans Cooki'llers</h3>
             <p className="slide-intro">
@@ -170,8 +174,8 @@ export default function PlayerSetup({ playerName }) {
       case 1:
         return (
           <div className="tutorial-slide animate-fade-in">
-            <div className="slide-icon-container" style={{ borderColor: "var(--neon-green)", boxShadow: "0 0 15px rgba(16, 185, 129, 0.2)" }}>
-              <Target size={64} style={{ color: "var(--neon-green)" }} />
+            <div className="slide-icon-container" style={{ borderColor: "var(--neon-green)", boxShadow: "0 0 10px rgba(16, 185, 129, 0.2)" }}>
+              <Target size={36} style={{ color: "var(--neon-green)" }} />
             </div>
             <h3>Accomplis ta Mission</h3>
             <p className="slide-intro">
@@ -187,8 +191,8 @@ export default function PlayerSetup({ playerName }) {
       case 2:
         return (
           <div className="tutorial-slide animate-fade-in">
-            <div className="slide-icon-container" style={{ borderColor: "var(--neon-gold)", boxShadow: "0 0 15px rgba(245, 158, 11, 0.2)" }}>
-              <Shuffle size={64} style={{ color: "var(--neon-gold)" }} />
+            <div className="slide-icon-container" style={{ borderColor: "var(--neon-gold)", boxShadow: "0 0 10px rgba(245, 158, 11, 0.2)" }}>
+              <Shuffle size={36} style={{ color: "var(--neon-gold)" }} />
             </div>
             <h3>Skips & Actions Tactiques</h3>
             <p className="slide-intro">
@@ -204,8 +208,8 @@ export default function PlayerSetup({ playerName }) {
       case 3:
         return (
           <div className="tutorial-slide animate-fade-in">
-            <div className="slide-icon-container" style={{ borderColor: "var(--neon-red)", boxShadow: "0 0 15px rgba(255, 51, 102, 0.2)" }}>
-              <ShieldAlert size={64} style={{ color: "var(--neon-red)" }} />
+            <div className="slide-icon-container" style={{ borderColor: "var(--neon-red)", boxShadow: "0 0 10px rgba(255, 51, 102, 0.2)" }}>
+              <ShieldAlert size={36} style={{ color: "var(--neon-red)" }} />
             </div>
             <h3>Contre-Attaque (Dénonciation)</h3>
             <p className="slide-intro">
@@ -221,8 +225,8 @@ export default function PlayerSetup({ playerName }) {
       case 4:
         return (
           <div className="tutorial-slide animate-fade-in">
-            <div className="slide-icon-container" style={{ borderColor: "var(--neon-purple)", boxShadow: "0 0 15px rgba(139, 92, 246, 0.2)" }}>
-              <Zap size={64} style={{ color: "var(--neon-purple)" }} />
+            <div className="slide-icon-container" style={{ borderColor: "var(--neon-purple)", boxShadow: "0 0 10px rgba(139, 92, 246, 0.2)" }}>
+              <Zap size={36} style={{ color: "var(--neon-purple)" }} />
             </div>
             <h3>Le Mode Zombie</h3>
             <p className="slide-intro">
@@ -246,9 +250,11 @@ export default function PlayerSetup({ playerName }) {
         
         {/* Onboarding Header with Skip Button */}
         <div className="carousel-top-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", marginBottom: "16px" }}>
-          <span className="badge badge-player" style={{ textTransform: "uppercase", fontSize: "10px" }}>
-            {currentSlide < 5 ? `Tutoriel : Étape ${currentSlide + 1} / 5` : "Initialisation Photo"}
-          </span>
+          {currentSlide === 5 ? (
+            <span className="badge badge-player" style={{ textTransform: "uppercase", fontSize: "10px" }}>
+              Initialisation Photo
+            </span>
+          ) : <div />}
           {currentSlide < 5 && (
             <button 
               onClick={handleSkipTutorial} 

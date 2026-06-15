@@ -529,7 +529,7 @@ function MainAppContent() {
               className={`nav-item ${activeTab === "logs" ? "active" : ""}`}
             >
               <FileText size={20} />
-              <span>Activités</span>
+              <span>Flux</span>
             </button>
 
             <button
@@ -588,7 +588,7 @@ function MainAppContent() {
               className={`nav-item ${activeTab === "feed" ? "active" : ""}`}
             >
               <FileText size={20} />
-              <span>Activités</span>
+              <span>Flux</span>
             </button>
 
             <button
