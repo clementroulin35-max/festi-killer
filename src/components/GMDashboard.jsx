@@ -1,0 +1,734 @@
+import React, { useState } from "react";
+import { useGame } from "../context/GameContext";
+import { DEFAULT_ACTIONS } from "../services/gameEngine";
+import { 
+  Check, X, ShieldAlert, Heart, Trophy, RefreshCw, 
+  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2
+} from "lucide-react";
+
+export default function GMDashboard({ gmTab = "arbitrage" }) {
+  const {
+    gameState,
+    gameCode,
+    initializeGame,
+    resetGame,
+    approveHit,
+    rejectHit,
+    resolveCounterAttack,
+    resurrectZombie,
+    manualEditPlayer,
+    triggerMorningSkips,
+    insertPlayerMidGame,
+    approveSuggestedAction,
+    rejectSuggestedAction,
+    addCustomActionDirectly,
+    deleteAction,
+    editAction
+  } = useGame();
+
+  // Form states
+  const [newPlayerName, setNewPlayerName] = useState("");
+  const [initPlayerList, setInitPlayerList] = useState([
+    "YoshiMat",
+    "Zoé",
+    "Lucas",
+    "Koilkn",
+    "Sophie",
+    "Thomas",
+    "Chloé"
+  ]);
+  const [initError, setInitError] = useState("");
+
+  // Live injection state
+  const [injectName, setInjectName] = useState("");
+  const [injectError, setInjectError] = useState("");
+
+  // Editing player state
+  const [editingPlayer, setEditingPlayer] = useState(null);
+  const [editScore, setEditScore] = useState(0);
+  const [editLives, setEditLives] = useState(7);
+  const [editZombie, setEditZombie] = useState(false);
+
+  // Direct action addition/edition state
+  const [actTitle, setActTitle] = useState("");
+  const [actDesc, setActDesc] = useState("");
+  const [actPoints, setActPoints] = useState(30);
+  const [actDamage, setActDamage] = useState(1.0);
+  const [actEphemeral, setActEphemeral] = useState(false);
+  const [editingActionId, setEditingActionId] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = "success") => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 2000);
+  };
+
+  // Suggestion custom edits map (stores { points, damage, isEphemeral } for each pending suggestion)
+  const [suggestionEdits, setSuggestionEdits] = useState({});
+
+  // Filters
+  const pendingEvents = gameState.history.filter((h) => h.status === "pending");
+  const approvedEvents = gameState.history.filter((h) => h.status === "approved");
+
+  // Handlers for game initialization
+  const handleAddInitPlayer = (e) => {
+    e.preventDefault();
+    const name = newPlayerName.trim();
+    if (!name) return;
+    if (initPlayerList.includes(name)) {
+      setInitError("Ce joueur est déjà dans la liste.");
+      return;
+    }
+    setInitPlayerList([...initPlayerList, name]);
+    setNewPlayerName("");
+    setInitError("");
+  };
+
+  const handleRemoveInitPlayer = (name) => {
+    setInitPlayerList(initPlayerList.filter((p) => p !== name));
+  };
+
+  const handleStartGame = () => {
+    if (initPlayerList.length < 3) {
+      setInitError("Il faut au moins 3 joueurs pour démarrer la partie.");
+      return;
+    }
+    initializeGame(initPlayerList);
+  };
+
+  // Live injection handler
+  const handleInjectPlayer = (e) => {
+    e.preventDefault();
+    const name = injectName.trim();
+    if (!name) return;
+    try {
+      insertPlayerMidGame(name);
+      setInjectName("");
+      setInjectError("");
+      alert(`Joueur "${name}" inséré avec succès dans la boucle !`);
+    } catch (err) {
+      setInjectError(err.message);
+    }
+  };
+
+  // Direct action handler (Create or Edit)
+  const handleAddActionDirectly = (e) => {
+    e.preventDefault();
+    if (!actTitle.trim() || !actDesc.trim()) return;
+    
+    if (editingActionId !== null) {
+      editAction(editingActionId, actTitle.trim(), actDesc.trim(), Number(actPoints), Number(actDamage), actEphemeral);
+      setEditingActionId(null);
+      showToast("Défi mis à jour avec succès !", "success");
+    } else {
+      addCustomActionDirectly(actTitle.trim(), actDesc.trim(), Number(actPoints), Number(actDamage), actEphemeral);
+      showToast("Défi ajouté avec succès !", "success");
+    }
+    
+    setActTitle("");
+    setActDesc("");
+    setActPoints(30);
+    setActDamage(1.0);
+    setActEphemeral(false);
+  };
+
+  const startEditAction = (action) => {
+    setEditingActionId(action.id);
+    setActTitle(action.title);
+    setActDesc(action.description);
+    setActPoints(action.points || 30);
+    setActDamage(action.damage || 1.0);
+    setActEphemeral(!!action.isEphemeral);
+    document.querySelector(".direct-action-card")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const cancelEditAction = () => {
+    setEditingActionId(null);
+    setActTitle("");
+    setActDesc("");
+    setActPoints(30);
+    setActDamage(1.0);
+    setActEphemeral(false);
+  };
+
+  // Dynamic suggestion edits handler
+  const updateSugEdit = (eventId, field, val, eventMetadata) => {
+    setSuggestionEdits(prev => {
+      const current = prev[eventId] || {
+        points: eventMetadata?.points !== undefined ? eventMetadata.points : 30,
+        damage: eventMetadata?.damage !== undefined ? eventMetadata.damage : 1.0,
+        isEphemeral: eventMetadata?.isEphemeral !== undefined ? eventMetadata.isEphemeral : false
+      };
+      return {
+        ...prev,
+        [eventId]: {
+          ...current,
+          [field]: val
+        }
+      };
+    });
+  };
+
+  const handleApproveSuggestion = (event) => {
+    const editData = suggestionEdits[event.id] || {
+      points: event.metadata?.points !== undefined ? event.metadata.points : 30,
+      damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0,
+      isEphemeral: event.metadata?.isEphemeral !== undefined ? event.metadata.isEphemeral : false
+    };
+    approveSuggestedAction(event.id, editData.points, editData.damage, editData.isEphemeral);
+  };
+
+  // God Mode Handlers
+  const startEditPlayer = (player) => {
+    setEditingPlayer(player.name);
+    setEditScore(player.score);
+    setEditLives(player.lives);
+    setEditZombie(player.isZombie);
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    if (!editingPlayer) return;
+    manualEditPlayer(editingPlayer, editScore, editLives, editZombie);
+    setEditingPlayer(null);
+  };
+
+  const formatTime = (isoString) => {
+    const d = new Date(isoString);
+    return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  };
+
+  // === VIEW 1 : GAME NOT STARTED ===
+  if (!gameState.started) {
+    return (
+      <div className="admin-dashboard animate-fade-in">
+        <h2 className="admin-title">INITIALISATION PAR LE GM</h2>
+
+        {/* Share Room Card with QR Code */}
+        <div className="admin-card text-center" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 10 }}>
+          <h3>Rejoindre la Partie</h3>
+          <p className="admin-subtitle" style={{ margin: 0 }}>Faites scanner ce QR Code aux joueurs sur leur téléphone</p>
+          <div style={{ backgroundColor: "#fff", padding: 12, borderRadius: "var(--border-radius-sm)", display: "inline-block", marginTop: 4, boxShadow: "0 0 15px rgba(255, 255, 255, 0.1)" }}>
+            <img 
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin + "/?join=" + gameCode)}`} 
+              alt="QR Code de partage" 
+              style={{ display: "block", width: 150, height: 150 }}
+            />
+          </div>
+          <div style={{ fontSize: "16px", fontWeight: "900", color: "var(--neon-purple)", letterSpacing: "0.05em", marginTop: 4 }}>
+            CODE SALON : <span style={{ color: "#fff", background: "var(--bg-input)", padding: "4px 10px", borderRadius: 4, border: "1px solid var(--border-color)" }}>{gameCode}</span>
+          </div>
+          <span style={{ fontSize: "10px", color: "var(--text-muted)", wordBreak: "break-all" }}>Lien direct : {window.location.origin}/?join={gameCode}</span>
+        </div>
+        
+        <div className="admin-card">
+          <h3>Configuration des Joueurs</h3>
+          <p className="admin-subtitle" style={{ margin: 0 }}>Saisissez les participants pour former la boucle initiale</p>
+
+          <form onSubmit={handleAddInitPlayer} className="player-form">
+            <input
+              type="text"
+              placeholder="Pseudo du joueur..."
+              value={newPlayerName}
+              onChange={(e) => setNewPlayerName(e.target.value)}
+              className="neon-input"
+            />
+            <button type="submit" className="add-player-btn">
+              <Plus size={18} /> Ajouter
+            </button>
+          </form>
+
+          {initError && <div className="error-message"><ShieldAlert size={16} />{initError}</div>}
+
+          <div className="player-list-chips">
+            {initPlayerList.map((name) => (
+              <div key={name} className="player-chip animate-fade-in">
+                <span>{name}</span>
+                <button type="button" onClick={() => handleRemoveInitPlayer(name)} className="chip-remove-btn">
+                  <Trash size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="admin-card actions-preview">
+          <h3>Pool d'Actions de Départ ({DEFAULT_ACTIONS.length})</h3>
+          <p className="admin-subtitle">Les défis par défaut configurés pour le festival</p>
+          <div className="actions-list-container">
+            {["micro", "standard", "majeur", "legendaire"].map((category) => {
+              const list = DEFAULT_ACTIONS.filter((a) => a.difficulty === category);
+              return (
+                <div key={category} className="action-category-group">
+                  <h4 className={`cat-title-${category}`}>{category.toUpperCase()}</h4>
+                  <div className="actions-scroll-list">
+                    {list.map((act) => (
+                      <div key={act.id} className="action-item-mini">
+                        <div className="action-mini-header">
+                          <span className="action-mini-title">{act.title}</span>
+                          <span className="action-mini-rewards">+{act.points} pts / -{act.damage} HP</span>
+                        </div>
+                        <p className="action-mini-desc">{act.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="launch-game-btn-container">
+          <button onClick={handleStartGame} className="launch-game-btn">
+            <Play size={20} fill="#121214" /> LANCER LA PARTIE 🚀
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // === VIEW 2 : GAME STARTED (GM CONTROL PANEL) ===
+  return (
+    <div className="judge-dashboard gm-refactored animate-fade-in">
+      <div className="dashboard-header-flex">
+        <h2 className="judge-title">PANEL GAME MASTER (GM)</h2>
+      </div>
+
+
+
+      {/* GM Tab Content */}
+      <div className="gm-tab-content">
+        
+        {/* --- 1. ARBITRAGE TAB --- */}
+        {gmTab === "arbitrage" && (
+          <div className="gm-sub-section">
+            <h3>Demandes en Attente ({pendingEvents.length})</h3>
+            {pendingEvents.length === 0 ? (
+              <div className="empty-pending-card">Aucune demande en attente. Camping calme.</div>
+            ) : (
+              <div className="pending-list">
+                {pendingEvents.map((event) => (
+                  <div key={event.id} className={`pending-card event-${event.type}`}>
+                    <div className="pending-card-header">
+                      <span className="pending-type">
+                        {event.type === "hit_declaration" && "🗡️ HIT SOUHAITÉ"}
+                        {event.type === "abandon_request" && "🏳️ DEMANDE D'ABANDON"}
+                        {event.type === "counter_attack" && "🛡️ ACCUSATION CONTRE-ATTAQUE"}
+                        {event.type === "action_suggestion" && "💡 SUGGESTION DE DÉFI"}
+                      </span>
+                      <span className="pending-time">{formatTime(event.timestamp)}</span>
+                    </div>
+                    <div className="pending-body">
+                      <p>{event.message}</p>
+                      
+                      {event.type === "counter_attack" && (
+                        <div className="counter-attack-details">
+                          Suspect accusé : <strong>{event.killer}</strong> <br />
+                          Défi suspecté : <strong>{event.accusedActionText || "Non précisé"}</strong>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pending-actions">
+                      {event.type === "counter_attack" && (
+                        <>
+                          <button onClick={() => resolveCounterAttack(event.id, true)} className="btn-approve CA-correct">
+                            <Check size={16} /> Bonne Accusation
+                          </button>
+                          <button onClick={() => resolveCounterAttack(event.id, false)} className="btn-reject CA-incorrect">
+                            <X size={16} /> Fausse Accusation
+                          </button>
+                        </>
+                      )}
+
+                      {event.type === "action_suggestion" && (() => {
+                        const editData = suggestionEdits[event.id] || {
+                          points: event.metadata?.points !== undefined ? event.metadata.points : 30,
+                          damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0,
+                          isEphemeral: event.metadata?.isEphemeral !== undefined ? event.metadata.isEphemeral : false
+                        };
+                        return (
+                          <div className="suggestion-approval-container">
+                            <div className="suggestion-edit-fields">
+                              <label className="edit-sug-lbl">
+                                Points :
+                                <input 
+                                  type="number" 
+                                  value={editData.points} 
+                                  min="0"
+                                  onChange={(e) => updateSugEdit(event.id, "points", Number(e.target.value), event.metadata)}
+                                  className="neon-input text-input-sug"
+                                />
+                              </label>
+                              <label className="edit-sug-lbl">
+                                Cœurs :
+                                <input 
+                                  type="number" 
+                                  value={editData.damage} 
+                                  step="0.25"
+                                  min="0"
+                                  max="7"
+                                  onChange={(e) => updateSugEdit(event.id, "damage", Number(e.target.value), event.metadata)}
+                                  className="neon-input text-input-sug"
+                                />
+                              </label>
+                              <label className="checkbox-row inline-checkbox-sug" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6, cursor: "pointer" }}>
+                                <input 
+                                  type="checkbox" 
+                                  checked={editData.isEphemeral} 
+                                  onChange={(e) => updateSugEdit(event.id, "isEphemeral", e.target.checked, event.metadata)}
+                                />
+                                Ephem.
+                              </label>
+                            </div>
+                            <div className="sug-approve-btns">
+                              <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok">
+                                <Check size={14} /> Ajouter à la Pool
+                              </button>
+                              <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no">
+                                <X size={14} /> Rejeter
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {event.type !== "counter_attack" && event.type !== "action_suggestion" && (
+                        <>
+                          <button 
+                            onClick={() => {
+                              if (event.type === "hit_declaration") approveHit(event.id);
+                            }}
+                            className="btn-approve"
+                          >
+                            <Check size={16} /> Valider
+                          </button>
+                          <button 
+                            onClick={() => {
+                              if (event.type === "hit_declaration") rejectHit(event.id);
+                            }}
+                            className="btn-reject"
+                          >
+                            <X size={16} /> Refuser
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* --- 2. GM MODE TAB (PLAYERS & GOD MODE) --- */}
+        {gmTab === "players" && (
+          <div className="gm-sub-section">
+            {/* Live Player Injection */}
+            <div className="admin-card live-inject-card">
+              <h3>Injecter un joueur à la volée</h3>
+              <p className="admin-subtitle">Ajoute un joueur au milieu de la boucle de cibles actuelle sans la casser</p>
+              
+              <form onSubmit={handleInjectPlayer} className="player-form">
+                <input
+                  type="text"
+                  placeholder="Nom du joueur en retard..."
+                  value={injectName}
+                  onChange={(e) => setInjectName(e.target.value)}
+                  className="neon-input"
+                  required
+                />
+                <button type="submit" className="add-player-btn inject-btn">
+                  <Plus size={18} /> Injecter
+                </button>
+              </form>
+              {injectError && <div className="error-message"><ShieldAlert size={16} />{injectError}</div>}
+            </div>
+
+            {/* God Form Editing */}
+            {editingPlayer && (
+              <form onSubmit={handleSaveEdit} className="god-edit-form animate-fade-in">
+                <h4>Modifier {editingPlayer}</h4>
+                <div className="form-row">
+                  <label>
+                    Score (pts) :
+                    <input type="number" value={editScore} onChange={(e) => setEditScore(Number(e.target.value))} />
+                  </label>
+                  <label>
+                    Cœurs (max 7) :
+                    <input type="number" step="0.25" min="0" max="7" value={editLives} onChange={(e) => setEditLives(Number(e.target.value))} />
+                  </label>
+                  <label className="checkbox-row">
+                    <input type="checkbox" checked={editZombie} onChange={(e) => setEditZombie(e.target.checked)} />
+                    Statut Zombie
+                  </label>
+                </div>
+                <div className="form-actions">
+                  <button type="submit" className="save-edit-btn">Enregistrer</button>
+                  <button type="button" onClick={() => setEditingPlayer(null)} className="cancel-edit-btn">Annuler</button>
+                </div>
+              </form>
+            )}
+
+            {/* Players Grid */}
+            <div className="judge-players-grid" style={{ marginTop: 16 }}>
+              {gameState.players.map((p) => (
+                <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""}`}>
+                  <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {p.photo ? (
+                      <img src={p.photo} alt={p.name} style={{ width: "24px", height: "24px", borderRadius: "50%", objectFit: "cover" }} />
+                    ) : (
+                      <div className="row-avatar" style={{ width: "24px", height: "24px", fontSize: "10px", minWidth: "24px", minHeight: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        {p.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <strong>{p.name}</strong>
+                    {p.isZombie && <span className="z-label" style={{ marginLeft: "auto" }}>ZOMBIE</span>}
+                  </div>
+                  <div className="j-player-stats">
+                    <div>Score : {p.score} pts</div>
+                    <div>Cœurs : {p.lives} / 7</div>
+                    <div className="target-preview">Cible : <strong>{p.target || "Aucune"}</strong></div>
+                    {p.target && (() => {
+                      const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === p.actionId);
+                      return (
+                        <div className="gm-action-preview" style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "4px", borderTop: "1px dashed var(--border-color)", paddingTop: "4px" }}>
+                          Défi : <strong>{action ? action.title : "Inconnu"}</strong>
+                          <div style={{ fontSize: "10px", color: "var(--text-muted)", fontStyle: "italic", marginTop: "2px" }}>
+                            « {action ? action.description : ""} »
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                  <div className="j-player-actions">
+                    <button onClick={() => startEditPlayer(p)} className="j-btn-edit">Modifier stats</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button onClick={resetGame} className="reset-game-btn" style={{ width: "100%", marginTop: 24 }}>
+              ⚠️ ARRÊTER / RÉINITIALISER LA PARTIE
+            </button>
+          </div>
+        )}
+
+        {/* --- 3. ACTIONS POOL TAB --- */}
+        {gmTab === "actions" && (
+          <div className="gm-sub-section">
+            {/* Direct Add/Edit Action */}
+            <div className="admin-card direct-action-card">
+              <h3>{editingActionId !== null ? "✏️ Modifier le défi" : "Créer un défi personnalisé"}</h3>
+              <form onSubmit={handleAddActionDirectly} className="direct-action-form" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                  Titre du défi :
+                  <input
+                    type="text"
+                    placeholder="Ex: Le Vol de Tente..."
+                    value={actTitle}
+                    onChange={(e) => setActTitle(e.target.value)}
+                    className="neon-input"
+                    required
+                  />
+                </label>
+                
+                <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                  Description de la mission :
+                  <textarea
+                    placeholder="Description claire de la mission secrète..."
+                    value={actDesc}
+                    onChange={(e) => setActDesc(e.target.value)}
+                    className="neon-input"
+                    style={{ height: 75, resize: "none" }}
+                    required
+                  />
+                </label>
+
+                <div className="direct-action-row" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", gap: 12 }}>
+                    <label className="sug-diff-lbl" style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                      Points :
+                      <input
+                        type="number"
+                        min="0"
+                        value={actPoints}
+                        onChange={(e) => setActPoints(Number(e.target.value))}
+                        className="neon-input"
+                        required
+                      />
+                    </label>
+                    <label className="sug-diff-lbl" style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                      Cœurs perdus :
+                      <input
+                        type="number"
+                        step="0.25"
+                        min="0"
+                        max="7"
+                        value={actDamage}
+                        onChange={(e) => setActDamage(Number(e.target.value))}
+                        className="neon-input"
+                        required
+                      />
+                    </label>
+                  </div>
+                  
+                  <label className="checkbox-row" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, cursor: "pointer", margin: "4px 0" }}>
+                    <input
+                      type="checkbox"
+                      checked={actEphemeral}
+                      onChange={(e) => setActEphemeral(e.target.checked)}
+                      style={{ width: "auto", margin: 0 }}
+                    />
+                    <span className="checkbox-text" style={{ fontSize: "13px" }}>Bonus Éphémère (+75 pts si réussi)</span>
+                  </label>
+
+                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8, width: "100%", alignItems: "center" }}>
+                    {editingActionId !== null && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          deleteAction(editingActionId);
+                          cancelEditAction();
+                          showToast("Défi supprimé avec succès !", "danger");
+                        }}
+                        style={{
+                          marginRight: "auto",
+                          backgroundColor: "rgba(255, 51, 102, 0.1)",
+                          border: "1px solid var(--neon-red)",
+                          color: "var(--neon-red)",
+                          padding: "10px 16px",
+                          borderRadius: "var(--border-radius-sm)",
+                          fontSize: "13px",
+                          fontWeight: "700",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 6,
+                          fontFamily: "var(--font-sans)",
+                          height: "42px",
+                          boxSizing: "border-box"
+                        }}
+                      >
+                        <Trash size={14} /> Supprimer
+                      </button>
+                    )}
+                    
+                    <button 
+                      type="submit" 
+                      style={{
+                        backgroundColor: "var(--neon-purple)",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "var(--border-radius-sm)",
+                        padding: "10px 16px",
+                        fontSize: "13px",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 6,
+                        fontFamily: "var(--font-sans)",
+                        height: "42px",
+                        boxSizing: "border-box"
+                      }}
+                    >
+                      <Plus size={16} /> {editingActionId !== null ? "Enregistrer" : "Ajouter à la Pool"}
+                    </button>
+                    
+                    {editingActionId !== null && (
+                      <button 
+                        type="button" 
+                        onClick={cancelEditAction} 
+                        style={{ 
+                          backgroundColor: "#27272a", 
+                          border: "1px solid var(--border-color)", 
+                          color: "var(--text-primary)", 
+                          borderRadius: "var(--border-radius-sm)", 
+                          padding: "10px 16px",
+                          fontSize: "13px",
+                          fontWeight: "700", 
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontFamily: "var(--font-sans)",
+                          height: "42px",
+                          boxSizing: "border-box"
+                        }}
+                      >
+                        Annuler
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Dynamic Pool Preview */}
+            <h3 style={{ marginTop: 20 }}>Défis Actifs ({gameState.actionPool?.length || 0})</h3>
+            <div className="actions-list-container" style={{ maxHeight: "400px" }}>
+              {["micro", "standard", "majeur", "legendaire"].map((category) => {
+                const list = (gameState.actionPool || DEFAULT_ACTIONS).filter((a) => a.difficulty === category);
+                return (
+                  <div key={category} className="action-category-group">
+                    <h4 className={`cat-title-${category}`}>{category.toUpperCase()} ({list.length} actions)</h4>
+                    <div className="actions-scroll-list" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                      {list.map((act) => (
+                        <div 
+                          key={act.id} 
+                          className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
+                          onClick={() => startEditAction(act)}
+                          title="Cliquer pour modifier ou supprimer cette action"
+                        >
+                          <div className="action-mini-header">
+                            <span className="action-mini-title">{act.title}</span>
+                            <span className="action-mini-rewards">+{act.points} pts / -{act.damage} HP</span>
+                          </div>
+                          <p className="action-mini-desc">{act.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* --- 4. HISTORY TAB --- */}
+        {gmTab === "history" && (
+          <div className="gm-sub-section">
+            <h3>Historique de la Partie</h3>
+            <div className="activity-feed" style={{ maxHeight: "none" }}>
+              {approvedEvents.length === 0 ? (
+                <div className="empty-feed">Aucun événement validé pour l'instant.</div>
+              ) : (
+                approvedEvents.map((evt) => (
+                  <div key={evt.id} className="feed-item">
+                    <span className="feed-time">[{formatTime(evt.timestamp)}]</span>
+                    <span className="feed-message"> {evt.message}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+      </div>
+
+      {toast && (
+        <div className="toast-notification-backdrop">
+          <div className={`toast-notification-body toast-${toast.type} animate-fade-in`}>
+            {toast.type === "success" ? <Check size={24} /> : <Trash size={24} />}
+            <span>{toast.message}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
