@@ -23,7 +23,8 @@ export const GameProvider = ({ children }) => {
   });
 
   const [currentUser, setCurrentUser] = useState(() => {
-    return localStorage.getItem("cookillers_current_user") || "GM";
+    const cached = localStorage.getItem("cookillers_current_user");
+    return (cached && cached !== "null") ? cached : null;
   });
 
   const [gameState, setGameState] = useState(initialGameState);
@@ -39,7 +40,11 @@ export const GameProvider = ({ children }) => {
   }, [gameCode]);
 
   useEffect(() => {
-    localStorage.setItem("cookillers_current_user", currentUser);
+    if (currentUser) {
+      localStorage.setItem("cookillers_current_user", currentUser);
+    } else {
+      localStorage.removeItem("cookillers_current_user");
+    }
   }, [currentUser]);
 
   // Fetch complete state from Supabase

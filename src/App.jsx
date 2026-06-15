@@ -33,7 +33,9 @@ function MainAppContent() {
   const [pin, setPin] = useState("");
   const [loginRole, setLoginRole] = useState("player"); // player, gm
   const [error, setError] = useState("");
-  const [joinStep, setJoinStep] = useState("room"); // room, login
+  const [joinStep, setJoinStep] = useState(() => {
+    return localStorage.getItem("cookillers_game_code") ? "login" : "room";
+  });
 
   // Check URL query parameters for direct join link on mount
   useEffect(() => {
@@ -116,7 +118,7 @@ function MainAppContent() {
   };
 
   const handleLogout = () => {
-    setCurrentUser("GM");
+    setCurrentUser(null);
     setGameCode(null);
     setJoinStep("room");
     setInputCode("");
@@ -211,7 +213,7 @@ function MainAppContent() {
   };
 
   // === NO SESSION ENTERED YET ===
-  if (!gameCode) {
+  if (!gameCode || !currentUser) {
     return (
       <div className="app-container onboarding-carousel-view animate-fade-in" style={{ padding: "32px 16px" }}>
         <div className="admin-card setup-card" style={{ maxWidth: "100%", width: "100%", padding: "32px 20px" }}>
