@@ -29,6 +29,7 @@ function MainAppContent() {
   } = useGame();
 
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [editPhotoActive, setEditPhotoActive] = useState(false);
 
   // Theme toggle (dark / light)
   const [theme, setTheme] = useState(() => {
@@ -249,12 +250,12 @@ function MainAppContent() {
           );
         }
 
-        // If player has no photo set, force onboarding tutorial + photo initialization screen
-        if (currentPlayer && !currentPlayer.photo) {
-          return <PlayerSetup playerName={currentUser} />;
+        // If player has no photo set or is actively editing it, force/redirect to onboarding
+        if (currentPlayer && (!currentPlayer.photo || editPhotoActive)) {
+          return <PlayerSetup playerName={currentUser} initialSlide={5} onComplete={() => setEditPhotoActive(false)} />;
         }
 
-        return <PlayerDashboard playerName={currentUser} />;
+        return <PlayerDashboard playerName={currentUser} onEditPhoto={() => setEditPhotoActive(true)} />;
     }
   };
 
@@ -313,7 +314,12 @@ function MainAppContent() {
                 </button>
               </form>
 
-              {error && <div className="error-message"><ShieldAlert size={16} />{error}</div>}
+              {error && (
+                <div className={error.includes("Demande d'aide envoyée") ? "info-message" : "error-message"}>
+                  {error.includes("Demande d'aide envoyée") ? <Loader2 size={16} className="animate-spin" /> : <ShieldAlert size={16} />}
+                  {error}
+                </div>
+              )}
             </div>
           ) : joinStep === "room" ? (
             <div className="room-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -470,7 +476,12 @@ function MainAppContent() {
                 </button>
               </form>
 
-              {error && <div className="error-message" style={{ marginTop: 14 }}><ShieldAlert size={16} />{error}</div>}
+              {error && (
+                <div className={error.includes("Demande d'aide envoyée") ? "info-message" : "error-message"} style={{ marginTop: 14 }}>
+                  {error.includes("Demande d'aide envoyée") ? <Loader2 size={16} className="animate-spin" /> : <ShieldAlert size={16} />}
+                  {error}
+                </div>
+              )}
             </div>
           )}
 
@@ -545,7 +556,7 @@ function MainAppContent() {
               className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
             >
               <QrCode size={20} />
-              <span>QR Code</span>
+              <span>QR</span>
             </button>
 
             <button
@@ -562,7 +573,7 @@ function MainAppContent() {
               style={{ position: "relative" }}
             >
               <Shield size={20} />
-              <span>Événements</span>
+              <span>Actions</span>
               {pendingEvents.length > 0 && (
                 <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
                   {pendingEvents.length}

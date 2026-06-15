@@ -25,7 +25,9 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     rejectSuggestedAction,
     addCustomActionDirectly,
     deleteAction,
-    editAction
+    editAction,
+    savePlayerPhoto,
+    togglePlayerActiveStatus
   } = useGame();
 
   const [initError, setInitError] = useState("");
@@ -393,7 +395,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                 {/* Players Grid */}
                 <div className="judge-players-grid" style={{ marginTop: 16 }}>
                   {gameState.players.map((p) => (
-                    <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""} ${playersMasked ? "card-blurred" : ""}`}>
+                    <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""} ${!p.target ? "player-inactive-card" : ""} ${playersMasked ? "card-blurred" : ""}`}>
                       <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         {p.photo ? (
                           <img src={p.photo} alt={p.name} style={{ width: "24px", height: "24px", borderRadius: "50%", objectFit: "cover" }} />
@@ -404,6 +406,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         )}
                         <strong>{p.name}</strong>
                         {p.isZombie && <span className="z-label" style={{ marginLeft: "auto" }}>ZOMBIE</span>}
+                        {!p.target && <span className="z-label" style={{ marginLeft: "auto", background: "rgba(245, 158, 11, 0.15)", color: "var(--neon-gold)", borderColor: "rgba(245, 158, 11, 0.3)" }}>ABSENT</span>}
                       </div>
                       <div className="j-player-stats">
                         <div>Score : {p.score} pts</div>
@@ -422,8 +425,27 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                           );
                         })()}
                       </div>
-                      <div className="j-player-actions">
-                        <button onClick={() => startEditPlayer(p)} className="j-btn-edit">Modifier stats</button>
+                      <div className="j-player-actions" style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                        <button onClick={() => startEditPlayer(p)} className="j-btn-edit" style={{ flex: 1 }}>Modifier stats</button>
+                        {p.target ? (
+                          <button 
+                            onClick={() => togglePlayerActiveStatus(p.name, false)} 
+                            className="j-btn-edit" 
+                            style={{ flex: 1, borderColor: "var(--neon-gold)", color: "var(--neon-gold)", background: "rgba(245, 158, 11, 0.05)" }}
+                            title="Geler le score/vies et le retirer du pool de cibles"
+                          >
+                            Geler (Absent)
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => togglePlayerActiveStatus(p.name, true)} 
+                            className="j-btn-edit" 
+                            style={{ flex: 1, borderColor: "var(--neon-green)", color: "var(--neon-green)", background: "rgba(16, 185, 129, 0.05)" }}
+                            title="Réintégrer dans la boucle des cibles"
+                          >
+                            Activer (Présent)
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}

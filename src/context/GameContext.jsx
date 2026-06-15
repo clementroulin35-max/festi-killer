@@ -415,7 +415,7 @@ export const GameProvider = ({ children }) => {
     if (player) {
       // Check PIN
       if (player.pin !== cleanPin) {
-        throw new Error("Code PIN incorrect pour ce joueur.");
+        throw new Error("Ce pseudo est déjà pris dans ce salon. Saisissez votre bon code PIN pour vous connecter ou choisissez un autre pseudo.");
       }
     } else {
       // If game started, dynamically inject the player with their chosen pin!
@@ -1300,6 +1300,110 @@ export const GameProvider = ({ children }) => {
     }
   };
 
+  // 21. Activer / Désactiver un joueur (geler ses stats et le retirer/réintégrer de la boucle des cibles)
+  const togglePlayerActiveStatus = async (playerName, active) => {
+    if (!gameCode || !gameState.started) return;
+    setLoading(true);
+    try {
+      const player = gameState.players.find(p => p.name === playerName);
+      if (!player) return;
+
+      const activePlayers = gameState.players.filter(p => p.target && p.name !== playerName);
+
+      if (!active) {
+        // Deactivate player: remove from target loop
+        if (activePlayers.length < 2) {
+          throw new Error("Impossible de désactiver ce joueur : il doit rester au moins 2 joueurs actifs.");
+        }
+
+        // Find who targets the player being deactivated
+        const X = gameState.players.find(p => p.target === playerName);
+        // Find the target of the player being deactivated
+        const Y = player.target;
+
+        let playersToUpdate = [];
+        if (X && Y) {
+          playersToUpdate.push({ name: X.name, target: Y });
+        }
+
+        // Update deactivated player
+        await supabase
+          .from("players")
+          .update({
+            target: null,
+            action_id: null,
+            action_ephemeral: false
+          })
+          .eq("game_code", gameCode)
+          .eq("name", playerName);
+
+        // Update loop
+        for (const p of playersToUpdate) {
+          await supabase
+            .from("players")
+            .update({ target: p.target })
+            .eq("game_code", gameCode)
+            .eq("name", p.name);
+        }
+
+        await logEvent("player_deactivated", {
+          status: "approved",
+          message: `📢 ${playerName} quitte le festival temporairement. Son score (${player.score} pts) et ses cœurs (${player.lives}) sont gelés.`
+        });
+      } else {
+        // Activate player: integrate back into target loop
+        if (activePlayers.length === 0) {
+          throw new Error("Aucun joueur actif à cibler pour réintégrer.");
+        }
+
+        // Pick a random active player A
+        const randomPlayerA = activePlayers[Math.floor(Math.random() * activePlayers.length)];
+        const targetC = randomPlayerA.target;
+
+        // Draw new action for the reactivated player
+        const pool = gameState.actionPool;
+        const usedActionIds = gameState.players.map(p => p.actionId).filter(Boolean);
+        const available = pool.filter(a => !usedActionIds.includes(a.id));
+        const newAction = available.length > 0
+          ? available[Math.floor(Math.random() * available.length)]
+          : pool[Math.floor(Math.random() * pool.length)];
+
+        const newActionId = newAction ? newAction.id : null;
+        const newActionEphemeral = Math.random() < 0.25;
+
+        // 1. Update reactivated player (A -> player -> C)
+        await supabase
+          .from("players")
+          .update({
+            target: targetC,
+            action_id: newActionId,
+            action_ephemeral: newActionEphemeral
+          })
+          .eq("game_code", gameCode)
+          .eq("name", playerName);
+
+        // 2. Update player A to target the reactivated player
+        await supabase
+          .from("players")
+          .update({ target: playerName })
+          .eq("game_code", gameCode)
+          .eq("name", randomPlayerA.name);
+
+        await logEvent("player_activated", {
+          status: "approved",
+          message: `📢 ${playerName} revient au festival et réintègre la boucle des cibles !`
+        });
+      }
+
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error("Erreur togglePlayerActiveStatus :", err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 20. Save player profile photo (Player Setup)
   const savePlayerPhoto = async (playerName, photoBase64) => {
     if (!gameCode) return;
@@ -1353,7 +1457,8 @@ export const GameProvider = ({ children }) => {
       addCustomActionDirectly,
       deleteAction,
       editAction,
-      savePlayerPhoto
+      savePlayerPhoto,
+      togglePlayerActiveStatus
     }}>
       {children}
     </GameContext.Provider>

@@ -368,6 +368,18 @@ body, #root {
   border-radius: var(--border-radius-sm);
 }
 
+.info-message {
+  color: var(--neon-blue);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: rgba(59, 130, 246, 0.1);
+  padding: 8px 12px;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
 /* Player chips in admin dashboard */
 .player-list-chips {
   display: flex;
@@ -1391,6 +1403,12 @@ body, #root {
 .judge-player-card.zombie-player {
   border-color: rgba(255, 51, 102, 0.3);
   background-color: rgba(255, 51, 102, 0.02);
+}
+
+.judge-player-card.player-inactive-card {
+  opacity: 0.5;
+  border-style: dashed !important;
+  background-color: rgba(255, 255, 255, 0.01) !important;
 }
 
 .j-player-header {

@@ -3,9 +3,9 @@ import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import ZeldaHearts from "./ZeldaHearts";
 import TargetCard from "./TargetCard";
-import { EyeOff, Eye, Shuffle, Flag, ShieldAlert, AlertCircle, Lightbulb, Loader2, Coins, HeartCrack } from "lucide-react";
+import { EyeOff, Eye, Shuffle, Flag, ShieldAlert, AlertCircle, Lightbulb, Loader2, Coins, HeartCrack, User } from "lucide-react";
 
-export default function PlayerDashboard({ playerName }) {
+export default function PlayerDashboard({ playerName, onEditPhoto }) {
   const {
     gameState,
     declareHit,
@@ -99,13 +99,32 @@ export default function PlayerDashboard({ playerName }) {
       {/* 2. Player Info Header */}
       <div className="player-header-card">
         <div className="player-header-row">
-          <div>
-            <h2 className="p-nickname">{player.name}</h2>
-            {player.isZombie ? (
-              <span className="zombie-badge-title">MODE ZOMBIE (💀 0 HP)</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {player.photo ? (
+              <img 
+                src={player.photo} 
+                alt={player.name} 
+                onClick={onEditPhoto}
+                style={{ width: "52px", height: "52px", borderRadius: "50%", objectFit: "cover", border: "2px solid var(--neon-purple)", boxShadow: "0 0 10px rgba(139, 92, 246, 0.3)", cursor: "pointer" }}
+                title="Modifier ma photo de profil"
+              />
             ) : (
-              <span className="status-label">STATUT : VIVANT</span>
+              <div 
+                onClick={onEditPhoto}
+                style={{ width: "52px", height: "52px", borderRadius: "50%", border: "2px dashed var(--border-color)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", backgroundColor: "var(--bg-input)" }}
+                title="Ajouter une photo de profil"
+              >
+                <User size={20} className="text-muted" />
+              </div>
             )}
+            <div>
+              <h2 className="p-nickname" style={{ fontSize: "20px" }}>{player.name}</h2>
+              {player.isZombie ? (
+                <span className="zombie-badge-title">MODE ZOMBIE (💀 0 HP)</span>
+              ) : (
+                <span className="status-label">STATUT : VIVANT</span>
+              )}
+            </div>
           </div>
           <div className="score-display">
             <span className="score-val">{player.score}</span>
