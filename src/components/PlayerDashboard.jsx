@@ -176,7 +176,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           >
             <Shuffle size={18} />
             <div className="btn-text-wrap">
-              <strong>Relancer Action</strong>
+              <strong>Relance la Mission</strong>
               <span>Coût : 1 Skip</span>
             </div>
           </button>
@@ -184,14 +184,24 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           <button
             onClick={() => {
               if (hasPendingHit) return;
-              setShowAbandonConfirm(!showAbandonConfirm);
+              const nextState = !showAbandonConfirm;
+              setShowAbandonConfirm(nextState);
+              if (nextState) {
+                // Scroll auto vers l'encart d'abandon de cible
+                setTimeout(() => {
+                  const mainContent = document.querySelector(".app-main-content");
+                  if (mainContent) {
+                    mainContent.scrollTo({ top: mainContent.scrollHeight, behavior: "smooth" });
+                  }
+                }, 80);
+              }
             }}
             disabled={hasPendingHit}
             className={`action-btn-tactical abandon-btn ${showAbandonConfirm ? "active-panel-btn" : ""} ${hasPendingHit ? "disabled" : ""}`}
           >
             <Flag size={18} />
             <div className="btn-text-wrap">
-              <strong>Abandonner Cible</strong>
+              <strong>Abandonner la Cible</strong>
               <span>Choix pénalité</span>
             </div>
           </button>
@@ -199,16 +209,16 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
         {/* Target Abandon confirmation choices */}
         {showAbandonConfirm && (
-          <div className="counter-attack-form abandon-confirm-box animate-slide-down" style={{ borderColor: "var(--neon-gold)" }}>
-            <h4 style={{ color: "var(--neon-gold)", display: "flex", alignItems: "center", gap: 6 }}>
-              <Flag size={14} /> Confirmer l'Abandon de Cible
+          <div className="counter-attack-form abandon-confirm-box animate-slide-down" style={{ borderColor: "var(--neon-gold)", padding: "18px" }}>
+            <h4 style={{ color: "var(--neon-gold)", display: "flex", alignItems: "center", gap: 6, fontSize: "15px", fontWeight: "800" }}>
+              <Flag size={16} /> Confirmer l'Abandon de Cible
             </h4>
-            <p className="ca-help">
+            <p className="ca-help" style={{ fontSize: "14px", lineHeight: "1.5", color: "var(--text-primary)", marginBottom: "8px" }}>
               Vous allez changer de cible (votre action actuelle sera conservée).
               Choisissez le coût à payer :
             </p>
 
-            <div className="abandon-options-flex" style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
+            <div className="abandon-options-flex" style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 10 }}>
               {/* Option A: Lives */}
               <button
                 type="button"
@@ -221,17 +231,17 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   backgroundColor: "var(--bg-input)",
                   border: "1px solid var(--border-color)",
                   borderRadius: "var(--border-radius-sm)",
-                  padding: "10px 12px",
+                  padding: "12px 14px",
                   color: "var(--text-primary)",
                   cursor: "pointer",
                   fontFamily: "var(--font-sans)",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <HeartCrack size={16} color="var(--neon-red)" />
+                  <HeartCrack size={18} color="var(--neon-red)" />
                   <div style={{ textAlign: "left" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>💔 Perdre 1.0 cœur</div>
-                    <span style={{ fontSize: 10, color: "var(--text-muted)" }}>Impacte directement votre énergie</span>
+                    <div style={{ fontSize: 14.5, fontWeight: 700 }}>💔 Perdre 1.0 cœur</div>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Impacte directement votre énergie</span>
                   </div>
                 </div>
               </button>
@@ -249,7 +259,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   backgroundColor: "var(--bg-input)",
                   border: "1px solid var(--border-color)",
                   borderRadius: "var(--border-radius-sm)",
-                  padding: "10px 12px",
+                  padding: "12px 14px",
                   color: scoreAbandonPossible ? "var(--text-primary)" : "var(--text-muted)",
                   cursor: scoreAbandonPossible ? "pointer" : "not-allowed",
                   fontFamily: "var(--font-sans)",
@@ -257,17 +267,17 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Coins size={16} color="var(--neon-gold)" />
+                  <Coins size={18} color="var(--neon-gold)" />
                   <div style={{ textAlign: "left" }}>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>🪙 Perdre 150 points</div>
-                    <span style={{ fontSize: 10, color: "var(--text-muted)" }}>Soustraira 150 pts de votre score</span>
+                    <div style={{ fontSize: 14.5, fontWeight: 700 }}>🪙 Perdre 150 points</div>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Soustraira 150 pts de votre score</span>
                   </div>
                 </div>
               </button>
 
               {!scoreAbandonPossible && (
-                <div className="error-message" style={{ margin: 0, padding: "6px 10px", fontSize: 10 }}>
-                  <AlertCircle size={12} />
+                <div className="error-message" style={{ margin: 0, padding: "8px 12px", fontSize: 11.5 }}>
+                  <AlertCircle size={14} />
                   <span>Changement par points impossible (minimum 150 pts requis, solde actuel : {player.score} pts)</span>
                 </div>
               )}
@@ -277,7 +287,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
               type="button"
               onClick={() => setShowAbandonConfirm(false)}
               className="ca-submit-btn"
-              style={{ backgroundColor: "#27272a", color: "var(--text-primary)", marginTop: 4 }}
+              style={{ backgroundColor: "#27272a", color: "var(--text-primary)", marginTop: 8, padding: "10px", fontSize: "13px" }}
             >
               Annuler
             </button>

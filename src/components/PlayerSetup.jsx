@@ -185,7 +185,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
             <div className="slide-points">
               <div className="point-item">🕵️ <strong>Fais preuve de ruse</strong> pour ne pas éveiller les soupçons.</div>
               <div className="point-item">📣 <strong>Déclare ton Hit</strong> sur le dashboard dès que c'est fait.</div>
-              <div className="point-item">⚖️ <strong>Attends le GM</strong> qui validera discrètement ton assassinat.</div>
+              <div className="point-item">⚖️ <strong>Validation du GM</strong> : Révèle le défi réussi à ta cible, le GM valide pour arbitrer le Hit.</div>
             </div>
           </div>
         );
@@ -278,24 +278,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
         {/* Carousel Slide Area */}
         <div className="carousel-body" style={{ flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
           {currentSlide < 5 ? (
-            <>
-              {renderTutorialSlide()}
-              <div className="scroll-indicator-hint" style={{
-                textAlign: "center",
-                fontSize: "12px",
-                color: "var(--neon-purple)",
-                marginTop: "12px",
-                marginBottom: "-4px",
-                fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "4px",
-                animation: "pulse 1.5s infinite"
-              }}>
-                <span>👇 Défile vers le bas pour tout lire</span>
-              </div>
-            </>
+            renderTutorialSlide()
           ) : (
             /* Slide 5: Photo Profil setup (Original Form) */
             <div className="photo-setup-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
@@ -458,6 +441,22 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
         </div>
 
       </div>
+      {currentSlide < 5 && (
+        <div className="scroll-indicator-hint" style={{
+          textAlign: "center",
+          fontSize: "12.5px",
+          color: "var(--neon-purple)",
+          marginTop: "10px",
+          fontWeight: "bold",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: "4px",
+          animation: "pulse 1.5s infinite"
+        }}>
+          <span>👇 Défile vers le bas pour tout lire</span>
+        </div>
+      )}
     </div>
   );
 }
