@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { 
-  Check, X, ShieldAlert, Heart, Trophy, RefreshCw, 
-  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2
+  Check, X, ShieldAlert, Heart, Trophy, RefreshCw,
+  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff
 } from "lucide-react";
 
 export default function GMDashboard({ gmTab = "arbitrage" }) {
@@ -28,6 +28,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   } = useGame();
 
   const [initError, setInitError] = useState("");
+  const [playersMasked, setPlayersMasked] = useState(false);
 
   // Editing player state
   const [editingPlayer, setEditingPlayer] = useState(null);
@@ -301,10 +302,23 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 2. GM MODE TAB (PLAYERS & GOD MODE) --- */}
         {gmTab === "players" && (
           <div className="gm-sub-section">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <h3 style={{ margin: 0 }}>
+                {gameState.started ? `Gestion des Joueurs (${gameState.players.length})` : `Joueurs Connectés (${gameState.players.length})`}
+              </h3>
+              <button
+                onClick={() => setPlayersMasked(!playersMasked)}
+                className="panic-toggle-inline-btn"
+                style={{ position: "static", border: "1px solid var(--border-color)", padding: "6px 10px", height: "auto" }}
+                title={playersMasked ? "Révéler les infos" : "Masquer les infos"}
+              >
+                {playersMasked ? <Eye size={16} /> : <EyeOff size={16} />}
+              </button>
+            </div>
+
             {!gameState.started ? (
               <>
-                <h3>Joueurs Connectés ({gameState.players.length})</h3>
-                <p className="admin-subtitle" style={{ margin: 0 }}>
+                <p className="admin-subtitle" style={{ margin: 0, marginTop: -8, marginBottom: 12 }}>
                   Les joueurs apparaissent ici en temps réel au fur et à mesure de leurs inscriptions.
                 </p>
 
@@ -317,7 +331,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                 ) : (
                   <div className="judge-players-grid" style={{ marginTop: 16 }}>
                     {gameState.players.map((p) => (
-                      <div key={p.name} className="judge-player-card">
+                      <div key={p.name} className={`judge-player-card ${playersMasked ? "card-blurred" : ""}`}>
                         <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                           <div className="row-avatar" style={{ width: "24px", height: "24px", fontSize: "10px", minWidth: "24px", minHeight: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             {p.name.slice(0, 2).toUpperCase()}
@@ -380,7 +394,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                 {/* Players Grid */}
                 <div className="judge-players-grid" style={{ marginTop: 16 }}>
                   {gameState.players.map((p) => (
-                    <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""}`}>
+                    <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""} ${playersMasked ? "card-blurred" : ""}`}>
                       <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         {p.photo ? (
                           <img src={p.photo} alt={p.name} style={{ width: "24px", height: "24px", borderRadius: "50%", objectFit: "cover" }} />

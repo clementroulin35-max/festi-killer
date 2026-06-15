@@ -468,61 +468,13 @@ function MainAppContent() {
   return (
     <div className="app-container">
       
-      {/* 1. Simulator switcher bar (Displays code and log out) */}
-      <div className="sim-switcher-bar" style={{ display: "flex", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div className="sim-label" style={{ color: "var(--neon-purple)" }}>
-            <QrCode size={12} />
-            <span>SALON : {gameCode}</span>
-          </div>
-          
-          {/* GM Role selection emulation fallback for testing */}
-          <select
-            value={currentUser}
-            onChange={(e) => {
-              const newUser = e.target.value;
-              setCurrentUser(newUser);
-              if (newUser === "GM") {
-                setActiveTab(gameState.started ? "arbitrage" : "qrcode");
-              } else {
-                setActiveTab("dashboard");
-              }
-            }}
-            className="sim-select"
-            style={{ maxWidth: 120 }}
-          >
-            <option value="GM">GM</option>
-            {gameState.players.map((p) => (
-              <option key={p.name} value={p.name}>{p.name}</option>
-            ))}
-          </select>
-        </div>
-
-        <button 
-          onClick={handleLogout}
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "var(--text-muted)",
-            display: "flex",
-            alignItems: "center",
-            gap: 4,
-            cursor: "pointer",
-            fontSize: 11,
-            fontWeight: 700
-          }}
-        >
-          <LogOut size={12} /> Quitter
-        </button>
-      </div>
-
       {/* 2. App Header */}
       <header className="app-header">
         <div className="header-brand">
           <Skull size={24} className="brand-logo" />
           <h1>COOKI'LLERS</h1>
         </div>
-        <div className="user-indicator">
+        <div className="user-indicator" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {currentUser === "GM" && <span className="badge badge-juge"><Shield size={12} /> GM</span>}
           {currentPlayer && currentPlayer.isZombie && (
             <span className="badge badge-zombie">
@@ -534,6 +486,24 @@ function MainAppContent() {
               🟢 Connecté
             </span>
           )}
+          
+          <button 
+            onClick={handleLogout}
+            title="Quitter le salon"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              padding: "4px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+            className="header-logout-btn"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </header>
 

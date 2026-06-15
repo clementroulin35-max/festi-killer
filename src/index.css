@@ -33,7 +33,7 @@
   
   /* Nav height */
   --nav-height: 68px;
-  --switcher-height: 42px;
+  --switcher-height: 0px;
 }
 
 /* Base resets */
@@ -82,18 +82,7 @@ body {
 
 /* Simulator Switcher Bar */
 .sim-switcher-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: var(--switcher-height);
-  background-color: #000;
-  border-bottom: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  gap: 8px;
-  z-index: 1000;
+  display: none;
 }
 
 .sim-label {
@@ -1409,6 +1398,7 @@ body {
 .j-player-stats {
   font-size: 11px;
   color: var(--text-secondary);
+  transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .target-preview {
@@ -1420,6 +1410,14 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  transition: filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.judge-player-card.card-blurred .j-player-stats,
+.judge-player-card.card-blurred .j-player-actions {
+  filter: blur(14px);
+  pointer-events: none;
+  user-select: none;
 }
 
 .j-btn-edit, .j-btn-resurrect {
@@ -2349,6 +2347,12 @@ select option {
 .toast-notification-body.toast-danger {
   border-color: var(--neon-red);
   box-shadow: 0 0 25px rgba(255, 51, 102, 0.4);
-  color: var(--neon-red);
 }
 
+.header-logout-btn {
+  transition: color 0.2s ease;
+}
+
+.header-logout-btn:hover {
+  color: var(--neon-red) !important;
+}
