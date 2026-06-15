@@ -227,7 +227,7 @@ function MainAppContent() {
 
         return (
           <div className="activity-feed-view animate-fade-in">
-            <h2 style={{ marginBottom: 12 }}>FIL D'ACTUALITÉ</h2>
+            <h2>FIL D'ACTUALITÉ</h2>
             <div className="activity-feed">
               {filteredHistory.length === 0 ? (
                 <div className="empty-feed">Aucun événement enregistré.</div>

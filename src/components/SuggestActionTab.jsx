@@ -57,7 +57,7 @@ export default function SuggestActionTab({ playerName }) {
         <h3 style={{ color: "var(--neon-purple)", display: "flex", alignItems: "center", gap: "8px", fontSize: "16px", textTransform: "uppercase", fontWeight: "800", marginBottom: "12px" }}>
           <Lightbulb size={18} /> Proposer un défi
         </h3>
-        <p className="ca-help" style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: "1.5", marginBottom: "16px" }}>
+        <p className="ca-help" style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5", marginBottom: "16px" }}>
           Suggère un nouveau défi farfelu. S'il est validé par le GM, il rejoindra la pool des actions disponibles en jeu.
         </p>
 

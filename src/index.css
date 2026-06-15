@@ -2290,6 +2290,13 @@ select option {
   max-width: 320px;
 }
 
+.slide-intro {
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
 .slide-points {
   display: flex;
   flex-direction: column;
@@ -2303,9 +2310,9 @@ select option {
   background-color: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  padding: 6px 10px;
-  font-size: 12px;
-  line-height: 1.35;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  line-height: 1.4;
   color: var(--text-primary);
   display: flex;
   align-items: center;

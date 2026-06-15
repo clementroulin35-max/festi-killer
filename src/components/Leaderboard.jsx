@@ -71,7 +71,7 @@ export default function Leaderboard({ players, history }) {
 
   return (
     <div className="leaderboard-container">
-      <h2 className="leaderboard-title">CLASSEMENT GÉNÉRAL</h2>
+      <h2>CLASSEMENT GÉNÉRAL</h2>
 
       {/* Sub-tabs Navigation */}
       <div className="leaderboard-subtabs" style={{

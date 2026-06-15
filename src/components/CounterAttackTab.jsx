@@ -51,10 +51,10 @@ export default function CounterAttackTab({ playerName }) {
         <h3 style={{ color: "var(--neon-red)", display: "flex", alignItems: "center", gap: "8px", fontSize: "16px", textTransform: "uppercase", fontWeight: "800", marginBottom: "12px" }}>
           <ShieldAlert size={18} /> Accuser mon tueur
         </h3>
-        <p className="ca-help" style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: "1.5", marginBottom: "16px" }}>
+        <p className="ca-help" style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5", marginBottom: "16px" }}>
           Si tu suspectes quelqu'un de vouloir te faire faire une action, dénonce-le.
           <br />
-          <strong>Correct :</strong> Son action est brûlée, il perd 25 pts.
+          <strong>Correct :</strong> Son action est brûlée, il perd 25 pts de score.
           <br />
           <strong>Incorrect :</strong> Tu perds 0.5 cœur pour paranoïa.
         </p>

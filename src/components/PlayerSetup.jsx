@@ -236,7 +236,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
             <div className="slide-points">
               <div className="point-item">💀 <strong>Insaisissable</strong> : Les vivants ne peuvent plus te cibler.</div>
               <div className="point-item">🪙 <strong>Score pénalisé</strong> : Tes hits validés ne rapportent plus que la moitié des points.</div>
-              <div className="point-item">❤️ <strong>Résurrection</strong> : Récupère 2 cœurs si tu valides un défi majeur.</div>
+              <div className="point-item">🧟 <strong>Pas de résurrection</strong> : Tu restes Zombie, mais tu continues à engranger des points.</div>
             </div>
           </div>
         );
@@ -278,7 +278,24 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
         {/* Carousel Slide Area */}
         <div className="carousel-body" style={{ flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
           {currentSlide < 5 ? (
-            renderTutorialSlide()
+            <>
+              {renderTutorialSlide()}
+              <div className="scroll-indicator-hint" style={{
+                textAlign: "center",
+                fontSize: "12px",
+                color: "var(--neon-purple)",
+                marginTop: "12px",
+                marginBottom: "-4px",
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+                animation: "pulse 1.5s infinite"
+              }}>
+                <span>👇 Défile vers le bas pour tout lire</span>
+              </div>
+            </>
           ) : (
             /* Slide 5: Photo Profil setup (Original Form) */
             <div className="photo-setup-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
