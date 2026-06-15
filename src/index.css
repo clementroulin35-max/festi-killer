@@ -2748,3 +2748,92 @@ select option {
   background-color: rgba(217, 119, 6, 0.08);
   border-color: rgba(217, 119, 6, 0.25);
 }
+
+/* ==========================================
+   PIN PAD & VIRTUAL KEYBOARD STYLES
+   ========================================== */
+.pin-pad-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.pin-dots-display {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.pin-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.pin-dot.active {
+  background: var(--neon-purple);
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 10px var(--neon-purple);
+}
+
+.pin-keyboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 240px;
+}
+
+.pin-key-btn {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  aspect-ratio: 1;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  padding: 0;
+  height: 54px;
+  width: 54px;
+  margin: 0 auto;
+}
+
+.pin-key-btn:active {
+  background: var(--neon-purple);
+  color: #fff;
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 10px var(--neon-purple);
+  transform: scale(0.95);
+}
+
+.pin-key-empty {
+  width: 54px;
+  height: 54px;
+}
+
+.backspace-key {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.backspace-key:active {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--neon-red);
+  box-shadow: none;
+  border-color: transparent;
+}
+

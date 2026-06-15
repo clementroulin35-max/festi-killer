@@ -6,6 +6,7 @@ import Leaderboard from "./components/Leaderboard";
 import PlayerSetup from "./components/PlayerSetup";
 import CounterAttackTab from "./components/CounterAttackTab";
 import SuggestActionTab from "./components/SuggestActionTab";
+import PinPad from "./components/PinPad";
 import { parseMessageToJSX } from "./utils/parseLogMessage";
 import {
   Skull, Users, Shield, Trophy, FileText, User,
@@ -290,16 +291,7 @@ function MainAppContent() {
                 <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
                   Code PIN secret GM (4 chiffres) :
                 </label>
-                <input
-                  type="password"
-                  placeholder="Ex: 9876"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  className="neon-input"
-                  maxLength={4}
-                  style={{ textAlign: "center", letterSpacing: "0.5em" }}
-                  required
-                />
+                <PinPad value={pin} onChange={setPin} />
 
                 <button type="submit" className="hit-success-btn" style={{ height: "46px", marginTop: "8px" }} disabled={loading}>
                   {loading ? <Loader2 className="animate-spin" size={18} /> : "CRÉER ET ACCÉDER AU SALON"}
@@ -427,16 +419,7 @@ function MainAppContent() {
                     <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
                       Code PIN secret (4 chiffres) :
                     </label>
-                    <input
-                      type="password"
-                      placeholder="Ex: 1234"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value)}
-                      className="neon-input"
-                      maxLength={4}
-                      style={{ textAlign: "center", letterSpacing: "0.5em" }}
-                      required
-                    />
+                    <PinPad value={pin} onChange={setPin} />
                     <button
                       type="button"
                       onClick={handleForgotPin}
@@ -459,15 +442,7 @@ function MainAppContent() {
                     <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
                       Code d'accès GameMaster :
                     </label>
-                    <input
-                      type="password"
-                      placeholder="Code PIN GM (0000 par défaut)"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value)}
-                      className="neon-input"
-                      style={{ textAlign: "center", letterSpacing: "0.3em" }}
-                      required
-                    />
+                    <PinPad value={pin} onChange={setPin} />
                   </>
                 )}
 
