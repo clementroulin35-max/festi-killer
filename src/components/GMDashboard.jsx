@@ -19,6 +19,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     manualEditPlayer,
     triggerMorningSkips,
     removePlayer,
+    dismissPinRecovery,
     approveSuggestedAction,
     rejectSuggestedAction,
     addCustomActionDirectly,
@@ -263,6 +264,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         {event.type === "abandon_request" && "🏳️ DEMANDE D'ABANDON"}
                         {event.type === "counter_attack" && "🛡️ ACCUSATION CONTRE-ATTAQUE"}
                         {event.type === "action_suggestion" && "💡 SUGGESTION DE DÉFI"}
+                        {event.type === "pin_recovery" && "🔑 CODE PIN OUBLIÉ"}
                       </span>
                       <span className="pending-time">{formatTime(event.timestamp)}</span>
                     </div>
@@ -273,6 +275,12 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         <div className="counter-attack-details">
                           Suspect accusé : <strong>{event.killer}</strong> <br />
                           Défi suspecté : <strong>{event.accusedActionText || "Non précisé"}</strong>
+                        </div>
+                      )}
+
+                      {event.type === "pin_recovery" && (
+                        <div className="counter-attack-details" style={{ borderTop: "1px dashed var(--border-color)", paddingTop: 8, marginTop: 8 }}>
+                          Code PIN enregistré : <strong style={{ color: "var(--neon-green)", fontSize: "16px" }}>{event.message.includes("PIN enregistré : ") ? event.message.split("PIN enregistré : ")[1] : "Non trouvé"}</strong>
                         </div>
                       )}
                     </div>
@@ -346,19 +354,22 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                           <button 
                             onClick={() => {
                               if (event.type === "hit_declaration") approveHit(event.id);
+                              else if (event.type === "pin_recovery") dismissPinRecovery(event.id);
                             }}
                             className="btn-approve"
                           >
-                            <Check size={16} /> Valider
+                            <Check size={16} /> {event.type === "pin_recovery" ? "Lu / Effacer" : "Valider"}
                           </button>
-                          <button 
-                            onClick={() => {
-                              if (event.type === "hit_declaration") rejectHit(event.id);
-                            }}
-                            className="btn-reject"
-                          >
-                            <X size={16} /> Refuser
-                          </button>
+                          {event.type !== "pin_recovery" && (
+                            <button 
+                              onClick={() => {
+                                if (event.type === "hit_declaration") rejectHit(event.id);
+                              }}
+                              className="btn-reject"
+                            >
+                              <X size={16} /> Refuser
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
@@ -417,6 +428,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                   <div className="j-player-stats">
                     <div>Score : {p.score} pts</div>
                     <div>Cœurs : {p.lives} / 7</div>
+                    <div style={{ color: "var(--neon-green)", fontSize: "11px", fontWeight: "700", marginTop: "2px", marginBottom: "2px" }}>Code PIN : {p.pin}</div>
                     <div className="target-preview">Cible : <strong>{p.target || "Aucune"}</strong></div>
                     {p.target && (() => {
                       const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === p.actionId);

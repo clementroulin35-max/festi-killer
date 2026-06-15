@@ -95,6 +95,7 @@ export const GameProvider = ({ children }) => {
       // Format players for local state compatibility
       const formattedPlayers = (playersData || []).map(p => ({
         name: p.name,
+        pin: p.pin,
         lives: Number(p.lives),
         score: p.score,
         skips: p.skips,
@@ -219,7 +220,7 @@ export const GameProvider = ({ children }) => {
   };
 
   // ROOM ACTIONS
-  const createRoom = async (code) => {
+  const createRoom = async (code, gmPin = "0000") => {
     setLoading(true);
     try {
       const upperCode = code.toUpperCase().trim();
@@ -227,7 +228,7 @@ export const GameProvider = ({ children }) => {
       // 1. Create Room in games
       const { error: gameError } = await supabase
         .from("games")
-        .insert([{ game_code: upperCode, started: false }]);
+        .insert([{ game_code: upperCode, started: false, gm_pin: gmPin }]);
 
       if (gameError) throw gameError;
 
@@ -362,6 +363,41 @@ export const GameProvider = ({ children }) => {
     }
   };
 
+  const requestPinRecovery = async (code, name) => {
+    const cleanName = name.trim();
+    const { data: player } = await supabase
+      .from("players")
+      .select("pin")
+      .eq("game_code", code)
+      .eq("name", cleanName)
+      .maybeSingle();
+
+    if (!player) {
+      throw new Error(`Le joueur "${cleanName}" n'est pas enregistré dans ce salon.`);
+    }
+
+    await logEvent("pin_recovery", {
+      killer: cleanName,
+      status: "pending",
+      message: `[RECUPERATION PIN] ${cleanName} a oublié son code PIN. PIN enregistré : ${player.pin}`
+    });
+  };
+
+  const dismissPinRecovery = async (historyId) => {
+    setLoading(true);
+    try {
+      await supabase
+        .from("history")
+        .update({ status: "approved" })
+        .eq("id", historyId);
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loginPlayer = async (code, name, pin) => {
     const cleanName = name.trim();
     const cleanPin = pin.trim();
@@ -406,6 +442,26 @@ export const GameProvider = ({ children }) => {
 
     setCurrentUser(cleanName);
     return cleanName;
+  };
+
+  const loginGM = async (code, pin) => {
+    const cleanPin = pin.trim();
+    const { data: game, error } = await supabase
+      .from("games")
+      .select("gm_pin")
+      .eq("game_code", code)
+      .maybeSingle();
+
+    if (error) throw new Error("Erreur de connexion à la base de données.");
+    if (!game) throw new Error(`Le salon "${code}" n'existe pas.`);
+
+    const expectedPin = game.gm_pin || "0000";
+    if (cleanPin !== expectedPin) {
+      throw new Error("Code PIN GM incorrect.");
+    }
+
+    setCurrentUser("GM");
+    return "GM";
   };
 
   // 1. Initialiser la partie (GM)
@@ -1274,7 +1330,10 @@ export const GameProvider = ({ children }) => {
       createRoom,
       joinRoom,
       loginPlayer,
+      loginGM,
       removePlayer,
+      requestPinRecovery,
+      dismissPinRecovery,
       initializeGame,
       resetGame,
       declareHit,

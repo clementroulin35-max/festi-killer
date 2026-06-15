@@ -22,6 +22,8 @@ function MainAppContent() {
     createRoom,
     joinRoom,
     loginPlayer,
+    loginGM,
+    requestPinRecovery,
     resetGame 
   } = useGame();
 
@@ -54,20 +56,35 @@ function MainAppContent() {
     }
   }, []);
 
-  const handleCreateRoom = async () => {
+  const handleCreateRoom = async (e) => {
+    if (e) e.preventDefault();
     setError("");
-    // Generate a random 4-letter room code
-    const chars = "ABCDEFGHJKLMNOPQRSTUVWXYZ23456789"; // readable chars
-    let code = "";
-    for (let i = 0; i < 4; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    let code = inputCode.trim().toUpperCase();
+    const gmPin = pin.trim();
+
+    if (!gmPin) {
+      setError("Veuillez saisir un code PIN secret pour le GM.");
+      return;
+    }
+    if (gmPin.length !== 4 || isNaN(Number(gmPin))) {
+      setError("Le code PIN GM doit comporter 4 chiffres.");
+      return;
+    }
+
+    // Auto-generate random 4-letter room code if empty
+    if (!code) {
+      const chars = "ABCDEFGHJKLMNOPQRSTUVWXYZ23456789";
+      for (let i = 0; i < 4; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
     }
 
     try {
-      await createRoom(code);
-      setJoinStep("login");
+      await createRoom(code, gmPin);
+      setCurrentUser("GM");
+      setActiveTab("dashboard");
     } catch (err) {
-      setError("Erreur lors de la création du salon. Réessayez.");
+      setError("Ce code de salon est déjà pris ou indisponible.");
     }
   };
 
@@ -79,6 +96,7 @@ function MainAppContent() {
     try {
       await joinRoom(inputCode);
       setJoinStep("login");
+      setPin("");
     } catch (err) {
       setError(err.message);
     }
@@ -89,13 +107,12 @@ function MainAppContent() {
     setError("");
 
     if (loginRole === "gm") {
-      // GM login code: GM PIN is fixed to "0000" for local simplification or can be anything
-      if (pin !== "0000") {
-        setError("Code PIN GM incorrect. (Par défaut: 0000)");
-        return;
+      try {
+        await loginGM(gameCode, pin);
+        setActiveTab(gameState.started ? "arbitrage" : "dashboard");
+      } catch (err) {
+        setError(err.message);
       }
-      setCurrentUser("GM");
-      setActiveTab(gameState.started ? "arbitrage" : "dashboard");
       return;
     }
 
@@ -112,6 +129,20 @@ function MainAppContent() {
     try {
       await loginPlayer(gameCode, nickname.trim(), pin);
       setActiveTab("dashboard");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleForgotPin = async () => {
+    setError("");
+    if (!nickname.trim()) {
+      setError("Saisissez votre pseudo avant de demander de l'aide.");
+      return;
+    }
+    try {
+      await requestPinRecovery(gameCode, nickname.trim());
+      setError("Demande d'aide envoyée au GM. Demandez-lui votre PIN !");
     } catch (err) {
       setError(err.message);
     }
@@ -224,7 +255,52 @@ function MainAppContent() {
             <p style={{ color: "var(--text-secondary)", fontSize: "13px" }}>Jeu d'assassinat en temps réel</p>
           </div>
 
-          {joinStep === "room" ? (
+          {joinStep === "create" ? (
+            <div className="create-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              <form onSubmit={handleCreateRoom} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
+                  Nom / Code du Salon (Optionnel) :
+                </label>
+                <input
+                  type="text"
+                  placeholder="Généré aléatoirement si vide"
+                  value={inputCode}
+                  onChange={(e) => setInputCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                  className="neon-input"
+                  maxLength={15}
+                  style={{ textAlign: "center", fontSize: "16px", fontWeight: "900", textTransform: "uppercase" }}
+                />
+
+                <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
+                  Code PIN secret GM (4 chiffres) :
+                </label>
+                <input
+                  type="password"
+                  placeholder="Ex: 9876"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  className="neon-input"
+                  maxLength={4}
+                  style={{ textAlign: "center", letterSpacing: "0.5em" }}
+                  required
+                />
+
+                <button type="submit" className="hit-success-btn" style={{ height: "46px", marginTop: "8px" }} disabled={loading}>
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : "CRÉER ET ACCÉDER AU SALON"}
+                </button>
+
+                <button 
+                  type="button" 
+                  onClick={() => { setJoinStep("room"); setError(""); setInputCode(""); setPin(""); }} 
+                  style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 13, cursor: "pointer", fontWeight: 700, alignSelf: "center", marginTop: 4 }}
+                >
+                  ◀ Retour
+                </button>
+              </form>
+
+              {error && <div className="error-message"><ShieldAlert size={16} />{error}</div>}
+            </div>
+          ) : joinStep === "room" ? (
             <div className="room-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               <form onSubmit={handleJoinRoom} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
@@ -236,7 +312,7 @@ function MainAppContent() {
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value.toUpperCase())}
                   className="neon-input"
-                  maxLength={4}
+                  maxLength={15}
                   style={{ textAlign: "center", fontSize: "20px", fontWeight: "900", letterSpacing: "0.15em", textTransform: "uppercase" }}
                   required
                 />
@@ -255,7 +331,7 @@ function MainAppContent() {
 
               <button 
                 type="button" 
-                onClick={handleCreateRoom} 
+                onClick={() => { setJoinStep("create"); setInputCode(""); setPin(""); setError(""); }} 
                 className="panic-btn" 
                 style={{ height: "46px", margin: 0, borderColor: "var(--neon-purple)", color: "var(--neon-purple)" }}
                 disabled={loading}
@@ -271,7 +347,7 @@ function MainAppContent() {
                   SALON : {gameCode}
                 </span>
                 <button 
-                  onClick={() => setJoinStep("room")} 
+                  onClick={() => { setJoinStep("room"); setError(""); setPin(""); }} 
                   style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 12, cursor: "pointer", fontWeight: 700 }}
                 >
                   ◀ Changer
@@ -340,6 +416,22 @@ function MainAppContent() {
                       style={{ textAlign: "center", letterSpacing: "0.5em" }}
                       required
                     />
+                    <button 
+                      type="button" 
+                      onClick={handleForgotPin}
+                      style={{ 
+                        background: "none", 
+                        border: "none", 
+                        color: "var(--neon-purple)", 
+                        fontSize: 11, 
+                        cursor: "pointer", 
+                        fontWeight: 700, 
+                        alignSelf: "flex-end", 
+                        marginTop: -6 
+                      }}
+                    >
+                      Code PIN oublié ?
+                    </button>
                   </>
                 ) : (
                   <>
