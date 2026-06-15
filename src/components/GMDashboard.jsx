@@ -29,6 +29,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
   const [initError, setInitError] = useState("");
   const [playersMasked, setPlayersMasked] = useState(false);
+  const [showResetConfirmStep, setShowResetConfirmStep] = useState(0);
 
   // Editing player state
   const [editingPlayer, setEditingPlayer] = useState(null);
@@ -158,9 +159,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   // === RENDU DU PANEL DE CONTRÔLE GM (ONGLETS DYNAMIQUES) ===
   return (
     <div className="judge-dashboard gm-refactored animate-fade-in">
-      <div className="dashboard-header-flex">
-        <h2 className="judge-title">PANEL GAME MASTER (GM)</h2>
-      </div>
 
 
 
@@ -430,7 +428,11 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                   ))}
                 </div>
 
-                <button onClick={resetGame} className="reset-game-btn" style={{ width: "100%", marginTop: 24 }}>
+                <button 
+                  onClick={() => setShowResetConfirmStep(1)} 
+                  className="reset-game-btn" 
+                  style={{ width: "100%", marginTop: 24 }}
+                >
                   ⚠️ ARRÊTER / RÉINITIALISER LA PARTIE
                 </button>
               </>
@@ -667,6 +669,144 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         )}
 
       </div>
+
+      {/* Double confirmation modal for game reset */}
+      {showResetConfirmStep > 0 && (
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px"
+          }}
+        >
+          {showResetConfirmStep === 1 && (
+            <div 
+              className="admin-card text-center animate-fade-in" 
+              style={{
+                width: "100%",
+                maxWidth: "380px",
+                border: "2px solid var(--neon-red)",
+                boxShadow: "0 0 25px rgba(255, 51, 102, 0.25)",
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+                alignItems: "center"
+              }}
+            >
+              <ShieldAlert size={48} className="glowing-icon-pink" style={{ color: "var(--neon-red)" }} />
+              <h3 style={{ margin: 0, fontSize: "18px", color: "#fff", fontWeight: "900" }}>CONFIRMATION IMPORTANTE</h3>
+              <p style={{ margin: 0, fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+                Voulez-vous vraiment <strong>ARRÊTER</strong> et <strong>RÉINITIALISER</strong> la partie ? Cette action est irréversible et supprimera le salon.
+              </p>
+              <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "8px" }}>
+                <button 
+                  onClick={() => setShowResetConfirmStep(0)}
+                  style={{
+                    flex: 1,
+                    height: "44px",
+                    background: "var(--bg-input)",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--text-primary)",
+                    borderRadius: "var(--border-radius-sm)",
+                    fontWeight: "700",
+                    cursor: "pointer"
+                  }}
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={() => setShowResetConfirmStep(2)}
+                  className="reset-game-btn"
+                  style={{
+                    flex: 1,
+                    height: "44px",
+                    margin: 0,
+                    fontWeight: "700",
+                    backgroundColor: "var(--neon-red)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "var(--border-radius-sm)",
+                    cursor: "pointer"
+                  }}
+                >
+                  Oui, continuer
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showResetConfirmStep === 2 && (
+            <div 
+              className="admin-card text-center animate-fade-in" 
+              style={{
+                width: "100%",
+                maxWidth: "380px",
+                border: "2px solid var(--neon-red)",
+                boxShadow: "0 0 25px rgba(255, 51, 102, 0.35)",
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "20px",
+                alignItems: "center"
+              }}
+            >
+              <ShieldAlert size={48} className="glowing-icon-pink" style={{ color: "var(--neon-red)", animation: "pulse 1.5s infinite" }} />
+              <h3 style={{ margin: 0, fontSize: "18px", color: "var(--neon-red)", fontWeight: "900" }}>DOUBLE CONFIRMATION</h3>
+              <p style={{ margin: 0, fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+                Toutes les données du salon seront <strong>définitivement effacées</strong>. Êtes-vous ABSOLUMENT sûr de vous ?
+              </p>
+              <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "8px" }}>
+                {/* INVERTED BUTTONS ORDER FOR STEP 2 */}
+                <button 
+                  onClick={() => {
+                    resetGame();
+                    setShowResetConfirmStep(0);
+                  }}
+                  className="reset-game-btn"
+                  style={{
+                    flex: 1,
+                    height: "44px",
+                    margin: 0,
+                    fontWeight: "700",
+                    backgroundColor: "var(--neon-red)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "var(--border-radius-sm)",
+                    cursor: "pointer"
+                  }}
+                >
+                  Détruire le salon
+                </button>
+                <button 
+                  onClick={() => setShowResetConfirmStep(0)}
+                  style={{
+                    flex: 1,
+                    height: "44px",
+                    background: "var(--bg-input)",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--text-primary)",
+                    borderRadius: "var(--border-radius-sm)",
+                    fontWeight: "700",
+                    cursor: "pointer"
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {toast && (
         <div className="toast-notification-backdrop">
