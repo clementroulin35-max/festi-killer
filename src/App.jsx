@@ -12,6 +12,7 @@ import {
   Skull, Users, Shield, Trophy, FileText, User,
   ShieldAlert, Lightbulb, Award, Key, QrCode, LogOut, ArrowRight, Loader2
 } from "lucide-react";
+import heroImage from "./assets/hero-removebg.png";
 
 function MainAppContent() {
   const {
@@ -279,8 +280,18 @@ function MainAppContent() {
       <div className="app-container onboarding-carousel-view animate-fade-in" style={{ padding: "12px 12px" }}>
         <div className="admin-card setup-card" style={{ maxWidth: "100%", width: "100%", padding: "16px 14px" }}>
 
-          <div className="setup-header" style={{ marginBottom: "12px" }}>
-            <Skull size={32} className="glowing-icon-pink" style={{ marginBottom: "4px" }} />
+          <div className="setup-header" style={{ marginBottom: "12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <img 
+              src={heroImage} 
+              alt="Cooki'llers logo illustration" 
+              style={{ 
+                width: "100%", 
+                maxWidth: "160px", 
+                height: "auto", 
+                marginBottom: "8px", 
+                filter: "drop-shadow(0 0 12px rgba(139, 92, 246, 0.25))"
+              }} 
+            />
             <h1 onClick={toggleTheme} style={{ fontSize: "22px", letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer" }} title="Basculer thème jour/nuit">COOKI'LLERS</h1>
             <p style={{ color: "var(--text-secondary)", fontSize: "11px" }}>Jeu d'assassinat en temps réel</p>
           </div>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS, GAME_CONFIG } from "../services/gameEngine";
 import { ShieldAlert, Zap, Loader2, Eye, EyeOff } from "lucide-react";
+import targetImage from "../assets/target_neon.png";
 
 export default function TargetCard({ targetName, actionId, onDeclareHit, isZombie, hasPendingHit, actionEphemeral }) {
   const { gameState } = useGame();
@@ -64,7 +65,10 @@ export default function TargetCard({ targetName, actionId, onDeclareHit, isZombi
         </button>
 
         <div className="target-card-inner-content">
-          <div className="target-label">CIBLE SECRÈTE</div>
+          <div className="target-label" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <img src={targetImage} alt="Target Viseur" style={{ width: "20px", height: "20px", mixBlendMode: "screen" }} />
+            CIBLE SECRÈTE
+          </div>
           
           <div className="avatar-outer">
             {targetPlayer?.photo ? (

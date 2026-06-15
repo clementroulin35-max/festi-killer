@@ -4,6 +4,8 @@ import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import ZeldaHearts from "./ZeldaHearts";
 import TargetCard from "./TargetCard";
 import { EyeOff, Eye, Shuffle, Flag, ShieldAlert, AlertCircle, Lightbulb, Loader2, Coins, HeartCrack, User } from "lucide-react";
+import heartImage from "../assets/heart_neon.png";
+import tokenImage from "../assets/token_neon.png";
 
 export default function PlayerDashboard({ playerName, onEditPhoto }) {
   const {
@@ -135,12 +137,20 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         {/* Hearts & Skips */}
         <div className="player-stats-row">
           <div className="hearts-block">
-            <span className="stat-row-lbl">Énergie (Vies) :</span>
+            <span className="stat-row-lbl" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <img src={heartImage} alt="Heart Icon" style={{ width: "16px", height: "16px", mixBlendMode: "screen" }} />
+              Énergie (Vies) :
+            </span>
             <ZeldaHearts lives={player.lives} />
           </div>
           <div className="skips-block">
-            <span className="stat-row-lbl">Skips :</span>
-            <span className="skips-count">{player.skips} 🎲</span>
+            <span className="stat-row-lbl" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <img src={tokenImage} alt="Skip Token Icon" style={{ width: "16px", height: "16px", mixBlendMode: "screen" }} />
+              Skips :
+            </span>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span className="skips-count">{player.skips}</span>
+            </div>
           </div>
         </div>
 
@@ -174,7 +184,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
               player.skips <= 0 || hasPendingHit ? "disabled" : ""
             }`}
           >
-            <Shuffle size={18} />
+            <img src={tokenImage} alt="Skip Token" style={{ width: "24px", height: "24px", mixBlendMode: "screen", marginRight: "4px" }} />
             <div className="btn-text-wrap">
               <strong>Relance la Mission</strong>
               <span>Coût : 1 Skip</span>
