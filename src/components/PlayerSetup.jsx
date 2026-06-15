@@ -5,11 +5,11 @@ import {
   Skull, Target, Shuffle, ShieldAlert, Zap, ChevronRight, ChevronLeft
 } from "lucide-react";
 
-export default function PlayerSetup({ playerName }) {
+export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }) {
   const { savePlayerPhoto } = useGame();
   
   // Carousel state: 0 to 4 are tutorial slides, 5 is the final photo configuration step
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(initialSlide);
   
   const [stream, setStream] = useState(null);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
@@ -136,6 +136,7 @@ export default function PlayerSetup({ playerName }) {
   const handleValidate = () => {
     if (!capturedPhoto) return;
     savePlayerPhoto(playerName, capturedPhoto);
+    if (onComplete) onComplete();
   };
 
   // Skip tutorial entirely and jump to photo setup (Slide 5)
@@ -250,11 +251,7 @@ export default function PlayerSetup({ playerName }) {
         
         {/* Onboarding Header with Skip Button */}
         <div className="carousel-top-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", marginBottom: "16px" }}>
-          {currentSlide === 5 ? (
-            <span className="badge badge-player" style={{ textTransform: "uppercase", fontSize: "10px" }}>
-              Initialisation Photo
-            </span>
-          ) : <div />}
+          <div />
           {currentSlide < 5 && (
             <button 
               onClick={handleSkipTutorial} 
