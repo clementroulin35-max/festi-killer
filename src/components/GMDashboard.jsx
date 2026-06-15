@@ -36,9 +36,12 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
   // Editing player state
   const [editingPlayer, setEditingPlayer] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editPin, setEditPin] = useState("");
   const [editScore, setEditScore] = useState(0);
   const [editLives, setEditLives] = useState(7);
   const [editZombie, setEditZombie] = useState(false);
+  const [editIsActive, setEditIsActive] = useState(true);
 
   // Direct action addition/edition state
   const [actTitle, setActTitle] = useState("");
@@ -142,16 +145,54 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   // God Mode Handlers
   const startEditPlayer = (player) => {
     setEditingPlayer(player.name);
+    setEditName(player.name);
+    setEditPin(player.pin);
     setEditScore(player.score);
     setEditLives(player.lives);
     setEditZombie(player.isZombie);
+    setEditIsActive(player.target !== null);
+
+    // Scroll en haut vers le formulaire d'édition
+    setTimeout(() => {
+      const mainContent = document.querySelector(".app-main-content");
+      if (mainContent) {
+        mainContent.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        const editorElement = document.getElementById("god-player-editor");
+        if (editorElement) {
+          editorElement.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+    }, 50);
   };
 
-  const handleSaveEdit = (e) => {
+  const handleSaveEdit = async (e) => {
     e.preventDefault();
     if (!editingPlayer) return;
-    manualEditPlayer(editingPlayer, editScore, editLives, editZombie);
-    setEditingPlayer(null);
+
+    const cleanNewName = editName.trim();
+    if (!cleanNewName) {
+      showToast("Le pseudo ne peut pas être vide.", "danger");
+      return;
+    }
+
+    try {
+      // 1. Sauvegarde des stats (Score, Vies, Zombie, Nom, PIN)
+      await manualEditPlayer(editingPlayer, editScore, editLives, editZombie, cleanNewName, editPin.trim());
+      
+      // 2. Gestion du statut gelé/actif si nécessaire
+      const playerObj = gameState.players.find(p => p.name === editingPlayer);
+      const currentActive = playerObj ? playerObj.target !== null : true;
+      if (editIsActive !== currentActive) {
+        const nameToToggle = cleanNewName || editingPlayer;
+        await togglePlayerActiveStatus(nameToToggle, editIsActive);
+      }
+      
+      showToast("Joueur mis à jour avec succès !", "success");
+      setEditingPlayer(null);
+    } catch (err) {
+      showToast(err.message || "Erreur de modification", "danger");
+    }
   };
 
   const formatTime = (isoString) => {
@@ -171,7 +212,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 1. ARBITRAGE TAB --- */}
         {gmTab === "arbitrage" && (
           <div className="gm-sub-section">
-            <h3 style={{ marginBottom: 16 }}>Demandes en Attente ({pendingEvents.length})</h3>
+            <h2>ACTIONS EN ATTENTE ({pendingEvents.length})</h2>
             {pendingEvents.length === 0 ? (
               <div className="empty-pending-card">Aucune demande en attente. Camping calme.</div>
             ) : (
@@ -304,9 +345,9 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {gmTab === "players" && (
           <div className="gm-sub-section">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h3 style={{ margin: 0 }}>
-                {gameState.started ? `Gestion des Joueurs (${gameState.players.length})` : `Joueurs Connectés (${gameState.players.length})`}
-              </h3>
+              <h2 style={{ margin: 0 }}>
+                {gameState.started ? `GESTION DES JOUEURS (${gameState.players.length})` : `JOUEURS CONNECTÉS (${gameState.players.length})`}
+              </h2>
               <button
                 onClick={() => setPlayersMasked(!playersMasked)}
                 className="panic-toggle-inline-btn"
@@ -369,25 +410,46 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
               <>
                 {/* God Form Editing */}
                 {editingPlayer && (
-                  <form onSubmit={handleSaveEdit} className="god-edit-form animate-fade-in">
-                    <h4>Modifier {editingPlayer}</h4>
-                    <div className="form-row">
-                      <label>
-                        Score (pts) :
-                        <input type="number" value={editScore} onChange={(e) => setEditScore(Number(e.target.value))} />
-                      </label>
-                      <label>
-                        Cœurs (max 7) :
-                        <input type="number" step="0.25" min="0" max="7" value={editLives} onChange={(e) => setEditLives(Number(e.target.value))} />
-                      </label>
-                      <label className="checkbox-row">
-                        <input type="checkbox" checked={editZombie} onChange={(e) => setEditZombie(e.target.checked)} />
-                        Statut Zombie
-                      </label>
+                  <form onSubmit={handleSaveEdit} id="god-player-editor" className="god-edit-form animate-fade-in" style={{ scrollMarginTop: "80px" }}>
+                    <h4 style={{ marginBottom: "12px", borderBottom: "1px solid var(--border-color)", paddingBottom: "6px" }}>Gérer {editingPlayer}</h4>
+                    <div className="form-row" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <div style={{ display: "flex", gap: "10px", width: "100%", flexWrap: "wrap" }}>
+                        <label style={{ flex: "1 1 180px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "12px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                          Pseudo :
+                          <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="neon-input" required style={{ padding: "8px 12px" }} />
+                        </label>
+                        <label style={{ flex: "1 1 100px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "12px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                          Code PIN :
+                          <input type="text" maxLength={4} value={editPin} onChange={(e) => setEditPin(e.target.value)} className="neon-input" required style={{ padding: "8px 12px", textAlign: "center", letterSpacing: "0.2em" }} />
+                        </label>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "10px", width: "100%", flexWrap: "wrap" }}>
+                        <label style={{ flex: "1 1 120px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "12px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                          Score (pts) :
+                          <input type="number" value={editScore} onChange={(e) => setEditScore(Number(e.target.value))} className="neon-input" style={{ padding: "8px 12px" }} />
+                        </label>
+                        <label style={{ flex: "1 1 120px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "12px", fontWeight: "600", color: "var(--text-secondary)" }}>
+                          Cœurs (max 7) :
+                          <input type="number" step="0.25" min="0" max="7" value={editLives} onChange={(e) => setEditLives(Number(e.target.value))} className="neon-input" style={{ padding: "8px 12px" }} />
+                        </label>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "20px", marginTop: "4px", flexWrap: "wrap" }}>
+                        <label className="checkbox-row" style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px" }}>
+                          <input type="checkbox" checked={editZombie} onChange={(e) => setEditZombie(e.target.checked)} style={{ width: "auto", margin: 0 }} />
+                          Statut Zombie 💀
+                        </label>
+                        <label className="checkbox-row" style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px" }}>
+                          <input type="checkbox" checked={!editIsActive} onChange={(e) => setEditIsActive(!e.target.checked)} style={{ width: "auto", margin: 0 }} />
+                          Gelé / Absent ❄️
+                        </label>
+                      </div>
                     </div>
-                    <div className="form-actions">
-                      <button type="submit" className="save-edit-btn">Enregistrer</button>
-                      <button type="button" onClick={() => setEditingPlayer(null)} className="cancel-edit-btn">Annuler</button>
+                    
+                    <div className="form-actions" style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
+                      <button type="submit" className="save-edit-btn" style={{ flex: 1, backgroundColor: "var(--neon-purple)", color: "white", border: "none", padding: "10px", borderRadius: "var(--border-radius-sm)", fontWeight: "bold", cursor: "pointer" }}>Enregistrer</button>
+                      <button type="button" onClick={() => setEditingPlayer(null)} className="cancel-edit-btn" style={{ flex: 1, backgroundColor: "#27272a", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "10px", borderRadius: "var(--border-radius-sm)", cursor: "pointer" }}>Annuler</button>
                     </div>
                   </form>
                 )}
@@ -426,26 +488,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         })()}
                       </div>
                       <div className="j-player-actions" style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
-                        <button onClick={() => startEditPlayer(p)} className="j-btn-edit" style={{ flex: 1 }}>Modifier stats</button>
-                        {p.target ? (
-                          <button 
-                            onClick={() => togglePlayerActiveStatus(p.name, false)} 
-                            className="j-btn-edit" 
-                            style={{ flex: 1, borderColor: "var(--neon-gold)", color: "var(--neon-gold)", background: "rgba(245, 158, 11, 0.05)" }}
-                            title="Geler le score/vies et le retirer du pool de cibles"
-                          >
-                            Geler (Absent)
-                          </button>
-                        ) : (
-                          <button 
-                            onClick={() => togglePlayerActiveStatus(p.name, true)} 
-                            className="j-btn-edit" 
-                            style={{ flex: 1, borderColor: "var(--neon-green)", color: "var(--neon-green)", background: "rgba(16, 185, 129, 0.05)" }}
-                            title="Réintégrer dans la boucle des cibles"
-                          >
-                            Activer (Présent)
-                          </button>
-                        )}
+                        <button onClick={() => startEditPlayer(p)} className="j-btn-edit" style={{ flex: 1 }}>Gérer</button>
                       </div>
                     </div>
                   ))}
@@ -466,6 +509,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 3. ACTIONS POOL TAB --- */}
         {gmTab === "actions" && (
           <div className="gm-sub-section">
+            <h2>GESTION DES DÉFIS</h2>
             {/* Direct Add/Edit Action */}
             <div className="admin-card direct-action-card">
               <h3>{editingActionId !== null ? "✏️ Modifier le défi" : "Créer un défi personnalisé"}</h3>
@@ -653,7 +697,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 4. HISTORY TAB --- */}
         {gmTab === "history" && (
           <div className="gm-sub-section">
-            <h3 style={{ marginBottom: 16 }}>Historique de la Partie</h3>
+            <h2>FIL D'ACTUALITÉ</h2>
             <div className="activity-feed" style={{ maxHeight: "none" }}>
               {approvedEvents.length === 0 ? (
                 <div className="empty-feed">Aucun événement validé pour l'instant.</div>
@@ -671,12 +715,13 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
         {/* --- 5. QR CODE TAB --- */}
         {gmTab === "qrcode" && (
-          <div className="gm-sub-section animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-            <div className="admin-card text-center" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 16, padding: "32px 24px", width: "100%", maxWidth: "450px", border: "1px solid var(--neon-purple)", boxShadow: "0 0 20px rgba(139, 92, 246, 0.15)" }}>
-              <h3 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em" }}>Rejoindre la Partie</h3>
-              <p className="admin-subtitle" style={{ margin: 0, fontSize: "13px", color: "var(--text-secondary)" }}>
-                Faites scanner ce QR Code aux joueurs sur leur téléphone pour qu'ils s'enregistrent
-              </p>
+          <div className="gm-sub-section animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px", minHeight: "60vh" }}>
+            <h2>REJOINDRE LE SALON</h2>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", flex: 1 }}>
+              <div className="admin-card text-center" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 16, padding: "32px 24px", width: "100%", maxWidth: "450px", border: "1px solid var(--neon-purple)", boxShadow: "0 0 20px rgba(139, 92, 246, 0.15)" }}>
+                <p className="admin-subtitle" style={{ margin: 0, fontSize: "13px", color: "var(--text-secondary)" }}>
+                  Faites scanner ce QR Code aux joueurs sur leur téléphone pour qu'ils s'enregistrent
+                </p>
               <div style={{ backgroundColor: "#fff", padding: 16, borderRadius: "var(--border-radius-sm)", display: "inline-block", marginTop: 8, boxShadow: "0 0 25px rgba(255, 255, 255, 0.15)" }}>
                 <img 
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.origin + "/?join=" + gameCode)}`} 
@@ -692,7 +737,8 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
               </span>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
       </div>
 

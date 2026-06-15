@@ -1002,7 +1002,7 @@ export const GameProvider = ({ children }) => {
   };
 
   // 11. Mode Dieu (GM override)
-  const manualEditPlayer = async (playerName, score, lives, isZombie) => {
+  const manualEditPlayer = async (playerName, score, lives, isZombie, newName = null, newPin = null) => {
     const player = gameState.players.find(p => p.name === playerName);
     if (!player) return;
 
@@ -1014,6 +1014,14 @@ export const GameProvider = ({ children }) => {
       const targetZombie = isZombie || targetLives === 0;
 
       let playersToUpdate = [];
+
+      // Si le nom a changé, vérifier si le nouveau nom n'est pas déjà pris
+      if (newName && newName.trim().toLowerCase() !== playerName.toLowerCase()) {
+        const nameExists = gameState.players.some(p => p.name.toLowerCase() === newName.trim().toLowerCase());
+        if (nameExists) {
+          throw new Error("Ce pseudo est déjà utilisé par un autre joueur dans ce salon.");
+        }
+      }
 
       if (wasZombie && !targetZombie) {
         if (gameState.players.length > 2) {
@@ -1029,26 +1037,48 @@ export const GameProvider = ({ children }) => {
         }
       }
 
-      // Update database
+      // 1. Si le nom a changé, mettre à jour le champ target des autres joueurs qui ciblaient playerName
+      if (newName && newName.trim() !== playerName) {
+        const finalNewName = newName.trim();
+        await supabase
+          .from("players")
+          .update({ target: finalNewName })
+          .eq("game_code", gameCode)
+          .eq("target", playerName);
+      }
+
+      // 2. Mettre à jour la ligne du joueur
+      const updates = {
+        score: targetScore,
+        lives: targetLives,
+        is_zombie: targetZombie
+      };
+      if (newPin) updates.pin = newPin.trim();
+      if (newName && newName.trim() !== playerName) updates.name = newName.trim();
+
       await supabase
         .from("players")
-        .update({
-          score: targetScore,
-          lives: targetLives,
-          is_zombie: targetZombie
-        })
+        .update(updates)
         .eq("game_code", gameCode)
         .eq("name", playerName);
 
+      // 3. Mettre à jour les cibles du reste de la boucle
       for (const p of playersToUpdate) {
+        const targetPlayerName = p.name === playerName && newName ? newName.trim() : p.name;
+        const targetVal = p.target === playerName && newName ? newName.trim() : p.target;
+
         await supabase
           .from("players")
-          .update({ target: p.target })
+          .update({ target: targetVal })
           .eq("game_code", gameCode)
-          .eq("name", p.name);
+          .eq("name", targetPlayerName);
       }
 
-      let msg = `Modification manuelle de ${playerName} par le GM : Score = ${targetScore}, Vies = ${targetLives}, Zombie = ${targetZombie ? "Oui" : "Non"}.`;
+      let msg = `Modification manuelle de ${playerName} par le GM : Score = ${targetScore}, Vies = ${targetLives}, Zombie = ${targetZombie ? "Oui" : "Non"}`;
+      if (newName && newName.trim() !== playerName) msg += `, Nouveau Nom = ${newName.trim()}`;
+      if (newPin && newPin.trim() !== player.pin) msg += `, Nouveau PIN = ${newPin.trim()}`;
+      msg += ".";
+
       await logEvent("manual_edit", {
         status: "approved",
         message: msg
@@ -1057,6 +1087,7 @@ export const GameProvider = ({ children }) => {
       await fetchGameState(gameCode);
     } catch (err) {
       console.error(err);
+      throw err;
     } finally {
       setLoading(false);
     }
