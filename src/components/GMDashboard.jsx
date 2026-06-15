@@ -48,7 +48,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   const [actDesc, setActDesc] = useState("");
   const [actPoints, setActPoints] = useState(30);
   const [actDamage, setActDamage] = useState(1.0);
-  const [actEphemeral, setActEphemeral] = useState(false);
   const [editingActionId, setEditingActionId] = useState(null);
   const [toast, setToast] = useState(null);
 
@@ -59,7 +58,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     }, 2000);
   };
 
-  // Suggestion custom edits map (stores { points, damage, isEphemeral } for each pending suggestion)
+  // Suggestion custom edits map (stores { points, damage } for each pending suggestion)
   const [suggestionEdits, setSuggestionEdits] = useState({});
 
   // Filters
@@ -81,11 +80,11 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     if (!actTitle.trim() || !actDesc.trim()) return;
     
     if (editingActionId !== null) {
-      editAction(editingActionId, actTitle.trim(), actDesc.trim(), Number(actPoints), Number(actDamage), actEphemeral);
+      editAction(editingActionId, actTitle.trim(), actDesc.trim(), Number(actPoints), Number(actDamage), false);
       setEditingActionId(null);
       showToast("Défi mis à jour avec succès !", "success");
     } else {
-      addCustomActionDirectly(actTitle.trim(), actDesc.trim(), Number(actPoints), Number(actDamage), actEphemeral);
+      addCustomActionDirectly(actTitle.trim(), actDesc.trim(), Number(actPoints), Number(actDamage), false);
       showToast("Défi ajouté avec succès !", "success");
     }
     
@@ -93,7 +92,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     setActDesc("");
     setActPoints(30);
     setActDamage(1.0);
-    setActEphemeral(false);
   };
 
   const startEditAction = (action) => {
@@ -102,7 +100,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     setActDesc(action.description);
     setActPoints(action.points || 30);
     setActDamage(action.damage || 1.0);
-    setActEphemeral(!!action.isEphemeral);
     document.querySelector(".direct-action-card")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -112,7 +109,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     setActDesc("");
     setActPoints(30);
     setActDamage(1.0);
-    setActEphemeral(false);
   };
 
   // Dynamic suggestion edits handler
@@ -120,8 +116,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     setSuggestionEdits(prev => {
       const current = prev[eventId] || {
         points: eventMetadata?.points !== undefined ? eventMetadata.points : 30,
-        damage: eventMetadata?.damage !== undefined ? eventMetadata.damage : 1.0,
-        isEphemeral: eventMetadata?.isEphemeral !== undefined ? eventMetadata.isEphemeral : false
+        damage: eventMetadata?.damage !== undefined ? eventMetadata.damage : 1.0
       };
       return {
         ...prev,
@@ -136,10 +131,9 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   const handleApproveSuggestion = (event) => {
     const editData = suggestionEdits[event.id] || {
       points: event.metadata?.points !== undefined ? event.metadata.points : 30,
-      damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0,
-      isEphemeral: event.metadata?.isEphemeral !== undefined ? event.metadata.isEphemeral : false
+      damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0
     };
-    approveSuggestedAction(event.id, editData.points, editData.damage, editData.isEphemeral);
+    approveSuggestedAction(event.id, editData.points, editData.damage, false);
   };
 
   // God Mode Handlers
@@ -261,8 +255,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       {event.type === "action_suggestion" && (() => {
                         const editData = suggestionEdits[event.id] || {
                           points: event.metadata?.points !== undefined ? event.metadata.points : 30,
-                          damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0,
-                          isEphemeral: event.metadata?.isEphemeral !== undefined ? event.metadata.isEphemeral : false
+                          damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0
                         };
                         return (
                           <div className="suggestion-approval-container">
@@ -288,14 +281,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                   onChange={(e) => updateSugEdit(event.id, "damage", Number(e.target.value), event.metadata)}
                                   className="neon-input text-input-sug"
                                 />
-                              </label>
-                              <label className="checkbox-row inline-checkbox-sug" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 6, cursor: "pointer" }}>
-                                <input 
-                                  type="checkbox" 
-                                  checked={editData.isEphemeral} 
-                                  onChange={(e) => updateSugEdit(event.id, "isEphemeral", e.target.checked, event.metadata)}
-                                />
-                                Ephem.
                               </label>
                             </div>
                             <div className="sug-approve-btns">
@@ -565,16 +550,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       />
                     </label>
                   </div>
-                  
-                  <label className="checkbox-row" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, cursor: "pointer", margin: "4px 0" }}>
-                    <input
-                      type="checkbox"
-                      checked={actEphemeral}
-                      onChange={(e) => setActEphemeral(e.target.checked)}
-                      style={{ width: "auto", margin: 0 }}
-                    />
-                    <span className="checkbox-text" style={{ fontSize: "13px" }}>Bonus Éphémère (+75 pts si réussi)</span>
-                  </label>
 
                   <div style={{ display: "flex", gap: 8, justifyContent: "space-between", marginTop: 12, width: "100%", alignItems: "center", flexWrap: "wrap" }}>
                     {editingActionId !== null ? (

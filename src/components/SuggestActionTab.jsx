@@ -8,7 +8,6 @@ export default function SuggestActionTab({ playerName }) {
   const [sugDesc, setSugDesc] = useState("");
   const [sugPoints, setSugPoints] = useState(30);
   const [sugDamage, setSugDamage] = useState(1.0);
-  const [sugEphemeral, setSugEphemeral] = useState(false);
 
   const player = gameState.players.find(p => p.name === playerName);
   if (!player) return null;
@@ -27,13 +26,12 @@ export default function SuggestActionTab({ playerName }) {
       sugDesc.trim(),
       Number(sugPoints),
       Number(sugDamage),
-      sugEphemeral
+      false
     );
     setSugTitle("");
     setSugDesc("");
     setSugPoints(30);
     setSugDamage(1.0);
-    setSugEphemeral(false);
   };
 
   if (hasPendingSuggest) {
@@ -115,17 +113,7 @@ export default function SuggestActionTab({ playerName }) {
           </label>
         </div>
 
-        <label className="checkbox-row" style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "8px", cursor: "pointer", marginBottom: "20px" }}>
-          <input
-            type="checkbox"
-            checked={sugEphemeral}
-            onChange={(e) => setSugEphemeral(e.target.checked)}
-            style={{ width: "auto", margin: 0 }}
-          />
-          <span className="checkbox-text" style={{ fontSize: "13px" }}>Bonus Éphémère (+75 pts si réussi)</span>
-        </label>
-
-        <button type="submit" className="ca-submit-btn" style={{ width: "100%", padding: "12px", fontSize: "14px", fontWeight: "800", backgroundColor: "var(--neon-purple)" }}>
+        <button type="submit" className="ca-submit-btn" style={{ width: "100%", padding: "12px", fontSize: "14px", fontWeight: "800", backgroundColor: "var(--neon-purple)", marginTop: "8px" }}>
           SOUMETTRE LE DÉFI
         </button>
       </form>

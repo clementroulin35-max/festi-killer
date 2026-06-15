@@ -139,7 +139,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           <div className="hearts-block">
             <span className="stat-row-lbl" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
               <img src={heartImage} alt="Heart Icon" style={{ width: "16px", height: "16px", mixBlendMode: "screen" }} />
-              Énergie (Vies) :
+              Santé :
             </span>
             <ZeldaHearts lives={player.lives} />
           </div>
@@ -164,7 +164,6 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           onDeclareHit={handleDeclareHit}
           isZombie={player.isZombie}
           hasPendingHit={hasPendingHit}
-          actionEphemeral={player.actionEphemeral}
         />
       ) : (
         <div className="no-target-alert">
@@ -251,7 +250,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   <HeartCrack size={18} color="var(--neon-red)" />
                   <div style={{ textAlign: "left" }}>
                     <div style={{ fontSize: 14.5, fontWeight: 700 }}>💔 Perdre 1.0 cœur</div>
-                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Impacte directement votre énergie</span>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Impacte directement votre santé</span>
                   </div>
                 </div>
               </button>
@@ -335,7 +334,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 </p>
               ) : confirmModal.costType === "lives" ? (
                 <>
-                  <p>Voulez-vous vraiment changer de cible en sacrifiant <strong>1.0 cœur</strong> d'énergie ?</p>
+                  <p>Voulez-vous vraiment changer de cible en sacrifiant <strong>1.0 cœur</strong> de santé ?</p>
                   {player.lives <= 1.0 && (
                     <div className="modal-warning-highlight animate-pulse" style={{
                       backgroundColor: "rgba(255, 51, 102, 0.15)",

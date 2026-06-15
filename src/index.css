@@ -2218,9 +2218,17 @@ select option {
    TUTORIAL CAROUSEL & ONBOARDING STYLES
    ========================================== */
 
-.tutorial-carousel-card {
+.player-setup-screen {
   height: 100%;
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: 15px;
+}
+
+.tutorial-carousel-card {
+  max-height: calc(100% - 55px);
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

@@ -481,14 +481,13 @@ export const GameProvider = ({ children }) => {
       for (const name of playerNames) {
         // Draw distinct random action
         const randomAction = actionPool[Math.floor(Math.random() * actionPool.length)];
-        const isEphemeral = Math.random() < 0.25;
 
         await supabase
           .from("players")
           .update({
             target: targets[name],
             action_id: randomAction.action_id || randomAction.id,
-            action_ephemeral: isEphemeral
+            action_ephemeral: false
           })
           .eq("game_code", gameCode)
           .eq("name", name);
@@ -542,8 +541,7 @@ export const GameProvider = ({ children }) => {
     const action = gameState.actionPool.find(a => a.id === killer.actionId);
     if (!action) return;
 
-    const isEphemeral = !!killer.actionEphemeral || !!action.isEphemeral;
-    const finalPoints = action.points + (isEphemeral ? GAME_CONFIG.BONUS_EPHEMERAL : 0);
+    const finalPoints = action.points;
 
     await logEvent("hit_declaration", {
       killer: killerName,
@@ -552,10 +550,8 @@ export const GameProvider = ({ children }) => {
       actionTitle: action.title,
       points: finalPoints,
       damage: action.damage,
-      isEphemeral,
-      message: `${killerName} déclare avoir réussi son action "${action.title}" sur ${killer.target}.${
-        isEphemeral ? ` (Bonus Éphémère +${GAME_CONFIG.BONUS_EPHEMERAL} pts actif !)` : ""
-      }`
+      isEphemeral: false,
+      message: `${killerName} déclare avoir réussi son action "${action.title}" sur ${killer.target}.`
     });
   };
 
@@ -624,7 +620,6 @@ export const GameProvider = ({ children }) => {
         : pool[Math.floor(Math.random() * pool.length)];
 
       const newActionId = newAction ? newAction.id : null;
-      const newActionEphemeral = Math.random() < 0.25;
 
       // 1. Update victim in database
       await supabase
@@ -641,7 +636,7 @@ export const GameProvider = ({ children }) => {
           skips: killer.skips + 1,
           target: newKillerTarget,
           action_id: newActionId,
-          action_ephemeral: newActionEphemeral
+          action_ephemeral: false
         })
         .eq("game_code", gameCode)
         .eq("name", killer.name);
@@ -729,14 +724,13 @@ export const GameProvider = ({ children }) => {
         : pool[Math.floor(Math.random() * pool.length)];
 
       const newActionId = newAction ? newAction.id : null;
-      const newActionEphemeral = Math.random() < 0.25;
 
       await supabase
         .from("players")
         .update({
           skips: player.skips - 1,
           action_id: newActionId,
-          action_ephemeral: newActionEphemeral
+          action_ephemeral: false
         })
         .eq("game_code", gameCode)
         .eq("name", playerName);
@@ -886,7 +880,6 @@ export const GameProvider = ({ children }) => {
           : pool[Math.floor(Math.random() * pool.length)];
 
         const newActionId = newAction ? newAction.id : null;
-        const newActionEphemeral = Math.random() < 0.25;
         const newKillerScore = Math.max(0, killer.score + GAME_CONFIG.PENALTY_ACCUSED_CORRECT);
 
         // Update killer
@@ -895,7 +888,7 @@ export const GameProvider = ({ children }) => {
           .update({
             score: newKillerScore,
             action_id: newActionId,
-            action_ephemeral: newActionEphemeral
+            action_ephemeral: false
           })
           .eq("game_code", gameCode)
           .eq("name", killer.name);
@@ -1126,17 +1119,17 @@ export const GameProvider = ({ children }) => {
   // (insertPlayerMidGame has been moved up to resolve reference in loginPlayer)
 
   // 14. Suggest action (Player)
-  const suggestAction = async (playerName, title, description, points, damage, isEphemeral) => {
+  const suggestAction = async (playerName, title, description, points, damage) => {
     await logEvent("action_suggestion", {
       killer: playerName,
       status: "pending",
-      message: `${playerName} suggère d'ajouter l'action "${title}" (« ${description} », +${points} pts, -${damage} coeurs${isEphemeral ? ", Bonus Éphémère" : ""}).`,
-      metadata: { title, description, points, damage, isEphemeral }
+      message: `${playerName} suggère d'ajouter l'action "${title}" (« ${description} », +${points} pts, -${damage} coeurs).`,
+      metadata: { title, description, points, damage }
     });
   };
 
   // 15. Approve suggested action (GM)
-  const approveSuggestedAction = async (historyId, points, damage, isEphemeral) => {
+  const approveSuggestedAction = async (historyId, points, damage) => {
     const event = gameState.history.find(e => e.id === historyId);
     if (!event || event.status !== "pending") return;
 
@@ -1161,7 +1154,7 @@ export const GameProvider = ({ children }) => {
           difficulty,
           points: Number(points),
           damage: Number(damage),
-          is_ephemeral: !!isEphemeral
+          is_ephemeral: false
         }]);
 
       // 2. Approve event
@@ -1172,7 +1165,7 @@ export const GameProvider = ({ children }) => {
 
       await logEvent("action_added", {
         status: "approved",
-        message: `🛠️ Action approuvée et ajoutée par le GM : "${event.metadata.title}" (+${points} pts, -${damage} coeurs${isEphemeral ? ", Bonus Éphémère" : ""}).`
+        message: `🛠️ Action approuvée et ajoutée par le GM : "${event.metadata.title}" (+${points} pts, -${damage} coeurs).`
       });
 
       await fetchGameState(gameCode);
@@ -1209,7 +1202,7 @@ export const GameProvider = ({ children }) => {
   };
 
   // 17. Add custom action directly (GM)
-  const addCustomActionDirectly = async (title, description, points, damage, isEphemeral) => {
+  const addCustomActionDirectly = async (title, description, points, damage) => {
     if (!gameCode) return;
     setLoading(true);
     try {
@@ -1231,12 +1224,12 @@ export const GameProvider = ({ children }) => {
           difficulty,
           points: Number(points),
           damage: Number(damage),
-          is_ephemeral: !!isEphemeral
+          is_ephemeral: false
         }]);
 
       await logEvent("action_added", {
         status: "approved",
-        message: `🛠️ Action ajoutée directement par le GM : "${title}" (+${points} pts, -${damage} coeurs${isEphemeral ? ", Bonus Éphémère" : ""}).`
+        message: `🛠️ Action ajoutée directement par le GM : "${title}" (+${points} pts, -${damage} coeurs).`
       });
 
       await fetchGameState(gameCode);
@@ -1296,7 +1289,7 @@ export const GameProvider = ({ children }) => {
   };
 
   // 19. Edit action from pool (GM)
-  const editAction = async (actionId, title, description, points, damage, isEphemeral) => {
+  const editAction = async (actionId, title, description, points, damage) => {
     if (!gameCode) return;
     setLoading(true);
     try {
@@ -1313,14 +1306,14 @@ export const GameProvider = ({ children }) => {
           difficulty,
           points: Number(points),
           damage: Number(damage),
-          is_ephemeral: !!isEphemeral
+          is_ephemeral: false
         })
         .eq("game_code", gameCode)
         .eq("action_id", actionId);
 
       await logEvent("action_edited", {
         status: "approved",
-        message: `🛠️ Action modifiée par le GM : "${title}" (+${points} pts, -${damage} coeurs${isEphemeral ? ", Bonus Éphémère" : ""}).`
+        message: `🛠️ Action modifiée par le GM : "${title}" (+${points} pts, -${damage} coeurs).`
       });
 
       await fetchGameState(gameCode);
@@ -1400,7 +1393,6 @@ export const GameProvider = ({ children }) => {
           : pool[Math.floor(Math.random() * pool.length)];
 
         const newActionId = newAction ? newAction.id : null;
-        const newActionEphemeral = Math.random() < 0.25;
 
         // 1. Update reactivated player (A -> player -> C)
         await supabase
@@ -1408,7 +1400,7 @@ export const GameProvider = ({ children }) => {
           .update({
             target: targetC,
             action_id: newActionId,
-            action_ephemeral: newActionEphemeral
+            action_ephemeral: false
           })
           .eq("game_code", gameCode)
           .eq("name", playerName);

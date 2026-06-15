@@ -267,7 +267,7 @@ function MainAppContent() {
 
         // If player has no photo set or is actively editing it, force/redirect to onboarding
         if (currentPlayer && (!currentPlayer.photo || editPhotoActive)) {
-          return <PlayerSetup playerName={currentUser} initialSlide={5} onComplete={() => setEditPhotoActive(false)} />;
+          return <PlayerSetup playerName={currentUser} initialSlide={editPhotoActive ? 5 : 0} onComplete={() => setEditPhotoActive(false)} />;
         }
 
         return <PlayerDashboard playerName={currentUser} onEditPhoto={() => setEditPhotoActive(true)} />;
@@ -277,23 +277,24 @@ function MainAppContent() {
   // === NO SESSION ENTERED YET ===
   if (!gameCode || !currentUser) {
     return (
-      <div className="app-container onboarding-carousel-view animate-fade-in" style={{ padding: "12px 12px" }}>
+      <div className="app-container onboarding-carousel-view animate-fade-in" style={{ padding: "12px 12px", overflowY: "auto" }}>
         <div className="admin-card setup-card" style={{ maxWidth: "100%", width: "100%", padding: "16px 14px" }}>
 
           <div className="setup-header" style={{ marginBottom: "12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <img 
               src={heroImage} 
-              alt="Cooki'llers logo illustration" 
+              alt="Cooki'llers logo" 
+              onClick={toggleTheme}
               style={{ 
                 width: "100%", 
-                maxWidth: "160px", 
+                maxWidth: "340px", 
                 height: "auto", 
-                marginBottom: "8px", 
-                filter: "drop-shadow(0 0 12px rgba(139, 92, 246, 0.25))"
+                marginBottom: "4px", 
+                cursor: "pointer",
+                filter: "drop-shadow(0 0 16px rgba(139, 92, 246, 0.35))"
               }} 
+              title="Basculer thème jour/nuit"
             />
-            <h1 onClick={toggleTheme} style={{ fontSize: "22px", letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer" }} title="Basculer thème jour/nuit">COOKI'LLERS</h1>
-            <p style={{ color: "var(--text-secondary)", fontSize: "11px" }}>Jeu d'assassinat en temps réel</p>
           </div>
 
           {joinStep === "create" ? (

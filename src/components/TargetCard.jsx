@@ -4,12 +4,11 @@ import { DEFAULT_ACTIONS, GAME_CONFIG } from "../services/gameEngine";
 import { ShieldAlert, Zap, Loader2, Eye, EyeOff } from "lucide-react";
 import targetImage from "../assets/target_neon.png";
 
-export default function TargetCard({ targetName, actionId, onDeclareHit, isZombie, hasPendingHit, actionEphemeral }) {
+export default function TargetCard({ targetName, actionId, onDeclareHit, isZombie, hasPendingHit }) {
   const { gameState } = useGame();
   const [isMasked, setIsMasked] = useState(false);
   const targetPlayer = gameState.players.find(p => p.name === targetName);
   const action = (gameState.actionPool || DEFAULT_ACTIONS).find((a) => a.id === actionId);
-  const isEphemeral = actionEphemeral || (action ? !!action.isEphemeral : false);
 
   if (!action) {
     return (
@@ -94,7 +93,7 @@ export default function TargetCard({ targetName, actionId, onDeclareHit, isZombi
           <div className="mission-stats">
             <div className="stat-item">
               <span className="stat-val">
-                +{action.points + (isEphemeral ? GAME_CONFIG.BONUS_EPHEMERAL : 0)}
+                +{action.points}
               </span>
               <span className="stat-lbl">Points</span>
             </div>
@@ -108,13 +107,6 @@ export default function TargetCard({ targetName, actionId, onDeclareHit, isZombi
             <div className="zombie-notice">
               <ShieldAlert size={16} />
               <span>Mode Zombie : Vos hits ne retirent pas de cœurs à votre cible, mais vous rapportent des points !</span>
-            </div>
-          )}
-
-          {isEphemeral && (
-            <div className="ephemeral-static-badge">
-              <Zap size={14} fill="#f59e0b" color="#f59e0b" className="zap-glowing" />
-              <span>BONUS ÉPHÉMÈRE ACTIF (+{GAME_CONFIG.BONUS_EPHEMERAL} PTS)</span>
             </div>
           )}
 
