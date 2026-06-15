@@ -30,6 +30,20 @@ function MainAppContent() {
 
   const [activeTab, setActiveTab] = useState("dashboard");
 
+  // Theme toggle (dark / light)
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("fk_theme") || "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("fk_theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
   // Authentication & salon states
   const [inputCode, setInputCode] = useState("");
   const [nickname, setNickname] = useState("");
@@ -252,7 +266,7 @@ function MainAppContent() {
           
           <div className="setup-header" style={{ marginBottom: "24px" }}>
             <Skull size={54} className="glowing-icon-pink" style={{ marginBottom: "8px" }} />
-            <h1 style={{ fontSize: "28px", letterSpacing: "0.1em", fontWeight: 900 }}>COOKI'LLERS</h1>
+            <h1 onClick={toggleTheme} style={{ fontSize: "28px", letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer" }} title="Basculer thème jour/nuit">COOKI'LLERS</h1>
             <p style={{ color: "var(--text-secondary)", fontSize: "13px" }}>Jeu d'assassinat en temps réel</p>
           </div>
 
@@ -471,7 +485,7 @@ function MainAppContent() {
       
       {/* 2. App Header */}
       <header className="app-header">
-        <div className="header-brand">
+        <div className="header-brand" onClick={toggleTheme} style={{ cursor: "pointer" }} title="Basculer thème jour/nuit">
           <Skull size={24} className="brand-logo" />
           <h1>COOKI'LLERS</h1>
         </div>
@@ -482,28 +496,14 @@ function MainAppContent() {
               💀 Zombie
             </span>
           )}
-          {currentPlayer && !currentPlayer.isZombie && (
-            <span className="badge badge-player" style={{ textTransform: "uppercase" }}>
-              🟢 Connecté
-            </span>
-          )}
           
           <button 
             onClick={handleLogout}
             title="Quitter le salon"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              padding: "4px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center"
-            }}
             className="header-logout-btn"
           >
-            <LogOut size={18} />
+            <LogOut size={16} />
+            <span>Quitter</span>
           </button>
         </div>
       </header>

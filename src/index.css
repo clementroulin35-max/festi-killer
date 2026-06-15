@@ -2375,9 +2375,354 @@ select option {
 }
 
 .header-logout-btn {
-  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: rgba(255, 51, 102, 0.08);
+  border: 1px solid rgba(255, 51, 102, 0.25);
+  color: var(--neon-red);
+  border-radius: 9999px;
+  padding: 5px 12px 5px 10px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .header-logout-btn:hover {
-  color: var(--neon-red) !important;
+  background-color: rgba(255, 51, 102, 0.18);
+  border-color: var(--neon-red);
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
+}
+
+.header-logout-btn:active {
+  transform: scale(0.96);
+}
+
+/* ==========================================
+   LIGHT THEME (DAY MODE)
+   Toggle via data-theme="light" on <html>
+   ========================================== */
+
+[data-theme="light"] {
+  /* Color Palette - Light overrides */
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #eeeef0;
+  --bg-card: #ffffff;
+  --bg-input: #e8e8ec;
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #555568;
+  --text-muted: #8888a0;
+
+  /* Neon Accents - slightly deeper for white bg contrast */
+  --neon-red: #e6264d;
+  --neon-red-glow: rgba(230, 38, 77, 0.25);
+  --neon-green: #0d9668;
+  --neon-green-glow: rgba(13, 150, 104, 0.25);
+  --neon-blue: #2563eb;
+  --neon-purple: #7c3aed;
+  --neon-gold: #d97706;
+
+  /* Borders & Shadows */
+  --border-color: #d4d4dc;
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+  --shadow-neon: 0 0 12px rgba(230, 38, 77, 0.15);
+}
+
+/* Body & app shell */
+[data-theme="light"] body {
+  background-color: #ebebee;
+}
+
+[data-theme="light"] .app-container {
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+  border-left-color: var(--border-color);
+  border-right-color: var(--border-color);
+}
+
+/* Header */
+[data-theme="light"] .app-header {
+  background-color: rgba(245, 245, 247, 0.95);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="light"] .app-header h1 {
+  background: linear-gradient(135deg, #1a1a2e, #555568);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Bottom Nav */
+[data-theme="light"] .bottom-nav {
+  background-color: rgba(245, 245, 247, 0.95);
+  border-top-color: var(--border-color);
+}
+
+[data-theme="light"] .nav-item {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .nav-item.active {
+  color: var(--neon-red);
+}
+
+/* Cards */
+[data-theme="light"] .admin-card,
+[data-theme="light"] .god-edit-form,
+[data-theme="light"] .player-header-card,
+[data-theme="light"] .actions-panel,
+[data-theme="light"] .judge-section,
+[data-theme="light"] .waiting-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .player-header-card {
+  background: linear-gradient(135deg, #ffffff, #f0f0f5);
+  border-color: var(--border-color);
+}
+
+/* Target card */
+[data-theme="light"] .target-card {
+  background-color: var(--bg-card);
+  box-shadow: 0 0 12px rgba(230, 38, 77, 0.12);
+}
+
+/* Inputs */
+[data-theme="light"] .neon-input {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .neon-input:focus {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 6px rgba(124, 58, 237, 0.15);
+}
+
+/* Pending cards */
+[data-theme="light"] .pending-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Feed items */
+[data-theme="light"] .feed-item:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Empty state */
+[data-theme="light"] .empty-pending-card,
+[data-theme="light"] .empty-feed {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: var(--border-color);
+}
+
+/* Player cards in GM grid */
+[data-theme="light"] .judge-player-card {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: var(--border-color);
+}
+
+/* Leaderboard rows */
+[data-theme="light"] .leaderboard-row {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* Action items */
+[data-theme="light"] .action-item-mini {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-left-color: var(--border-color);
+}
+
+[data-theme="light"] .action-item-mini:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Avatars */
+[data-theme="light"] .avatar-inner,
+[data-theme="light"] .row-avatar {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Buttons */
+[data-theme="light"] .panic-btn {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .action-btn-tactical {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Selects */
+[data-theme="light"] select {
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* QR Code card */
+[data-theme="light"] .setup-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* Badges */
+[data-theme="light"] .badge-admin {
+  background-color: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+[data-theme="light"] .badge-juge {
+  background-color: rgba(217, 119, 6, 0.1);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+[data-theme="light"] .badge-zombie {
+  background-color: rgba(230, 38, 77, 0.1);
+  border-color: rgba(230, 38, 77, 0.25);
+}
+
+/* Logout button on light */
+[data-theme="light"] .header-logout-btn {
+  background-color: rgba(230, 38, 77, 0.06);
+  border-color: rgba(230, 38, 77, 0.2);
+}
+
+[data-theme="light"] .header-logout-btn:hover {
+  background-color: rgba(230, 38, 77, 0.14);
+  border-color: var(--neon-red);
+}
+
+/* Glowing icon adjustment */
+[data-theme="light"] .brand-logo {
+  filter: drop-shadow(0 0 2px rgba(230, 38, 77, 0.3));
+}
+
+[data-theme="light"] .glowing-icon-pink {
+  filter: drop-shadow(0 0 4px rgba(230, 38, 77, 0.2));
+}
+
+/* Mission box */
+[data-theme="light"] .mission-box {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-color: var(--border-color);
+}
+
+/* Counter attack form */
+[data-theme="light"] .counter-attack-form {
+  background-color: rgba(230, 38, 77, 0.03);
+  border-color: rgba(230, 38, 77, 0.15);
+}
+
+/* Toast */
+[data-theme="light"] .toast-notification-body {
+  background-color: var(--bg-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Modal */
+[data-theme="light"] .ux-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] .ux-modal-container {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Zebra items */
+[data-theme="light"] .counter-attack-details {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Pending status items */
+[data-theme="light"] .pending-status-item {
+  background-color: var(--bg-card);
+}
+
+/* Podium bars in light mode */
+[data-theme="light"] .podium-number {
+  color: #ffffff;
+}
+
+/* Blur cards */
+[data-theme="light"] .target-card.card-blurred {
+  border-color: var(--border-color) !important;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Trophies */
+[data-theme="light"] .trophy-badge {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+/* Video viewport camera */
+[data-theme="light"] .video-viewport {
+  background-color: #e8e8ec;
+  border-color: var(--border-color);
+}
+
+/* Tutorial carousel */
+[data-theme="light"] .tutorial-carousel-card {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.1);
+}
+
+[data-theme="light"] .point-item {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: var(--border-color);
+}
+
+/* Zombie notice */
+[data-theme="light"] .zombie-notice {
+  background-color: rgba(230, 38, 77, 0.05);
+  border-color: rgba(230, 38, 77, 0.15);
+}
+
+/* GM tab nav */
+[data-theme="light"] .gm-tabs-nav {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+[data-theme="light"] .gm-tab-item.active {
+  background-color: var(--bg-card);
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+/* Sim select */
+[data-theme="light"] .sim-select {
+  background-color: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Button rejects on light */
+[data-theme="light"] .btn-reject {
+  background-color: #e8e8ec;
+  color: var(--text-primary);
+}
+
+/* Ephemeral badge light */
+[data-theme="light"] .ephemeral-static-badge {
+  background-color: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.25);
 }
