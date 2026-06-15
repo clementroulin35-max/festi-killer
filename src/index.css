@@ -36,7 +36,7 @@
   --switcher-height: 0px;
   
   /* Horizontal safe margin for rounded phone edges */
-  --safe-x: max(32px, env(safe-area-inset-left, 32px));
+  --safe-x: max(16px, env(safe-area-inset-left, 16px));
 }
 
 /* Base resets */
@@ -52,7 +52,7 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
-html, body {
+html, body, #root {
   position: fixed;
   top: 0;
   left: 0;
@@ -64,7 +64,7 @@ html, body {
   color: var(--text-primary);
 }
 
-body {
+body, #root {
   display: flex;
   justify-content: center;
   align-items: flex-start;
