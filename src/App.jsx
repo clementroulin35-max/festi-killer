@@ -120,7 +120,7 @@ function MainAppContent() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setError("");
 
     if (loginRole === "gm") {
@@ -129,6 +129,7 @@ function MainAppContent() {
         setActiveTab(gameState.started ? "arbitrage" : "qrcode");
       } catch (err) {
         setError(err.message);
+        setPin("");
       }
       return;
     }
@@ -148,8 +149,20 @@ function MainAppContent() {
       setActiveTab("dashboard");
     } catch (err) {
       setError(err.message);
+      setPin("");
     }
   };
+
+  // Auto-login when PIN is 4 digits
+  useEffect(() => {
+    if (pin.length === 4 && joinStep === "login") {
+      if (loginRole === "player" && !nickname.trim()) {
+        return;
+      }
+      handleLogin();
+    }
+  }, [pin, loginRole, nickname, joinStep]);
+
 
   const handleForgotPin = async () => {
     setError("");
@@ -263,13 +276,13 @@ function MainAppContent() {
   // === NO SESSION ENTERED YET ===
   if (!gameCode || !currentUser) {
     return (
-      <div className="app-container onboarding-carousel-view animate-fade-in" style={{ padding: "32px 16px" }}>
-        <div className="admin-card setup-card" style={{ maxWidth: "100%", width: "100%", padding: "32px 20px" }}>
+      <div className="app-container onboarding-carousel-view animate-fade-in" style={{ padding: "12px 12px" }}>
+        <div className="admin-card setup-card" style={{ maxWidth: "100%", width: "100%", padding: "16px 14px" }}>
 
-          <div className="setup-header" style={{ marginBottom: "24px" }}>
-            <Skull size={54} className="glowing-icon-pink" style={{ marginBottom: "8px" }} />
-            <h1 onClick={toggleTheme} style={{ fontSize: "28px", letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer" }} title="Basculer thème jour/nuit">COOKI'LLERS</h1>
-            <p style={{ color: "var(--text-secondary)", fontSize: "13px" }}>Jeu d'assassinat en temps réel</p>
+          <div className="setup-header" style={{ marginBottom: "12px" }}>
+            <Skull size={32} className="glowing-icon-pink" style={{ marginBottom: "4px" }} />
+            <h1 onClick={toggleTheme} style={{ fontSize: "22px", letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer" }} title="Basculer thème jour/nuit">COOKI'LLERS</h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: "11px" }}>Jeu d'assassinat en temps réel</p>
           </div>
 
           {joinStep === "create" ? (
@@ -368,7 +381,7 @@ function MainAppContent() {
               </div>
 
               {/* Role selector */}
-              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                 <button
                   type="button"
                   onClick={() => { setLoginRole("player"); setError(""); }}
@@ -401,54 +414,60 @@ function MainAppContent() {
                 </button>
               </div>
 
-              <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                {loginRole === "player" ? (
-                  <>
-                    <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
-                      Pseudo du joueur :
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ex: Sophie"
-                      value={nickname}
-                      onChange={(e) => setNickname(e.target.value)}
-                      className="neon-input"
-                      required
-                    />
-
-                    <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
-                      Code PIN secret (4 chiffres) :
-                    </label>
-                    <PinPad value={pin} onChange={setPin} />
-                    <button
-                      type="button"
-                      onClick={handleForgotPin}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "var(--neon-purple)",
-                        fontSize: 11,
-                        cursor: "pointer",
-                        fontWeight: 700,
-                        alignSelf: "flex-end",
-                        marginTop: -6
-                      }}
-                    >
-                      Code PIN oublié ?
-                    </button>
-                  </>
+              <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {loading ? (
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "30px 0", gap: 10 }}>
+                    <Loader2 className="animate-spin" size={32} style={{ color: "var(--neon-purple)" }} />
+                    <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: "600" }}>Connexion en cours...</span>
+                  </div>
                 ) : (
                   <>
-                    <label style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-secondary)" }}>
-                      Code d'accès GameMaster :
-                    </label>
-                    <PinPad value={pin} onChange={setPin} />
+                    {loginRole === "player" ? (
+                      <>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: "var(--text-secondary)" }}>
+                          Pseudo du joueur :
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ex: Sophie"
+                          value={nickname}
+                          onChange={(e) => setNickname(e.target.value)}
+                          className="neon-input"
+                          required
+                          style={{ padding: "8px 12px", fontSize: "13px" }}
+                        />
+
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: "var(--text-secondary)", marginTop: 4 }}>
+                          Code PIN secret (4 chiffres) :
+                        </label>
+                        <PinPad value={pin} onChange={setPin} />
+                        <button
+                          type="button"
+                          onClick={handleForgotPin}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--neon-purple)",
+                            fontSize: 11,
+                            cursor: "pointer",
+                            fontWeight: 700,
+                            alignSelf: "flex-end",
+                            marginTop: -4
+                          }}
+                        >
+                          Code PIN oublié ?
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <label style={{ fontSize: "12px", fontWeight: "700", color: "var(--text-secondary)" }}>
+                          Code d'accès GameMaster :
+                        </label>
+                        <PinPad value={pin} onChange={setPin} />
+                      </>
+                    )}
                   </>
                 )}
-
-                <button type="submit" className="hit-success-btn" style={{ height: "46px", marginTop: "8px" }} disabled={loading}>
-                  {loading ? <Loader2 className="animate-spin" size={18} /> : "ACCÉDER À LA PARTIE"}
-                </button>
               </form>
 
               {error && (
