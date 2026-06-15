@@ -82,7 +82,7 @@ function MainAppContent() {
     try {
       await createRoom(code, gmPin);
       setCurrentUser("GM");
-      setActiveTab("dashboard");
+      setActiveTab("qrcode");
     } catch (err) {
       setError("Ce code de salon est déjà pris ou indisponible.");
     }
@@ -109,7 +109,7 @@ function MainAppContent() {
     if (loginRole === "gm") {
       try {
         await loginGM(gameCode, pin);
-        setActiveTab(gameState.started ? "arbitrage" : "dashboard");
+        setActiveTab(gameState.started ? "arbitrage" : "qrcode");
       } catch (err) {
         setError(err.message);
       }
@@ -217,7 +217,7 @@ function MainAppContent() {
       case "dashboard":
       default:
         if (currentUser === "GM") {
-          return <GMDashboard gmTab={gameState.started ? "arbitrage" : "initialization"} />;
+          return <GMDashboard gmTab={gameState.started ? "arbitrage" : "qrcode"} />;
         }
 
         // If player has no target assigned and game isn't started yet
@@ -483,7 +483,7 @@ function MainAppContent() {
               const newUser = e.target.value;
               setCurrentUser(newUser);
               if (newUser === "GM") {
-                setActiveTab(gameState.started ? "arbitrage" : "dashboard");
+                setActiveTab(gameState.started ? "arbitrage" : "qrcode");
               } else {
                 setActiveTab("dashboard");
               }
@@ -544,113 +544,109 @@ function MainAppContent() {
 
       {/* 4. Bottom Navigation Bar */}
       <nav className="bottom-nav">
-        {(!gameState.started || currentUser !== "GM") && (
+        {currentUser !== "GM" && (
           <button
             onClick={() => setActiveTab("dashboard")}
             className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
           >
-            {currentUser === "GM" ? <Shield size={20} /> : <Skull size={20} />}
+            <Skull size={20} />
             <span>Dashboard</span>
           </button>
         )}
 
-        {gameState.started && (
+        {/* GM Bottom Tabs Navigation */}
+        {currentUser === "GM" && (
           <>
-            {/* GM Bottom Tabs Navigation */}
-            {currentUser === "GM" && (
-              <>
-                <button
-                  onClick={() => setActiveTab("arbitrage")}
-                  className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
-                  style={{ position: "relative" }}
-                >
-                  <Shield size={20} />
-                  <span>Arbitrage</span>
-                  {pendingEvents.length > 0 && (
-                    <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
-                      {pendingEvents.length}
-                    </span>
-                  )}
-                </button>
+            <button
+              onClick={() => setActiveTab("arbitrage")}
+              className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
+              style={{ position: "relative" }}
+            >
+              <Shield size={20} />
+              <span>Arbitrage</span>
+              {pendingEvents.length > 0 && (
+                <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
+                  {pendingEvents.length}
+                </span>
+              )}
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("gm_mode")}
-                  className={`nav-item ${activeTab === "gm_mode" ? "active" : ""}`}
-                >
-                  <Users size={20} />
-                  <span>GM Mode</span>
-                </button>
+            <button
+              onClick={() => setActiveTab("gm_mode")}
+              className={`nav-item ${activeTab === "gm_mode" ? "active" : ""}`}
+            >
+              <Users size={20} />
+              <span>GM Mode</span>
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("qrcode")}
-                  className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
-                >
-                  <QrCode size={20} />
-                  <span>QR Code</span>
-                </button>
+            <button
+              onClick={() => setActiveTab("qrcode")}
+              className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
+            >
+              <QrCode size={20} />
+              <span>QR Code</span>
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("actions")}
-                  className={`nav-item ${activeTab === "actions" ? "active" : ""}`}
-                >
-                  <Award size={20} />
-                  <span>Actions</span>
-                </button>
+            <button
+              onClick={() => setActiveTab("actions")}
+              className={`nav-item ${activeTab === "actions" ? "active" : ""}`}
+            >
+              <Award size={20} />
+              <span>Actions</span>
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("leaderboard")}
-                  className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
-                >
-                  <Trophy size={20} />
-                  <span>Classement</span>
-                </button>
+            <button
+              onClick={() => setActiveTab("leaderboard")}
+              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
+            >
+              <Trophy size={20} />
+              <span>Classement</span>
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("logs")}
-                  className={`nav-item ${activeTab === "logs" ? "active" : ""}`}
-                >
-                  <FileText size={20} />
-                  <span>Logs</span>
-                </button>
-              </>
-            )}
+            <button
+              onClick={() => setActiveTab("logs")}
+              className={`nav-item ${activeTab === "logs" ? "active" : ""}`}
+            >
+              <FileText size={20} />
+              <span>Logs</span>
+            </button>
+          </>
+        )}
 
-            {/* Players Bottom Tabs Navigation */}
-            {currentUser !== "GM" && (
-              <>
-                <button
-                  onClick={() => setActiveTab("counter")}
-                  className={`nav-item ${activeTab === "counter" ? "active" : ""}`}
-                >
-                  <ShieldAlert size={20} />
-                  <span>Dénoncer</span>
-                </button>
+        {/* Players Bottom Tabs Navigation (only when started) */}
+        {gameState.started && currentUser !== "GM" && (
+          <>
+            <button
+              onClick={() => setActiveTab("counter")}
+              className={`nav-item ${activeTab === "counter" ? "active" : ""}`}
+            >
+              <ShieldAlert size={20} />
+              <span>Dénoncer</span>
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("leaderboard")}
-                  className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
-                >
-                  <Trophy size={20} />
-                  <span>Classement</span>
-                </button>
+            <button
+              onClick={() => setActiveTab("leaderboard")}
+              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
+            >
+              <Trophy size={20} />
+              <span>Classement</span>
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("suggest")}
-                  className={`nav-item ${activeTab === "suggest" ? "active" : ""}`}
-                >
-                  <Lightbulb size={20} />
-                  <span>Idée Défi</span>
-                </button>
+            <button
+              onClick={() => setActiveTab("suggest")}
+              className={`nav-item ${activeTab === "suggest" ? "active" : ""}`}
+            >
+              <Lightbulb size={20} />
+              <span>Idée Défi</span>
+            </button>
 
-                <button
-                  onClick={() => setActiveTab("feed")}
-                  className={`nav-item ${activeTab === "feed" ? "active" : ""}`}
-                >
-                  <FileText size={20} />
-                  <span>Flux Live</span>
-                </button>
-              </>
-            )}
+            <button
+              onClick={() => setActiveTab("feed")}
+              className={`nav-item ${activeTab === "feed" ? "active" : ""}`}
+            >
+              <FileText size={20} />
+              <span>Flux Live</span>
+            </button>
           </>
         )}
       </nav>

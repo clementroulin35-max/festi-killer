@@ -154,89 +154,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
     return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   };
 
-  // === VIEW 1 : GAME NOT STARTED ===
-  if (!gameState.started) {
-    return (
-      <div className="admin-dashboard animate-fade-in">
-        <h2 className="admin-title">INITIALISATION PAR LE GM</h2>
-
-        {/* Share Room Card with QR Code */}
-        <div className="admin-card text-center" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 10 }}>
-          <h3>Rejoindre la Partie</h3>
-          <p className="admin-subtitle" style={{ margin: 0 }}>Faites scanner ce QR Code aux joueurs sur leur téléphone</p>
-          <div style={{ backgroundColor: "#fff", padding: 12, borderRadius: "var(--border-radius-sm)", display: "inline-block", marginTop: 4, boxShadow: "0 0 15px rgba(255, 255, 255, 0.1)" }}>
-            <img 
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin + "/?join=" + gameCode)}`} 
-              alt="QR Code de partage" 
-              style={{ display: "block", width: 150, height: 150 }}
-            />
-          </div>
-          <div style={{ fontSize: "16px", fontWeight: "900", color: "var(--neon-purple)", letterSpacing: "0.05em", marginTop: 4 }}>
-            CODE SALON : <span style={{ color: "#fff", background: "var(--bg-input)", padding: "4px 10px", borderRadius: 4, border: "1px solid var(--border-color)" }}>{gameCode}</span>
-          </div>
-          <span style={{ fontSize: "10px", color: "var(--text-muted)", wordBreak: "break-all" }}>Lien direct : {window.location.origin}/?join={gameCode}</span>
-        </div>
-        
-        <div className="admin-card">
-          <h3>Joueurs Connectés ({gameState.players.length})</h3>
-          <p className="admin-subtitle" style={{ margin: 0 }}>Les joueurs apparaissent ici en temps réel au fur et à mesure de leurs inscriptions</p>
-
-          {initError && <div className="error-message" style={{ marginTop: 10 }}><ShieldAlert size={16} />{initError}</div>}
-
-          {gameState.players.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "24px 0", color: "var(--text-muted)", fontSize: "13px", fontWeight: 600 }}>
-              Aucun joueur connecté pour l'instant.
-            </div>
-          ) : (
-            <div className="player-list-chips" style={{ marginTop: 12 }}>
-              {gameState.players.map((p) => (
-                <div key={p.name} className="player-chip animate-fade-in">
-                  <span>{p.name}</span>
-                  <button type="button" onClick={() => removePlayer(p.name)} className="chip-remove-btn">
-                    <Trash size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="admin-card actions-preview">
-          <h3>Pool d'Actions de Départ ({DEFAULT_ACTIONS.length})</h3>
-          <p className="admin-subtitle">Les défis par défaut configurés pour le festival</p>
-          <div className="actions-list-container">
-            {["micro", "standard", "majeur", "legendaire"].map((category) => {
-              const list = DEFAULT_ACTIONS.filter((a) => a.difficulty === category);
-              return (
-                <div key={category} className="action-category-group">
-                  <h4 className={`cat-title-${category}`}>{category.toUpperCase()}</h4>
-                  <div className="actions-scroll-list">
-                    {list.map((act) => (
-                      <div key={act.id} className="action-item-mini">
-                        <div className="action-mini-header">
-                          <span className="action-mini-title">{act.title}</span>
-                          <span className="action-mini-rewards">+{act.points} pts / -{act.damage} HP</span>
-                        </div>
-                        <p className="action-mini-desc">{act.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="launch-game-btn-container">
-          <button onClick={handleStartGame} className="launch-game-btn">
-            <Play size={20} fill="#121214" /> LANCER LA PARTIE 🚀
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // === VIEW 2 : GAME STARTED (GM CONTROL PANEL) ===
+  // === RENDU DU PANEL DE CONTRÔLE GM (ONGLETS DYNAMIQUES) ===
   return (
     <div className="judge-dashboard gm-refactored animate-fade-in">
       <div className="dashboard-header-flex">
@@ -383,75 +301,126 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 2. GM MODE TAB (PLAYERS & GOD MODE) --- */}
         {gmTab === "players" && (
           <div className="gm-sub-section">
-            {/* (Les joueurs en retard rejoignent en direct en scannant le QR code) */}
+            {!gameState.started ? (
+              <>
+                <h3>Joueurs Connectés ({gameState.players.length})</h3>
+                <p className="admin-subtitle" style={{ margin: 0 }}>
+                  Les joueurs apparaissent ici en temps réel au fur et à mesure de leurs inscriptions.
+                </p>
 
-            {/* God Form Editing */}
-            {editingPlayer && (
-              <form onSubmit={handleSaveEdit} className="god-edit-form animate-fade-in">
-                <h4>Modifier {editingPlayer}</h4>
-                <div className="form-row">
-                  <label>
-                    Score (pts) :
-                    <input type="number" value={editScore} onChange={(e) => setEditScore(Number(e.target.value))} />
-                  </label>
-                  <label>
-                    Cœurs (max 7) :
-                    <input type="number" step="0.25" min="0" max="7" value={editLives} onChange={(e) => setEditLives(Number(e.target.value))} />
-                  </label>
-                  <label className="checkbox-row">
-                    <input type="checkbox" checked={editZombie} onChange={(e) => setEditZombie(e.target.checked)} />
-                    Statut Zombie
-                  </label>
-                </div>
-                <div className="form-actions">
-                  <button type="submit" className="save-edit-btn">Enregistrer</button>
-                  <button type="button" onClick={() => setEditingPlayer(null)} className="cancel-edit-btn">Annuler</button>
-                </div>
-              </form>
-            )}
+                {initError && <div className="error-message" style={{ marginTop: 12 }}><ShieldAlert size={16} />{initError}</div>}
 
-            {/* Players Grid */}
-            <div className="judge-players-grid" style={{ marginTop: 16 }}>
-              {gameState.players.map((p) => (
-                <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""}`}>
-                  <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    {p.photo ? (
-                      <img src={p.photo} alt={p.name} style={{ width: "24px", height: "24px", borderRadius: "50%", objectFit: "cover" }} />
-                    ) : (
-                      <div className="row-avatar" style={{ width: "24px", height: "24px", fontSize: "10px", minWidth: "24px", minHeight: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        {p.name.slice(0, 2).toUpperCase()}
-                      </div>
-                    )}
-                    <strong>{p.name}</strong>
-                    {p.isZombie && <span className="z-label" style={{ marginLeft: "auto" }}>ZOMBIE</span>}
+                {gameState.players.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "48px 0", color: "var(--text-muted)", fontSize: "13px", fontWeight: 600 }}>
+                    Aucun joueur connecté pour l'instant.
                   </div>
-                  <div className="j-player-stats">
-                    <div>Score : {p.score} pts</div>
-                    <div>Cœurs : {p.lives} / 7</div>
-                    <div style={{ color: "var(--neon-green)", fontSize: "11px", fontWeight: "700", marginTop: "2px", marginBottom: "2px" }}>Code PIN : {p.pin}</div>
-                    <div className="target-preview">Cible : <strong>{p.target || "Aucune"}</strong></div>
-                    {p.target && (() => {
-                      const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === p.actionId);
-                      return (
-                        <div className="gm-action-preview" style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "4px", borderTop: "1px dashed var(--border-color)", paddingTop: "4px" }}>
-                          Défi : <strong>{action ? action.title : "Inconnu"}</strong>
-                          <div style={{ fontSize: "10px", color: "var(--text-muted)", fontStyle: "italic", marginTop: "2px" }}>
-                            « {action ? action.description : ""} »
+                ) : (
+                  <div className="judge-players-grid" style={{ marginTop: 16 }}>
+                    {gameState.players.map((p) => (
+                      <div key={p.name} className="judge-player-card">
+                        <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <div className="row-avatar" style={{ width: "24px", height: "24px", fontSize: "10px", minWidth: "24px", minHeight: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {p.name.slice(0, 2).toUpperCase()}
                           </div>
+                          <strong>{p.name}</strong>
                         </div>
-                      );
-                    })()}
+                        <div className="j-player-stats" style={{ marginTop: 8 }}>
+                          <div style={{ color: "var(--neon-green)", fontSize: "12px", fontWeight: "700" }}>Code PIN : {p.pin}</div>
+                          <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4 }}>Score : 0 pts</div>
+                          <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Cœurs : 7 / 7</div>
+                        </div>
+                        <div className="j-player-actions" style={{ marginTop: 12 }}>
+                          <button 
+                            type="button" 
+                            onClick={() => removePlayer(p.name)} 
+                            className="btn-reject" 
+                            style={{ width: "100%", height: 32, fontSize: 12, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                          >
+                            <Trash size={12} /> Exclure le joueur
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="j-player-actions">
-                    <button onClick={() => startEditPlayer(p)} className="j-btn-edit">Modifier stats</button>
-                  </div>
-                </div>
-              ))}
-            </div>
+                )}
 
-            <button onClick={resetGame} className="reset-game-btn" style={{ width: "100%", marginTop: 24 }}>
-              ⚠️ ARRÊTER / RÉINITIALISER LA PARTIE
-            </button>
+                <div className="launch-game-btn-container" style={{ marginTop: 24 }}>
+                  <button onClick={handleStartGame} className="launch-game-btn" style={{ width: "100%" }}>
+                    <Play size={20} fill="#121214" /> LANCER LA PARTIE 🚀
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* God Form Editing */}
+                {editingPlayer && (
+                  <form onSubmit={handleSaveEdit} className="god-edit-form animate-fade-in">
+                    <h4>Modifier {editingPlayer}</h4>
+                    <div className="form-row">
+                      <label>
+                        Score (pts) :
+                        <input type="number" value={editScore} onChange={(e) => setEditScore(Number(e.target.value))} />
+                      </label>
+                      <label>
+                        Cœurs (max 7) :
+                        <input type="number" step="0.25" min="0" max="7" value={editLives} onChange={(e) => setEditLives(Number(e.target.value))} />
+                      </label>
+                      <label className="checkbox-row">
+                        <input type="checkbox" checked={editZombie} onChange={(e) => setEditZombie(e.target.checked)} />
+                        Statut Zombie
+                      </label>
+                    </div>
+                    <div className="form-actions">
+                      <button type="submit" className="save-edit-btn">Enregistrer</button>
+                      <button type="button" onClick={() => setEditingPlayer(null)} className="cancel-edit-btn">Annuler</button>
+                    </div>
+                  </form>
+                )}
+
+                {/* Players Grid */}
+                <div className="judge-players-grid" style={{ marginTop: 16 }}>
+                  {gameState.players.map((p) => (
+                    <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""}`}>
+                      <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        {p.photo ? (
+                          <img src={p.photo} alt={p.name} style={{ width: "24px", height: "24px", borderRadius: "50%", objectFit: "cover" }} />
+                        ) : (
+                          <div className="row-avatar" style={{ width: "24px", height: "24px", fontSize: "10px", minWidth: "24px", minHeight: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            {p.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                        <strong>{p.name}</strong>
+                        {p.isZombie && <span className="z-label" style={{ marginLeft: "auto" }}>ZOMBIE</span>}
+                      </div>
+                      <div className="j-player-stats">
+                        <div>Score : {p.score} pts</div>
+                        <div>Cœurs : {p.lives} / 7</div>
+                        <div style={{ color: "var(--neon-green)", fontSize: "11px", fontWeight: "700", marginTop: "2px", marginBottom: "2px" }}>Code PIN : {p.pin}</div>
+                        <div className="target-preview">Cible : <strong>{p.target || "Aucune"}</strong></div>
+                        {p.target && (() => {
+                          const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === p.actionId);
+                          return (
+                            <div className="gm-action-preview" style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "4px", borderTop: "1px dashed var(--border-color)", paddingTop: "4px" }}>
+                              Défi : <strong>{action ? action.title : "Inconnu"}</strong>
+                              <div style={{ fontSize: "10px", color: "var(--text-muted)", fontStyle: "italic", marginTop: "2px" }}>
+                                « {action ? action.description : ""} »
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      <div className="j-player-actions">
+                        <button onClick={() => startEditPlayer(p)} className="j-btn-edit">Modifier stats</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button onClick={resetGame} className="reset-game-btn" style={{ width: "100%", marginTop: 24 }}>
+                  ⚠️ ARRÊTER / RÉINITIALISER LA PARTIE
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -660,21 +629,25 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
         {/* --- 5. QR CODE TAB --- */}
         {gmTab === "qrcode" && (
-          <div className="gm-sub-section animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div className="admin-card text-center" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 10 }}>
-              <h3>Rejoindre la Partie</h3>
-              <p className="admin-subtitle" style={{ margin: 0 }}>Faites scanner ce QR Code aux joueurs sur leur téléphone pour qu'ils s'enregistrent</p>
-              <div style={{ backgroundColor: "#fff", padding: 12, borderRadius: "var(--border-radius-sm)", display: "inline-block", marginTop: 4, boxShadow: "0 0 15px rgba(255, 255, 255, 0.1)" }}>
+          <div className="gm-sub-section animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "20px", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+            <div className="admin-card text-center" style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 16, padding: "32px 24px", width: "100%", maxWidth: "450px", border: "1px solid var(--neon-purple)", boxShadow: "0 0 20px rgba(139, 92, 246, 0.15)" }}>
+              <h3 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em" }}>Rejoindre la Partie</h3>
+              <p className="admin-subtitle" style={{ margin: 0, fontSize: "13px", color: "var(--text-secondary)" }}>
+                Faites scanner ce QR Code aux joueurs sur leur téléphone pour qu'ils s'enregistrent
+              </p>
+              <div style={{ backgroundColor: "#fff", padding: 16, borderRadius: "var(--border-radius-sm)", display: "inline-block", marginTop: 8, boxShadow: "0 0 25px rgba(255, 255, 255, 0.15)" }}>
                 <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(window.location.origin + "/?join=" + gameCode)}`} 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.origin + "/?join=" + gameCode)}`} 
                   alt="QR Code de partage" 
-                  style={{ display: "block", width: 150, height: 150 }}
+                  style={{ display: "block", width: 200, height: 200 }}
                 />
               </div>
-              <div style={{ fontSize: "16px", fontWeight: "900", color: "var(--neon-purple)", letterSpacing: "0.05em", marginTop: 4 }}>
-                CODE SALON : <span style={{ color: "#fff", background: "var(--bg-input)", padding: "4px 10px", borderRadius: 4, border: "1px solid var(--border-color)" }}>{gameCode}</span>
+              <div style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-purple)", letterSpacing: "0.05em", marginTop: 8 }}>
+                CODE SALON : <span style={{ color: "#fff", background: "var(--bg-input)", padding: "6px 12px", borderRadius: 4, border: "1px solid var(--border-color)", display: "inline-block", marginTop: 4 }}>{gameCode}</span>
               </div>
-              <span style={{ fontSize: "10px", color: "var(--text-muted)", wordBreak: "break-all" }}>Lien direct : {window.location.origin}/?join={gameCode}</span>
+              <span style={{ fontSize: "11px", color: "var(--text-muted)", wordBreak: "break-all", borderTop: "1px dashed var(--border-color)", paddingTop: 12, marginTop: 8, width: "100%" }}>
+                Lien direct : <a href={`${window.location.origin}/?join=${gameCode}`} target="_blank" rel="noopener noreferrer" style={{ color: "var(--neon-purple)", textDecoration: "underline" }}>{window.location.origin}/?join={gameCode}</a>
+              </span>
             </div>
           </div>
         )}
