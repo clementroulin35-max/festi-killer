@@ -532,8 +532,8 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                     <span className="checkbox-text" style={{ fontSize: "13px" }}>Bonus Éphémère (+75 pts si réussi)</span>
                   </label>
 
-                  <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8, width: "100%", alignItems: "center" }}>
-                    {editingActionId !== null && (
+                  <div style={{ display: "flex", gap: 8, justifyContent: "space-between", marginTop: 12, width: "100%", alignItems: "center", flexWrap: "wrap" }}>
+                    {editingActionId !== null ? (
                       <button
                         type="button"
                         onClick={() => {
@@ -542,13 +542,12 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                           showToast("Défi supprimé avec succès !", "danger");
                         }}
                         style={{
-                          marginRight: "auto",
                           backgroundColor: "rgba(255, 51, 102, 0.1)",
                           border: "1px solid var(--neon-red)",
                           color: "var(--neon-red)",
-                          padding: "10px 16px",
+                          padding: "8px 12px",
                           borderRadius: "var(--border-radius-sm)",
-                          fontSize: "13px",
+                          fontSize: "12px",
                           fontWeight: "700",
                           cursor: "pointer",
                           display: "flex",
@@ -556,61 +555,65 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                           justifyContent: "center",
                           gap: 6,
                           fontFamily: "var(--font-sans)",
-                          height: "42px",
+                          height: "38px",
                           boxSizing: "border-box"
                         }}
                       >
                         <Trash size={14} /> Supprimer
                       </button>
+                    ) : (
+                      <div />
                     )}
                     
-                    <button 
-                      type="submit" 
-                      style={{
-                        backgroundColor: "var(--neon-purple)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "var(--border-radius-sm)",
-                        padding: "10px 16px",
-                        fontSize: "13px",
-                        fontWeight: "700",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 6,
-                        fontFamily: "var(--font-sans)",
-                        height: "42px",
-                        boxSizing: "border-box"
-                      }}
-                    >
-                      <Plus size={16} /> {editingActionId !== null ? "Enregistrer" : "Ajouter à la Pool"}
-                    </button>
-                    
-                    {editingActionId !== null && (
+                    <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
                       <button 
-                        type="button" 
-                        onClick={cancelEditAction} 
-                        style={{ 
-                          backgroundColor: "#27272a", 
-                          border: "1px solid var(--border-color)", 
-                          color: "var(--text-primary)", 
-                          borderRadius: "var(--border-radius-sm)", 
-                          padding: "10px 16px",
-                          fontSize: "13px",
-                          fontWeight: "700", 
+                        type="submit" 
+                        style={{
+                          backgroundColor: "var(--neon-purple)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "var(--border-radius-sm)",
+                          padding: "8px 12px",
+                          fontSize: "12px",
+                          fontWeight: "700",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
+                          gap: 6,
                           fontFamily: "var(--font-sans)",
-                          height: "42px",
+                          height: "38px",
                           boxSizing: "border-box"
                         }}
                       >
-                        Annuler
+                        <Plus size={16} /> {editingActionId !== null ? "Enregistrer" : "Ajouter à la Pool"}
                       </button>
-                    )}
+                      
+                      {editingActionId !== null && (
+                        <button 
+                          type="button" 
+                          onClick={cancelEditAction} 
+                          style={{ 
+                            backgroundColor: "#27272a", 
+                            border: "1px solid var(--border-color)", 
+                            color: "var(--text-primary)", 
+                            borderRadius: "var(--border-radius-sm)", 
+                            padding: "8px 12px",
+                            fontSize: "12px",
+                            fontWeight: "700", 
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontFamily: "var(--font-sans)",
+                            height: "38px",
+                            boxSizing: "border-box"
+                          }}
+                        >
+                          Annuler
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </form>
