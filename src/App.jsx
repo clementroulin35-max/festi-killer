@@ -6,6 +6,7 @@ import Leaderboard from "./components/Leaderboard";
 import PlayerSetup from "./components/PlayerSetup";
 import CounterAttackTab from "./components/CounterAttackTab";
 import SuggestActionTab from "./components/SuggestActionTab";
+import { parseMessageToJSX } from "./utils/parseLogMessage";
 import { 
   Skull, Users, Shield, Trophy, FileText, User, 
   ShieldAlert, Lightbulb, Award, Key, QrCode, LogOut, ArrowRight, Loader2
@@ -197,7 +198,7 @@ function MainAppContent() {
 
         return (
           <div className="activity-feed-view animate-fade-in">
-            <h2>FIL D'ACTUALITÉ</h2>
+            <h2 style={{ marginBottom: 12 }}>FIL D'ACTUALITÉ</h2>
             <div className="activity-feed">
               {filteredHistory.length === 0 ? (
                 <div className="empty-feed">Aucun événement enregistré.</div>
@@ -207,7 +208,7 @@ function MainAppContent() {
                     <span className="feed-time">
                       [{new Date(evt.timestamp).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}]
                     </span>
-                    <span className="feed-message"> {evt.message}</span>
+                    <span className="feed-message"> {parseMessageToJSX(evt.message, gameState.players)}</span>
                   </div>
                 ))
               )}

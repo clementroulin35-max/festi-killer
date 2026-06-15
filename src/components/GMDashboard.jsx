@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
+import { parseMessageToJSX } from "../utils/parseLogMessage";
 import { 
   Check, X, ShieldAlert, Heart, Trophy, RefreshCw,
   Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff
@@ -168,7 +169,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 1. ARBITRAGE TAB --- */}
         {gmTab === "arbitrage" && (
           <div className="gm-sub-section">
-            <h3>Demandes en Attente ({pendingEvents.length})</h3>
+            <h3 style={{ marginBottom: 16 }}>Demandes en Attente ({pendingEvents.length})</h3>
             {pendingEvents.length === 0 ? (
               <div className="empty-pending-card">Aucune demande en attente. Camping calme.</div>
             ) : (
@@ -627,7 +628,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 4. HISTORY TAB --- */}
         {gmTab === "history" && (
           <div className="gm-sub-section">
-            <h3>Historique de la Partie</h3>
+            <h3 style={{ marginBottom: 16 }}>Historique de la Partie</h3>
             <div className="activity-feed" style={{ maxHeight: "none" }}>
               {approvedEvents.length === 0 ? (
                 <div className="empty-feed">Aucun événement validé pour l'instant.</div>
@@ -635,7 +636,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                 approvedEvents.map((evt) => (
                   <div key={evt.id} className="feed-item">
                     <span className="feed-time">[{formatTime(evt.timestamp)}]</span>
-                    <span className="feed-message"> {evt.message}</span>
+                    <span className="feed-message"> {parseMessageToJSX(evt.message, gameState.players)}</span>
                   </div>
                 ))
               )}
