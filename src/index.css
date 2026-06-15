@@ -34,6 +34,9 @@
   /* Nav height */
   --nav-height: 68px;
   --switcher-height: 0px;
+  
+  /* Horizontal safe margin for rounded phone edges */
+  --safe-x: max(32px, env(safe-area-inset-left, 32px));
 }
 
 /* Base resets */
@@ -135,7 +138,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 calc(20px + env(safe-area-inset-right)) 0 calc(20px + env(safe-area-inset-left));
+  padding: 0 var(--safe-x);
   z-index: 999;
 }
 
@@ -212,8 +215,8 @@ body {
   align-items: center;
   justify-content: space-around;
   padding-bottom: env(safe-area-inset-bottom);
-  padding-left: calc(12px + env(safe-area-inset-left));
-  padding-right: calc(12px + env(safe-area-inset-right));
+  padding-left: var(--safe-x);
+  padding-right: var(--safe-x);
   z-index: 999;
 }
 
@@ -246,7 +249,7 @@ body {
 /* Main Content Area */
 .app-main-content {
   flex: 1;
-  padding: 16px calc(20px + env(safe-area-inset-right)) 16px calc(20px + env(safe-area-inset-left));
+  padding: 16px var(--safe-x);
   display: flex;
   flex-direction: column;
   gap: 16px;

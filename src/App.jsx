@@ -7,17 +7,17 @@ import PlayerSetup from "./components/PlayerSetup";
 import CounterAttackTab from "./components/CounterAttackTab";
 import SuggestActionTab from "./components/SuggestActionTab";
 import { parseMessageToJSX } from "./utils/parseLogMessage";
-import { 
-  Skull, Users, Shield, Trophy, FileText, User, 
+import {
+  Skull, Users, Shield, Trophy, FileText, User,
   ShieldAlert, Lightbulb, Award, Key, QrCode, LogOut, ArrowRight, Loader2
 } from "lucide-react";
 
 function MainAppContent() {
-  const { 
-    gameState, 
-    currentUser, 
-    setCurrentUser, 
-    gameCode, 
+  const {
+    gameState,
+    currentUser,
+    setCurrentUser,
+    gameCode,
     setGameCode,
     loading,
     createRoom,
@@ -25,7 +25,7 @@ function MainAppContent() {
     loginPlayer,
     loginGM,
     requestPinRecovery,
-    resetGame 
+    resetGame
   } = useGame();
 
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -199,16 +199,16 @@ function MainAppContent() {
       case "feed":
         const filteredHistory = currentUser === "GM"
           ? gameState.history
-          : gameState.history.filter(evt => 
-              evt.type !== "action_suggestion" &&
-              evt.type !== "action_added" &&
-              evt.type !== "action_edited" &&
-              evt.type !== "action_deleted" &&
-              evt.type !== "action_suggestion_rejection" &&
-              evt.type !== "manual_edit" &&
-              evt.type !== "skip" &&
-              evt.type !== "abandon_validation"
-            );
+          : gameState.history.filter(evt =>
+            evt.type !== "action_suggestion" &&
+            evt.type !== "action_added" &&
+            evt.type !== "action_edited" &&
+            evt.type !== "action_deleted" &&
+            evt.type !== "action_suggestion_rejection" &&
+            evt.type !== "manual_edit" &&
+            evt.type !== "skip" &&
+            evt.type !== "abandon_validation"
+          );
 
         return (
           <div className="activity-feed-view animate-fade-in">
@@ -263,7 +263,7 @@ function MainAppContent() {
     return (
       <div className="app-container onboarding-carousel-view animate-fade-in" style={{ padding: "32px 16px" }}>
         <div className="admin-card setup-card" style={{ maxWidth: "100%", width: "100%", padding: "32px 20px" }}>
-          
+
           <div className="setup-header" style={{ marginBottom: "24px" }}>
             <Skull size={54} className="glowing-icon-pink" style={{ marginBottom: "8px" }} />
             <h1 onClick={toggleTheme} style={{ fontSize: "28px", letterSpacing: "0.1em", fontWeight: 900, cursor: "pointer" }} title="Basculer thème jour/nuit">COOKI'LLERS</h1>
@@ -304,9 +304,9 @@ function MainAppContent() {
                   {loading ? <Loader2 className="animate-spin" size={18} /> : "CRÉER ET ACCÉDER AU SALON"}
                 </button>
 
-                <button 
-                  type="button" 
-                  onClick={() => { setJoinStep("room"); setError(""); setInputCode(""); setPin(""); }} 
+                <button
+                  type="button"
+                  onClick={() => { setJoinStep("room"); setError(""); setInputCode(""); setPin(""); }}
                   style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 13, cursor: "pointer", fontWeight: 700, alignSelf: "center", marginTop: 4 }}
                 >
                   ◀ Retour
@@ -344,10 +344,10 @@ function MainAppContent() {
                 <hr style={{ flex: 1, borderColor: "var(--border-color)" }} />
               </div>
 
-              <button 
-                type="button" 
-                onClick={() => { setJoinStep("create"); setInputCode(""); setPin(""); setError(""); }} 
-                className="panic-btn" 
+              <button
+                type="button"
+                onClick={() => { setJoinStep("create"); setInputCode(""); setPin(""); setError(""); }}
+                className="panic-btn"
                 style={{ height: "46px", margin: 0, borderColor: "var(--neon-purple)", color: "var(--neon-purple)" }}
                 disabled={loading}
               >
@@ -361,8 +361,8 @@ function MainAppContent() {
                 <span className="badge badge-player" style={{ backgroundColor: "rgba(139, 92, 246, 0.1)", color: "var(--neon-purple)", borderColor: "rgba(139, 92, 246, 0.2)" }}>
                   SALON : {gameCode}
                 </span>
-                <button 
-                  onClick={() => { setJoinStep("room"); setError(""); setPin(""); }} 
+                <button
+                  onClick={() => { setJoinStep("room"); setError(""); setPin(""); }}
                   style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 12, cursor: "pointer", fontWeight: 700 }}
                 >
                   ◀ Changer
@@ -371,30 +371,30 @@ function MainAppContent() {
 
               {/* Role selector */}
               <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => { setLoginRole("player"); setError(""); }}
                   className={`btn-approve ${loginRole === "player" ? "active-role" : ""}`}
-                  style={{ 
-                    flex: 1, 
-                    height: 40, 
-                    fontSize: 12, 
-                    background: loginRole === "player" ? "var(--neon-green)" : "var(--bg-input)", 
+                  style={{
+                    flex: 1,
+                    height: 40,
+                    fontSize: 12,
+                    background: loginRole === "player" ? "var(--neon-green)" : "var(--bg-input)",
                     color: loginRole === "player" ? "#121214" : "var(--text-secondary)",
                     border: loginRole === "player" ? "none" : "1px solid var(--border-color)"
                   }}
                 >
                   <User size={14} style={{ marginRight: 6 }} /> Joueur
                 </button>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => { setLoginRole("gm"); setError(""); }}
                   className={`btn-approve ${loginRole === "gm" ? "active-role" : ""}`}
-                  style={{ 
-                    flex: 1, 
-                    height: 40, 
-                    fontSize: 12, 
-                    background: loginRole === "gm" ? "var(--neon-purple)" : "var(--bg-input)", 
+                  style={{
+                    flex: 1,
+                    height: 40,
+                    fontSize: 12,
+                    background: loginRole === "gm" ? "var(--neon-purple)" : "var(--bg-input)",
                     color: loginRole === "gm" ? "#fff" : "var(--text-secondary)",
                     border: loginRole === "gm" ? "none" : "1px solid var(--border-color)"
                   }}
@@ -431,18 +431,18 @@ function MainAppContent() {
                       style={{ textAlign: "center", letterSpacing: "0.5em" }}
                       required
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={handleForgotPin}
-                      style={{ 
-                        background: "none", 
-                        border: "none", 
-                        color: "var(--neon-purple)", 
-                        fontSize: 11, 
-                        cursor: "pointer", 
-                        fontWeight: 700, 
-                        alignSelf: "flex-end", 
-                        marginTop: -6 
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "var(--neon-purple)",
+                        fontSize: 11,
+                        cursor: "pointer",
+                        fontWeight: 700,
+                        alignSelf: "flex-end",
+                        marginTop: -6
                       }}
                     >
                       Code PIN oublié ?
@@ -482,7 +482,7 @@ function MainAppContent() {
   // === SESSION CONNECTIONS ACTIVE ===
   return (
     <div className="app-container">
-      
+
       {/* 2. App Header */}
       <header className="app-header">
         <div className="header-brand" onClick={toggleTheme} style={{ cursor: "pointer" }} title="Basculer thème jour/nuit">
@@ -491,13 +491,8 @@ function MainAppContent() {
         </div>
         <div className="user-indicator" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {currentUser === "GM" && <span className="badge badge-juge"><Shield size={12} /> GM</span>}
-          {currentPlayer && currentPlayer.isZombie && (
-            <span className="badge badge-zombie">
-              💀 Zombie
-            </span>
-          )}
-          
-          <button 
+
+          <button
             onClick={handleLogout}
             title="Quitter le salon"
             className="header-logout-btn"
