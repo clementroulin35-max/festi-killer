@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify } from "lucide-react";
+import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify, Shield } from "lucide-react";
 import { getRank } from "./PlayerDashboard";
 
 export default function Leaderboard({ players, history }) {
@@ -167,24 +167,24 @@ export default function Leaderboard({ players, history }) {
                             player.name.slice(0, 2).toUpperCase()
                           )}
                         </div>
-                        <div className="row-player-info">
-                           <div className="row-player-name" style={{ fontWeight: "700" }}>
-                             {player.name}
+                        <div className="row-player-info" style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0, flex: 1 }}>
+                           <div className="row-player-name" style={{ fontWeight: "700", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                             <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{player.name}</span>
                              {player.isZombie && <span className="zombie-text-label" style={{ backgroundColor: "rgba(255, 51, 102, 0.15)", color: "var(--neon-red)", border: "1px solid rgba(255, 51, 102, 0.3)" }}>ZOMBIE</span>}
                            </div>
-                           <div className="row-trophies">
-                             {(() => { const r = getRank(player.score); return <span className={`rank-badge ${r.css}`} style={{ fontSize: 9, padding: '2px 6px' }}>{r.icon} {r.label}</span>; })()}
-                             {isPredator && <Trophy size={12} className="row-trophy trophy-gold" title="Prédateur Alpha" />}
-                             {isSurvivor && <Heart size={12} className="row-trophy trophy-red" fill="#ef4444" color="#ef4444" title="Survivant Ultime" />}
-                             {isCrazy && <Shuffle size={12} className="row-trophy trophy-purple" title="Joueur Fou" />}
+                           <div className="row-trophies" style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+                             {(() => { const r = getRank(player.score); return <span className={`rank-badge ${r.css}`} style={{ fontSize: 9, padding: '1px 5px', lineHeight: "1" }}>{r.icon} {r.label}</span>; })()}
+                             {isPredator && <Trophy size={11} className="row-trophy trophy-gold" title="Prédateur Alpha" />}
+                             {isSurvivor && <Shield size={11} className="row-trophy trophy-red" fill="#ef4444" color="#ef4444" title="Survivant Ultime" />}
+                             {isCrazy && <Shuffle size={11} className="row-trophy trophy-purple" title="Joueur Fou" />}
                            </div>
                          </div>
                       </div>
-                      <div className="row-right">
-                        <span className="row-lives">
-                          {player.isZombie ? "💀" : `${player.lives} ❤️`}
+                      <div className="row-right" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "center", gap: "2px", flexShrink: 0 }}>
+                        <span className="row-score" style={{ color: "var(--text-primary)", fontWeight: "800", fontSize: "14px" }}>{player.score} pts</span>
+                        <span className="row-lives" style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                          {player.isZombie ? "💀 ZOMBIE" : `${player.lives} ❤️`}
                         </span>
-                        <span className="row-score" style={{ color: "var(--text-primary)", fontWeight: "800" }}>{player.score} pts</span>
                       </div>
                     </div>
                   );
@@ -255,10 +255,10 @@ export default function Leaderboard({ players, history }) {
                     justifyContent: "center",
                     border: "1px solid rgba(255, 51, 102, 0.3)"
                   }}>
-                    <Heart className="trophy-red" fill="#ef4444" color="#ef4444" size={20} />
+                    <Shield className="trophy-red" fill="#ef4444" color="#ef4444" size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ color: "var(--neon-red)", fontSize: "14px", fontWeight: "800" }}>❤️ Survivant Ultime</h4>
+                    <h4 style={{ color: "var(--neon-red)", fontSize: "14px", fontWeight: "800" }}>🛡️ Survivant Ultime</h4>
                     <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Celui à qui il reste le plus de cœurs d'énergie Zelda.</p>
                   </div>
                 </div>

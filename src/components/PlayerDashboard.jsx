@@ -81,24 +81,11 @@ function AnimatedScore({ score }) {
   );
 }
 
-function TransmissionBanners({ hasPendingHit, hasPendingCounter, hasPendingSuggest }) {
-  if (!hasPendingHit && !hasPendingCounter && !hasPendingSuggest) return null;
+function TransmissionBanners({ hasPendingCounter, hasPendingSuggest }) {
+  if (!hasPendingCounter && !hasPendingSuggest) return null;
   return (
     <div className="transmission-banner-list" style={{ width: "100%", display: "flex", flexDirection: "column", gap: 6 }}>
       <AnimatePresence>
-        {hasPendingHit && (
-          <motion.div
-            key="hit"
-            className="transmission-item hit"
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 6 }}
-          >
-            <span className="transmission-prefix">📡</span>
-            <Loader2 size={11} className="animate-spin" style={{ flexShrink: 0 }} />
-            CONTRAT SIGNÉ · En attente de validation GM
-          </motion.div>
-        )}
         {hasPendingCounter && (
           <motion.div
             key="counter"
@@ -137,6 +124,16 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
   const { gameState, declareHit, skipAction, abandonTargetInstant } = useGame();
 
   const [confirmModal, setConfirmModal] = useState(null); // { type: 'skip' | 'abandon' }
+  const [showTokenTooltip, setShowTokenTooltip] = useState(false);
+
+  useEffect(() => {
+    if (showTokenTooltip) {
+      const timer = setTimeout(() => {
+        setShowTokenTooltip(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showTokenTooltip]);
 
   const player = gameState.players.find(p => p.name === playerName);
 
@@ -213,7 +210,6 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
       {/* 1. Transmission banners */}
       <TransmissionBanners
-        hasPendingHit={hasPendingHit}
         hasPendingCounter={hasPendingCounter}
         hasPendingSuggest={hasPendingSuggest}
       />
@@ -260,9 +256,60 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
         {/* Ligne 2: (gauche) Jetons relance, nombre, (droite) coeurs */}
         <div className="hud-row-v2 line-2">
-          <div className="hud-left-v2" style={{ alignItems: "center" }}>
-            <img src={tokenImage} alt="skips" style={{ width: 18, height: 18, mixBlendMode: "screen" }} />
-            <span style={{ fontSize: "15px", fontWeight: "900", color: "var(--neon-gold)", marginLeft: "4px" }}>{player.skips}</span>
+          <div 
+            className="hud-left-v2 token-tooltip-trigger" 
+            style={{ alignItems: "center", cursor: "pointer", position: "relative", userSelect: "none" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowTokenTooltip(prev => !prev);
+            }}
+          >
+            <img src={tokenImage} alt="skips" style={{ width: 28, height: 28, mixBlendMode: "screen" }} />
+            <span style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-gold)", marginLeft: "6px" }}>{player.skips}</span>
+            
+            <AnimatePresence>
+              {showTokenTooltip && (
+                <motion.div
+                  className="token-tooltip-bubble"
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    position: "absolute",
+                    top: "34px",
+                    left: "0",
+                    width: "200px",
+                    background: "rgba(24, 24, 31, 0.95)",
+                    border: "1px solid var(--neon-gold)",
+                    borderRadius: "8px",
+                    padding: "8px 12px",
+                    boxShadow: "0 4px 15px rgba(245, 158, 11, 0.2), var(--shadow-md)",
+                    backdropFilter: "blur(10px)",
+                    zIndex: 1000,
+                  }}
+                >
+                  <div style={{ fontSize: "11px", fontWeight: "800", color: "var(--neon-gold)", marginBottom: "3px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Jeton de Relance
+                  </div>
+                  <div style={{ fontSize: "11px", color: "var(--text-primary)", lineHeight: "1.35", fontWeight: "400" }}>
+                    Permet de changer de mission/défi sans pénalité depuis le bas de la carte.
+                  </div>
+                  <div className="tooltip-arrow" style={{
+                    position: "absolute",
+                    top: "-5px",
+                    left: "14px",
+                    width: "8px",
+                    height: "8px",
+                    background: "rgba(24, 24, 31, 0.95)",
+                    borderLeft: "1px solid var(--neon-gold)",
+                    borderTop: "1px solid var(--neon-gold)",
+                    transform: "rotate(45deg)",
+                  }} />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           <div className="hud-right-v2" style={{ display: "flex", justifyContent: "flex-end" }}>
             <ZeldaHearts lives={player.lives} />
@@ -299,6 +346,8 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
             hasPendingHit={hasPendingHit}
             onAbandonSwipe={handleAbandonTrigger}
             onSkipSwipe={handleSkipTrigger}
+            playerSkips={player.skips}
+            playerScore={player.score}
           />
         </div>
       ) : (

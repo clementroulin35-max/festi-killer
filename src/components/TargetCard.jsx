@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { ShieldAlert, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -22,12 +22,71 @@ export default function TargetCard({
   isZombie,
   hasPendingHit,
   onAbandonSwipe,
-  onSkipSwipe
+  onSkipSwipe,
+  playerSkips = 0,
+  playerScore = 0
 }) {
   const { gameState } = useGame();
   const [isMasked, setIsMasked] = useState(false);
   const [dragDirTarget, setDragDirTarget] = useState(null); // 'left', 'right', or null
   const [dragDirMission, setDragDirMission] = useState(null);
+
+  const topControls = useAnimation();
+  const bottomControls = useAnimation();
+
+  const canAbandon = (!isZombie || playerScore >= 50) && !hasPendingHit;
+  const canSkip = playerSkips > 0 && !hasPendingHit;
+
+  useEffect(() => {
+    let timeoutId;
+    let intervalId;
+
+    const startHintSequence = () => {
+      if (canAbandon) {
+        topControls.start({
+          x: [0, 15, -15, 0],
+          transition: { duration: 0.8, times: [0, 0.25, 0.75, 1], ease: "easeInOut" }
+        });
+      }
+
+      timeoutId = setTimeout(() => {
+        if (canSkip) {
+          bottomControls.start({
+            x: [0, -15, 15, 0],
+            transition: { duration: 0.8, times: [0, 0.25, 0.75, 1], ease: "easeInOut" }
+          });
+        }
+      }, 1500);
+    };
+
+    const resetInactivityTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+
+      timeoutId = setTimeout(() => {
+        startHintSequence();
+        intervalId = setInterval(startHintSequence, 8000);
+      }, 6000);
+    };
+
+    resetInactivityTimer();
+
+    const handleActivity = () => {
+      resetInactivityTimer();
+    };
+
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("touchstart", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+    };
+  }, [canAbandon, canSkip, topControls, bottomControls]);
 
   const targetPlayer = gameState.players.find(p => p.name === targetName);
   const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === actionId);
@@ -99,9 +158,34 @@ export default function TargetCard({
   const isTargetZombie = targetPlayer?.isZombie;
 
   return (
-    <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""}`}>
+    <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""} ${hasPendingHit ? "hit-shattered" : ""}`}>
       {/* White flash on HIT shoot animation */}
       {hasPendingHit && <div className="tarot-hit-flash" />}
+
+      {/* Broken glass overlay on pending hit */}
+      {hasPendingHit && (
+        <div className="tarot-broken-overlay" style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 10,
+          opacity: 0.8,
+        }}>
+          <svg viewBox="0 0 320 480" style={{ width: "100%", height: "100%" }} xmlns="http://www.w3.org/2000/svg">
+            <path d="M160,140 L120,90 L90,110 M120,90 L70,50 L30,60 M70,50 L60,10" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            <path d="M160,140 L210,100 L260,80 L300,90 M260,80 L280,30" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            <path d="M160,140 L180,200 L210,250 L250,290 M210,250 L170,270 L140,320 L160,400 M140,320 L90,340 M160,400 L200,450" stroke="rgba(255,255,255,0.5)" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+            <path d="M160,140 L130,170 L90,180 L50,220 L20,210 M90,180 L70,140 L40,150" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+            <path d="M0,80 L40,90 L60,120 M0,240 L30,230 L50,250 M320,180 L290,190 L270,170 M320,320 L280,330 M100,480 L120,440 L150,450" stroke="rgba(255,255,255,0.4)" strokeWidth="1" fill="none" strokeLinecap="round" />
+            <polygon points="155,135 158,132 154,130" fill="rgba(255,255,255,0.7)" />
+            <polygon points="165,145 168,142 166,148" fill="rgba(255,255,255,0.7)" />
+            <polygon points="145,150 148,155 142,152" fill="rgba(255,255,255,0.7)" />
+          </svg>
+        </div>
+      )}
 
       {/* Hologram scanline */}
       <div className="hologram-overlay">
@@ -134,6 +218,7 @@ export default function TargetCard({
         dragElastic={0.5}
         onDrag={handleTargetDrag}
         onDragEnd={handleTargetDragEnd}
+        animate={topControls}
         style={{ x: 0 }}
       >
         {/* Left/Right drag feedback labels */}
@@ -202,6 +287,7 @@ export default function TargetCard({
         dragElastic={0.5}
         onDrag={handleMissionDrag}
         onDragEnd={handleMissionDragEnd}
+        animate={bottomControls}
         style={{ x: 0 }}
       >
         {/* Left/Right drag feedback labels */}

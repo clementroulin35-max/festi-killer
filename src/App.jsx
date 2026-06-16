@@ -250,7 +250,7 @@ function MainAppContent() {
     return (
       <div className="app-container" style={{ padding: 0, overflow: "hidden" }}>
         <div className="auth-screen-layout">
-          <div className="view-scroll-content" style={{ padding: "32px 14px 40px 14px" }}>
+          <div className="view-scroll-content" style={{ padding: "16px 8px 40px 8px" }}>
             
             <div className="setup-header" style={{ marginBottom: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
               <img 
