@@ -3499,3 +3499,106 @@ select option {
   text-align: center;
   gap: 12px;
 }
+
+/* ==========================================
+   ONBOARDING & GLASSMORPHISM V2 STYLES
+   ========================================== */
+
+.auth-screen-layout {
+  background-image: linear-gradient(rgba(10, 10, 12, 0.5), rgba(10, 10, 12, 0.8)), url('./assets/onboarding_bg.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  overflow-y: auto;
+  padding: 24px 16px;
+  position: relative;
+}
+
+.glass-card {
+  background: rgba(24, 24, 31, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.7), 0 0 20px rgba(139, 92, 246, 0.1);
+  border-radius: var(--border-radius-lg);
+  width: 100%;
+  max-width: 380px;
+  padding: 24px 18px;
+  margin-top: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.floating-logo {
+  animation: floatAnimation 4.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.45));
+}
+
+@keyframes floatAnimation {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.neon-input-premium {
+  width: 100%;
+  background-color: rgba(32, 32, 40, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  padding: 12px 14px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(4px);
+  text-align: center;
+}
+
+.neon-input-premium:focus {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+  background-color: rgba(32, 32, 40, 0.75);
+}
+
+.role-btn {
+  flex: 1;
+  height: 42px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: var(--border-radius-sm);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(32, 32, 40, 0.4);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.role-btn.active-player {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+.role-btn.active-gm {
+  background: rgba(139, 92, 246, 0.12) !important;
+  color: var(--neon-purple) !important;
+  border-color: var(--neon-purple) !important;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+
