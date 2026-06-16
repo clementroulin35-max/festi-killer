@@ -766,8 +766,8 @@ export const GameProvider = ({ children }) => {
 
       // Apply penalty
       if (costType === "score") {
-        newScore = Math.max(0, killer.score - 150);
-        systemMsg += `Pénalité instantanée appliquée : -150 pts (nouveau score : ${newScore} pts).`;
+        newScore = Math.max(0, killer.score - 50);
+        systemMsg += `Pénalité instantanée appliquée : -50 pts (nouveau score : ${newScore} pts).`;
       } else {
         if (!killer.isZombie) {
           newLives = Math.max(0, killer.lives - 0.5);

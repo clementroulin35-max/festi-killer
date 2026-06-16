@@ -15,18 +15,28 @@ function getInitials(name) {
   return name ? name.slice(0, 2).toUpperCase() : "??";
 }
 
-export default function TargetCard({ targetName, actionId, onDeclareHit, isZombie, hasPendingHit }) {
+export default function TargetCard({
+  targetName,
+  actionId,
+  onDeclareHit,
+  isZombie,
+  hasPendingHit,
+  onAbandonSwipe,
+  onSkipSwipe
+}) {
   const { gameState } = useGame();
   const [isMasked, setIsMasked] = useState(false);
+  const [dragDirTarget, setDragDirTarget] = useState(null); // 'left', 'right', or null
+  const [dragDirMission, setDragDirMission] = useState(null);
 
   const targetPlayer = gameState.players.find(p => p.name === targetName);
   const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === actionId);
 
   if (!action) {
     return (
-      <div className="target-card-v2 rarity-standard">
-        <div className="target-card-content">
-          <p style={{ color: "var(--text-muted)", fontSize: 13 }}>Aucune mission assignée.</p>
+      <div className="tarot-card-v2 rarity-standard">
+        <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)", fontSize: 14 }}>
+          Aucune mission assignée.
         </div>
       </div>
     );
@@ -38,35 +48,61 @@ export default function TargetCard({ targetName, actionId, onDeclareHit, isZombi
   // Cosmetic contract number from actionId
   const contractNum = String(typeof actionId === "number" ? actionId : (parseInt(String(actionId).replace(/\D/g, "")) || 1)).padStart(3, "0");
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.97 },
-    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] } },
+  const handleTargetDrag = (e, info) => {
+    if (info.offset.x > 35) {
+      setDragDirTarget("right");
+    } else if (info.offset.x < -35) {
+      setDragDirTarget("left");
+    } else {
+      setDragDirTarget(null);
+    }
   };
 
-  const hitBtnVariants = {
-    idle: { scale: 1 },
-    hover: { scale: 1.02, transition: { duration: 0.15 } },
-    tap: { scale: 0.96, transition: { duration: 0.1 } },
+  const handleTargetDragEnd = (e, info) => {
+    setDragDirTarget(null);
+    if (Math.abs(info.offset.x) > 100) {
+      onAbandonSwipe();
+    }
   };
+
+  const handleMissionDrag = (e, info) => {
+    if (info.offset.x > 35) {
+      setDragDirMission("right");
+    } else if (info.offset.x < -35) {
+      setDragDirMission("left");
+    } else {
+      setDragDirMission(null);
+    }
+  };
+
+  const handleMissionDragEnd = (e, info) => {
+    setDragDirMission(null);
+    if (Math.abs(info.offset.x) > 100) {
+      onSkipSwipe();
+    }
+  };
+
+  // Build top drag active classes for indicator feedback
+  const topContainerClass = [
+    "tarot-card-top",
+    dragDirTarget === "left" ? "drag-active-left" : "",
+    dragDirTarget === "right" ? "drag-active-right" : "",
+    isMasked ? "card-blurred" : ""
+  ].filter(Boolean).join(" ");
+
+  // Build bottom drag active classes
+  const bottomContainerClass = [
+    "tarot-card-bottom",
+    dragDirMission === "left" ? "drag-active-left" : "",
+    dragDirMission === "right" ? "drag-active-right" : ""
+  ].filter(Boolean).join(" ");
 
   return (
-    <motion.div
-      className={`target-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""}`}
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      layout
-    >
-      {/* Hologram scan overlay */}
+    <div className={`tarot-card-v2 rarity-${rarity}`}>
+      {/* Hologram scanline */}
       <div className="hologram-overlay">
         <div className="hologram-scan-line" />
       </div>
-
-      {/* Corner brackets */}
-      <div className="corner-bracket tl" />
-      <div className="corner-bracket tr" />
-      <div className="corner-bracket bl" />
-      <div className="corner-bracket br" />
 
       {/* Panic toggle */}
       <motion.button
@@ -74,136 +110,132 @@ export default function TargetCard({ targetName, actionId, onDeclareHit, isZombi
         onClick={() => setIsMasked(v => !v)}
         title={isMasked ? "Révéler la cible" : "Masquer (Panic Mode)"}
         whileTap={{ scale: 0.9 }}
-        style={{ top: 14, left: 14 }}
+        style={{ top: 12, left: 12, zIndex: 12 }}
       >
-        {isMasked ? <Eye size={16} /> : <EyeOff size={16} />}
+        {isMasked ? <Eye size={15} /> : <EyeOff size={15} />}
       </motion.button>
 
-      {/* Inner content */}
-      <div className="target-card-content">
+      {/* Rarity small indicator */}
+      <div style={{ position: "absolute", top: 12, right: 12, zIndex: 12, fontSize: 11, fontWeight: 800, color: rarityConf.contractColor }}>
+        {rarityConf.icon} {rarityConf.label}
+      </div>
 
-        {/* Contract ID + target label */}
-        <div className="contract-header">
-          <span className="contract-label">◈ CONTRAT</span>
-          <span className="contract-id" style={{ color: rarityConf.contractColor }}>
-            #{contractNum}
-          </span>
-          <div className="target-locked-label" style={{ color: rarityConf.contractColor }}>
-            🎯 CIBLE VERROUILLÉE
-          </div>
+      {/* ============================================================ */}
+      {/* 1. UPPER HALF: THE TARGET */}
+      {/* ============================================================ */}
+      <motion.div
+        className={topContainerClass}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.5}
+        onDrag={handleTargetDrag}
+        onDragEnd={handleTargetDragEnd}
+        style={{ x: 0 }}
+      >
+        {/* Left/Right drag feedback labels */}
+        <div className="tarot-indicator-left">Reroll Cible</div>
+        <div className="tarot-indicator-right">Reroll Cible</div>
+
+        <div className="contract-header" style={{ marginBottom: 4, width: "100%", textAlign: "center" }}>
+          <span className="contract-label" style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.15em" }}>◈ CONTRAT #{contractNum} ◈</span>
         </div>
 
-        {/* Avatar ring */}
-        <motion.div
-          className={`avatar-outer-v2 rarity-${rarity}`}
-          animate={rarity === "majeur" || rarity === "legendaire"
-            ? { rotate: [0, 360] }
-            : {}}
-          transition={rarity === "majeur" || rarity === "legendaire"
-            ? { duration: rarity === "legendaire" ? 4 : 8, repeat: Infinity, ease: "linear" }
-            : {}}
-        >
-          <div className="avatar-inner-v2">
-            {targetPlayer?.photo ? (
-              <img
-                src={targetPlayer.photo}
-                alt={targetName}
-                style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
-              />
-            ) : (
-              getInitials(targetName)
-            )}
-          </div>
-        </motion.div>
-
-        {/* Target name */}
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: "24px",
-              fontWeight: "900",
-              letterSpacing: "-0.01em",
-              textTransform: "uppercase",
-              color: "var(--text-primary)",
-            }}
-          >
-            {targetName}
-          </div>
-          <div style={{ fontSize: "11px", color: "var(--neon-green)", fontWeight: "700", marginTop: 2 }}>
-            🟢 VIVANT · EN CHASSE
-          </div>
-        </div>
-
-        {/* Rarity badge */}
-        <span className={`rarity-badge-v2 ${rarity}`}>
-          {rarityConf.icon} {rarityConf.label}
-        </span>
-
-        {/* Mission box */}
-        <div className="mission-box-v2">
-          <div className="mission-title-lbl">◈ MISSION SECRÈTE</div>
-          {action.title && (
-            <div className="mission-name">« {action.title} »</div>
+        {/* Target radar scope */}
+        <div className="tarot-target-scope">
+          <div className="tarot-target-lines" />
+          {targetPlayer?.photo ? (
+            <img
+              src={targetPlayer.photo}
+              alt={targetName}
+              className="tarot-target-avatar"
+            />
+          ) : (
+            <div className="tarot-target-initials">
+              {getInitials(targetName)}
+            </div>
           )}
-          <div className="mission-desc-v2">
-            {action.description}
+        </div>
+
+        <div>
+          <div className="tarot-target-name">{targetName}</div>
+          <div style={{ textAlign: "center", marginTop: 2 }}>
+            <span className="tarot-target-status">🎯 Cible Verrouillée</span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ============================================================ */}
+      {/* CENTRAL DIVIDER */}
+      {/* ============================================================ */}
+      <div className="tarot-card-divider">
+        <div className="tarot-divider-line" />
+        <div className="tarot-divider-eye">
+          <span style={{ fontSize: "14px", transform: "scale(1.2)" }}>👁️</span>
+        </div>
+      </div>
+
+      {/* ============================================================ */}
+      {/* 2. LOWER HALF: THE MISSION */}
+      {/* ============================================================ */}
+      <motion.div
+        className={bottomContainerClass}
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.5}
+        onDrag={handleMissionDrag}
+        onDragEnd={handleMissionDragEnd}
+        style={{ x: 0 }}
+      >
+        {/* Left/Right drag feedback labels */}
+        <div className="tarot-indicator-left">Relancer Défi</div>
+        <div className="tarot-indicator-right">Relancer Défi</div>
+
+        <span className="tarot-mission-title">Mission Secrète</span>
+        <div className="tarot-mission-name">« {action.title} »</div>
+        <p className="tarot-mission-desc">{action.description}</p>
+
+        {/* Rewards */}
+        <div className="tarot-rewards-row">
+          <div className="tarot-reward-pill pts">
+            <span>+{action.points} PTS</span>
+          </div>
+          <div className="tarot-reward-pill dmg">
+            <span>-{action.damage} HP</span>
           </div>
         </div>
 
-        {/* Stats pills */}
-        <div className="mission-stats-v2">
-          <div className="stat-pill pts">
-            <span className="stat-pill-val">+{action.points}</span>
-            <span className="stat-pill-lbl">Points</span>
-          </div>
-          <div className="stat-pill dmg">
-            <span className="stat-pill-val">-{action.damage}</span>
-            <span className="stat-pill-lbl">{action.damage > 1 ? "Cœurs" : "Cœur"}</span>
-          </div>
-        </div>
-
-        {/* Zombie notice */}
+        {/* Zombie warning */}
         {isZombie && (
-          <motion.div
-            className="zombie-notice"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-          >
-            <ShieldAlert size={16} />
-            <span>Mode Zombie : 0 dégât à la cible, points divisés par 2.</span>
-          </motion.div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "10px", color: "var(--neon-red)", opacity: 0.8, marginTop: 4 }}>
+            <ShieldAlert size={12} />
+            <span>Zombie : 0 dégât, points divisés par 2.</span>
+          </div>
         )}
+      </motion.div>
 
-        {/* HIT button */}
+      {/* ============================================================ */}
+      {/* 3. INTERACTIVE SEAL BUTTON (HIT RÉUSSI) */}
+      {/* ============================================================ */}
+      <div className="tarot-seal-hit-btn-container" style={{ paddingBottom: 20 }}>
         <AnimatePresence mode="wait">
           {hasPendingHit ? (
-            <motion.button
-              key="pending"
-              className="hit-success-btn pending"
-              disabled
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <Loader2 size={16} className="animate-spin" style={{ marginRight: 8, display: "inline" }} />
-              EN ATTENTE DU GM...
-            </motion.button>
+            <button key="pending" className="tarot-seal-hit-btn pending" disabled>
+              <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} />
+              Validation GM en cours...
+            </button>
           ) : (
             <motion.button
               key="hit"
-              className="hit-success-btn"
-              variants={hitBtnVariants}
-              initial="idle"
-              whileHover="hover"
-              whileTap="tap"
+              className="tarot-seal-hit-btn"
               onClick={onDeclareHit}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
             >
-              ☠️ HIT RÉUSSI !
+              ☠️ Signer le contrat (Hit)
             </motion.button>
           )}
         </AnimatePresence>
-
       </div>
-    </motion.div>
+    </div>
   );
 }
