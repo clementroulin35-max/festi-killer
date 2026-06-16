@@ -250,232 +250,235 @@ function MainAppContent() {
     return (
       <div className="app-container" style={{ padding: 0, overflow: "hidden" }}>
         <div className="auth-screen-layout">
-          
-          <div className="setup-header" style={{ marginBottom: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-            <img 
-              src={heroImage} 
-              alt="Cooki'llers logo" 
-              onClick={toggleTheme}
-              className="floating-logo"
-              style={{ 
-                width: "100%", 
-                maxWidth: "280px", 
-                height: "auto", 
-                cursor: "pointer"
-              }} 
-              title="Basculer thème jour/nuit"
-            />
-          </div>
+          <div className="view-scroll-content" style={{ padding: "32px 14px 40px 14px" }}>
+            
+            <div className="setup-header" style={{ marginBottom: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <img 
+                src={heroImage} 
+                alt="Cooki'llers logo" 
+                onClick={toggleTheme}
+                className="floating-logo"
+                style={{ 
+                  width: "100%", 
+                  maxWidth: "280px", 
+                  height: "auto", 
+                  cursor: "pointer"
+                }} 
+                title="Basculer thème jour/nuit"
+              />
+            </div>
 
-          <div className="glass-card">
-            <AnimatePresence mode="wait">
-              {joinStep === "create" && (
-                <motion.div
-                  key="create"
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  className="create-step"
-                  style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-                >
-                  <form onSubmit={handleCreateRoom} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    <label style={{ fontSize: "12px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--text-secondary)", textTransform: "uppercase" }}>
-                      Nom / Code du Salon (Optionnel) :
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Généré aléatoirement si vide"
-                      value={inputCode}
-                      onChange={(e) => setInputCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
-                      className="neon-input-premium"
-                      maxLength={15}
-                      style={{ fontSize: "15px", fontWeight: "800", textTransform: "uppercase" }}
-                    />
-
-                    <label style={{ fontSize: "12px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--text-secondary)", textTransform: "uppercase", marginTop: 4 }}>
-                      Code PIN secret GM (4 chiffres) :
-                    </label>
-                    <PinPad value={pin} onChange={setPin} />
-
-                    <button type="submit" className="hit-success-btn" style={{ height: "46px", marginTop: "12px", fontWeight: "800", letterSpacing: "0.05em" }} disabled={loading}>
-                      {loading ? <Loader2 className="animate-spin" size={18} /> : "CRÉER ET ACCÉDER AU SALON"}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => { setJoinStep("room"); setError(""); setInputCode(""); setPin(""); }}
-                      style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 13, cursor: "pointer", fontWeight: 700, alignSelf: "center", marginTop: 8 }}
-                    >
-                      ◀ Retour
-                    </button>
-                  </form>
-
-                  {error && (
-                    <div className={error.includes("Demande d'aide envoyée") ? "info-message" : "error-message"} style={{ marginTop: 8 }}>
-                      {error.includes("Demande d'aide envoyée") ? <Loader2 size={16} className="animate-spin" /> : <ShieldAlert size={16} />}
-                      {error}
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {joinStep === "room" && (
-                <motion.div
-                  key="room"
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  className="room-step"
-                  style={{ display: "flex", flexDirection: "column", gap: "16px" }}
-                >
-                  <form onSubmit={handleJoinRoom} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                    <label style={{ fontSize: "12px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--text-secondary)", textTransform: "uppercase" }}>
-                      Saisir le Code du Salon :
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="EX: CAMP"
-                      value={inputCode}
-                      onChange={(e) => setInputCode(e.target.value.toUpperCase())}
-                      className="neon-input-premium"
-                      maxLength={15}
-                      style={{ fontSize: "18px", fontWeight: "900", letterSpacing: "0.15em", textTransform: "uppercase" }}
-                      required
-                    />
-                    <button type="submit" className="hit-success-btn" style={{ height: "46px", marginTop: "4px", fontWeight: "800", letterSpacing: "0.05em" }} disabled={loading}>
-                      {loading ? <Loader2 className="animate-spin" size={18} /> : "REJOINDRE LE SALON"}
-                    </button>
-                  </form>
-
-                  {error && <div className="error-message" style={{ marginTop: 4 }}><ShieldAlert size={16} />{error}</div>}
-
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "6px 0" }}>
-                    <hr style={{ flex: 1, borderColor: "var(--border-color)", opacity: 0.5 }} />
-                    <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: "700" }}>OU</span>
-                    <hr style={{ flex: 1, borderColor: "var(--border-color)", opacity: 0.5 }} />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => { setJoinStep("create"); setInputCode(""); setPin(""); setError(""); }}
-                    className="panic-btn"
-                    style={{ height: "46px", margin: 0, borderColor: "var(--neon-purple)", color: "var(--neon-purple)", fontWeight: "800", letterSpacing: "0.05em" }}
-                    disabled={loading}
+            <div className="glass-card">
+              <AnimatePresence mode="wait">
+                {joinStep === "create" && (
+                  <motion.div
+                    key="create"
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="create-step"
+                    style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}
                   >
-                    {loading ? <Loader2 className="animate-spin" size={18} /> : "CRÉER UN SALON (GM)"}
-                  </button>
-                </motion.div>
-              )}
+                    <form onSubmit={handleCreateRoom} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <label style={{ fontSize: "12px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--text-secondary)", textTransform: "uppercase" }}>
+                        Nom / Code du Salon (Optionnel) :
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Généré aléatoirement si vide"
+                        value={inputCode}
+                        onChange={(e) => setInputCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                        className="neon-input-premium"
+                        maxLength={15}
+                        style={{ fontSize: "15px", fontWeight: "800", textTransform: "uppercase" }}
+                      />
 
-              {joinStep === "login" && (
-                <motion.div
-                  key="login"
-                  variants={pageVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                  className="login-step"
-                >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                    <span className="badge badge-player" style={{ backgroundColor: "rgba(139, 92, 246, 0.12)", color: "var(--neon-purple)", borderColor: "rgba(139, 92, 246, 0.25)", padding: "4px 10px", fontSize: "11px", fontWeight: "800" }}>
-                      SALON : {gameCode}
-                    </span>
-                    <button
-                      onClick={() => { setJoinStep("room"); setError(""); setPin(""); }}
-                      style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 12, cursor: "pointer", fontWeight: 700 }}
-                    >
-                      ◀ Changer
-                    </button>
-                  </div>
+                      <label style={{ fontSize: "12px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--text-secondary)", textTransform: "uppercase", marginTop: 4 }}>
+                        Code PIN secret GM (4 chiffres) :
+                      </label>
+                      <PinPad value={pin} onChange={setPin} />
 
-                  {/* Role selector */}
-                  <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                    <button
-                      type="button"
-                      onClick={() => { setLoginRole("player"); setError(""); }}
-                      className={`role-btn ${loginRole === "player" ? "active-player" : ""}`}
-                    >
-                      <User size={14} style={{ marginRight: 6 }} /> Joueur
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => { setLoginRole("gm"); setError(""); }}
-                      className={`role-btn ${loginRole === "gm" ? "active-gm" : ""}`}
-                    >
-                      <Shield size={14} style={{ marginRight: 6 }} /> GameMaster
-                    </button>
-                  </div>
+                      <button type="submit" className="hit-success-btn" style={{ height: "46px", marginTop: "12px", fontWeight: "800", letterSpacing: "0.05em" }} disabled={loading}>
+                        {loading ? <Loader2 className="animate-spin" size={18} /> : "CRÉER ET ACCÉDER AU SALON"}
+                      </button>
 
-                  <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                    {loading ? (
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 0", gap: 10 }}>
-                        <Loader2 className="animate-spin" size={28} style={{ color: "var(--neon-purple)" }} />
-                        <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: "600" }}>Connexion en cours...</span>
+                      <button
+                        type="button"
+                        onClick={() => { setJoinStep("room"); setError(""); setInputCode(""); setPin(""); }}
+                        style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 13, cursor: "pointer", fontWeight: 700, alignSelf: "center", marginTop: 8 }}
+                      >
+                        ◀ Retour
+                      </button>
+                    </form>
+
+                    {error && (
+                      <div className={error.includes("Demande d'aide envoyée") ? "info-message" : "error-message"} style={{ marginTop: 8 }}>
+                        {error.includes("Demande d'aide envoyée") ? <Loader2 size={16} className="animate-spin" /> : <ShieldAlert size={16} />}
+                        {error}
                       </div>
-                    ) : (
-                      <>
-                        {loginRole === "player" ? (
-                          <>
-                            <label style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Pseudo du joueur :
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="Ex: Sophie"
-                              value={nickname}
-                              onChange={(e) => setNickname(e.target.value)}
-                              className="neon-input-premium"
-                              required
-                              style={{ padding: "10px 14px", fontSize: "14px" }}
-                            />
-
-                            <label style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", marginTop: 6, letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Code PIN secret (4 chiffres) :
-                            </label>
-                            <PinPad value={pin} onChange={setPin} />
-                            
-                            <button
-                              type="button"
-                              onClick={handleForgotPin}
-                              style={{
-                                background: "none",
-                                border: "none",
-                                color: "var(--neon-purple)",
-                                fontSize: 11,
-                                cursor: "pointer",
-                                fontWeight: 700,
-                                alignSelf: "flex-end",
-                                marginTop: -2
-                              }}
-                            >
-                              Code PIN oublié ?
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <label style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Code d'accès GameMaster :
-                            </label>
-                            <PinPad value={pin} onChange={setPin} />
-                          </>
-                        )}
-                      </>
                     )}
-                  </form>
+                  </motion.div>
+                )}
 
-                  {error && (
-                    <div className={error.includes("Demande d'aide envoyée") ? "info-message" : "error-message"} style={{ marginTop: 12 }}>
-                      {error.includes("Demande d'aide envoyée") ? <Loader2 size={16} className="animate-spin" /> : <ShieldAlert size={16} />}
-                      {error}
+                {joinStep === "room" && (
+                  <motion.div
+                    key="room"
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="room-step"
+                    style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}
+                  >
+                    <form onSubmit={handleJoinRoom} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                      <label style={{ fontSize: "12px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--text-secondary)", textTransform: "uppercase" }}>
+                        Saisir le Code du Salon :
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="EX: CAMP"
+                        value={inputCode}
+                        onChange={(e) => setInputCode(e.target.value.toUpperCase())}
+                        className="neon-input-premium"
+                        maxLength={15}
+                        style={{ fontSize: "18px", fontWeight: "900", letterSpacing: "0.15em", textTransform: "uppercase" }}
+                        required
+                      />
+                      <button type="submit" className="hit-success-btn" style={{ height: "46px", marginTop: "4px", fontWeight: "800", letterSpacing: "0.05em" }} disabled={loading}>
+                        {loading ? <Loader2 className="animate-spin" size={18} /> : "REJOINDRE LE SALON"}
+                      </button>
+                    </form>
+
+                    {error && <div className="error-message" style={{ marginTop: 4 }}><ShieldAlert size={16} />{error}</div>}
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "6px 0" }}>
+                      <hr style={{ flex: 1, borderColor: "var(--border-color)", opacity: 0.5 }} />
+                      <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: "700" }}>OU</span>
+                      <hr style={{ flex: 1, borderColor: "var(--border-color)", opacity: 0.5 }} />
                     </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
+                    <button
+                      type="button"
+                      onClick={() => { setJoinStep("create"); setInputCode(""); setPin(""); setError(""); }}
+                      className="panic-btn"
+                      style={{ height: "46px", margin: 0, borderColor: "var(--neon-purple)", color: "var(--neon-purple)", fontWeight: "800", letterSpacing: "0.05em" }}
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="animate-spin" size={18} /> : "CRÉER UN SALON (GM)"}
+                    </button>
+                  </motion.div>
+                )}
+
+                {joinStep === "login" && (
+                  <motion.div
+                    key="login"
+                    variants={pageVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="login-step"
+                    style={{ width: "100%" }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                      <span className="badge badge-player" style={{ backgroundColor: "rgba(139, 92, 246, 0.12)", color: "var(--neon-purple)", borderColor: "rgba(139, 92, 246, 0.25)", padding: "4px 10px", fontSize: "11px", fontWeight: "800" }}>
+                        SALON : {gameCode}
+                      </span>
+                      <button
+                        onClick={() => { setJoinStep("room"); setError(""); setPin(""); }}
+                        style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 12, cursor: "pointer", fontWeight: 700 }}
+                      >
+                        ◀ Changer
+                      </button>
+                    </div>
+
+                    {/* Role selector */}
+                    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                      <button
+                        type="button"
+                        onClick={() => { setLoginRole("player"); setError(""); }}
+                        className={`role-btn ${loginRole === "player" ? "active-player" : ""}`}
+                      >
+                        <User size={14} style={{ marginRight: 6 }} /> Joueur
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setLoginRole("gm"); setError(""); }}
+                        className={`role-btn ${loginRole === "gm" ? "active-gm" : ""}`}
+                      >
+                        <Shield size={14} style={{ marginRight: 6 }} /> GameMaster
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      {loading ? (
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 0", gap: 10 }}>
+                          <Loader2 className="animate-spin" size={28} style={{ color: "var(--neon-purple)" }} />
+                          <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: "600" }}>Connexion en cours...</span>
+                        </div>
+                      ) : (
+                        <>
+                          {loginRole === "player" ? (
+                            <>
+                              <label style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                                Pseudo du joueur :
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Ex: Sophie"
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
+                                className="neon-input-premium"
+                                required
+                                style={{ padding: "10px 14px", fontSize: "14px" }}
+                              />
+
+                              <label style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", marginTop: 6, letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                                Code PIN secret (4 chiffres) :
+                              </label>
+                              <PinPad value={pin} onChange={setPin} />
+                              
+                              <button
+                                type="button"
+                                onClick={handleForgotPin}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "var(--neon-purple)",
+                                  fontSize: 11,
+                                  cursor: "pointer",
+                                  fontWeight: 700,
+                                  alignSelf: "flex-end",
+                                  marginTop: -2
+                                }}
+                              >
+                                Code PIN oublié ?
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <label style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                                Code d'accès GameMaster :
+                              </label>
+                              <PinPad value={pin} onChange={setPin} />
+                            </>
+                          )}
+                        </>
+                      )}
+                    </form>
+
+                    {error && (
+                      <div className={error.includes("Demande d'aide envoyée") ? "info-message" : "error-message"} style={{ marginTop: 12 }}>
+                        {error.includes("Demande d'aide envoyée") ? <Loader2 size={16} className="animate-spin" /> : <ShieldAlert size={16} />}
+                        {error}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+          </div>
         </div>
       </div>
     );
@@ -535,19 +538,19 @@ function MainAppContent() {
             </button>
 
             <button
-              onClick={() => setActiveTab("qrcode")}
-              className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
-            >
-              <QrCode size={20} />
-              <span>QR</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab("gm_mode")}
               className={`nav-item ${activeTab === "gm_mode" ? "active" : ""}`}
             >
               <Users size={20} />
               <span>Joueurs</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("qrcode")}
+              className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
+            >
+              <QrCode size={20} />
+              <span>QR Code</span>
             </button>
 
             <button
