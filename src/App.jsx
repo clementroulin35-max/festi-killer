@@ -7,10 +7,9 @@ import PlayerSetup from "./components/PlayerSetup";
 import CounterAttackTab from "./components/CounterAttackTab";
 import SuggestActionTab from "./components/SuggestActionTab";
 import PinPad from "./components/PinPad";
-import { parseMessageToJSX } from "./utils/parseLogMessage";
 import {
-  Skull, Users, Shield, Trophy, FileText, User,
-  ShieldAlert, Lightbulb, Award, Key, QrCode, LogOut, ArrowRight, Loader2
+  Skull, Users, Shield, Trophy, User,
+  ShieldAlert, Lightbulb, Award, QrCode, LogOut, Loader2
 } from "lucide-react";
 import heroImage from "./assets/hero-removebg.png";
 
@@ -208,43 +207,8 @@ function MainAppContent() {
         return <GMDashboard gmTab="players" />;
       case "actions":
         return <GMDashboard gmTab="actions" />;
-      case "logs":
-        return <GMDashboard gmTab="history" />;
       case "qrcode":
         return <GMDashboard gmTab="qrcode" />;
-      case "feed":
-        const filteredHistory = currentUser === "GM"
-          ? gameState.history
-          : gameState.history.filter(evt =>
-            evt.type !== "action_suggestion" &&
-            evt.type !== "action_added" &&
-            evt.type !== "action_edited" &&
-            evt.type !== "action_deleted" &&
-            evt.type !== "action_suggestion_rejection" &&
-            evt.type !== "manual_edit" &&
-            evt.type !== "skip" &&
-            evt.type !== "abandon_validation"
-          );
-
-        return (
-          <div className="activity-feed-view animate-fade-in">
-            <h2>FIL D'ACTUALITÉ</h2>
-            <div className="activity-feed">
-              {filteredHistory.length === 0 ? (
-                <div className="empty-feed">Aucun événement enregistré.</div>
-              ) : (
-                filteredHistory.map((evt) => (
-                  <div key={evt.id} className="feed-item">
-                    <span className="feed-time">
-                      [{new Date(evt.timestamp).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}]
-                    </span>
-                    <span className="feed-message"> {parseMessageToJSX(evt.message, gameState.players)}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        );
       case "dashboard":
       default:
         if (currentUser === "GM") {
@@ -542,14 +506,6 @@ function MainAppContent() {
         {currentUser === "GM" && (
           <>
             <button
-              onClick={() => setActiveTab("logs")}
-              className={`nav-item ${activeTab === "logs" ? "active" : ""}`}
-            >
-              <FileText size={20} />
-              <span>Flux</span>
-            </button>
-
-            <button
               onClick={() => setActiveTab("leaderboard")}
               className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
             >
@@ -600,14 +556,6 @@ function MainAppContent() {
         {/* Players Bottom Tabs Navigation (only when started) */}
         {gameState.started && currentUser !== "GM" && (
           <>
-            <button
-              onClick={() => setActiveTab("feed")}
-              className={`nav-item ${activeTab === "feed" ? "active" : ""}`}
-            >
-              <FileText size={20} />
-              <span>Flux</span>
-            </button>
-
             <button
               onClick={() => setActiveTab("leaderboard")}
               className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
