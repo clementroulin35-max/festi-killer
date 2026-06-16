@@ -96,6 +96,7 @@ export default function CounterAttackTab({ playerName }) {
                 value={accusedActionText}
                 onChange={(e) => setAccusedActionText(e.target.value)}
                 className="neon-input-premium"
+                style={{ textAlign: "left" }}
               />
             </label>
 

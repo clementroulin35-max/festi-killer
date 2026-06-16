@@ -76,6 +76,7 @@ export default function SuggestActionTab({ playerName }) {
                 value={sugTitle}
                 onChange={(e) => setSugTitle(e.target.value)}
                 className="neon-input-premium"
+                style={{ textAlign: "left" }}
                 required
               />
             </label>

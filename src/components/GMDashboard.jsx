@@ -482,43 +482,68 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                 padding: "10px 12px",
                                 cursor: "pointer",
                                 display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                gap: "12px",
+                                flexDirection: "column",
+                                gap: "8px",
                                 transition: "all 0.2s ease",
                                 boxShadow: isSelected ? "0 0 10px rgba(139, 92, 246, 0.25)" : "none",
                               }}
                             >
-                              {/* Left side: Avatar + Name */}
-                              <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
-                                {p.photo ? (
-                                  <img src={p.photo} alt={p.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
-                                ) : (
-                                  <div className="row-avatar" style={{ width: "28px", height: "28px", fontSize: "11px", minWidth: "28px", minHeight: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    {p.name.slice(0, 2).toUpperCase()}
+                              {/* Main row: Avatar, Name, PIN, Target */}
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                                {/* Left side: Avatar + Name + Target */}
+                                <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
+                                  {p.photo ? (
+                                    <img src={p.photo} alt={p.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
+                                  ) : (
+                                    <div className="row-avatar" style={{ width: "28px", height: "28px", fontSize: "11px", minWidth: "28px", minHeight: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                      {p.name.slice(0, 2).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                                    <strong style={{ fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>{p.name}</strong>
+                                    <span style={{ fontSize: "10px", color: "var(--text-muted)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                                      Cible : <strong style={{ color: "var(--neon-red)" }}>{p.target || "Aucune"}</strong>
+                                    </span>
                                   </div>
-                                )}
-                                <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                                  <strong style={{ fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>{p.name}</strong>
-                                  <span style={{ fontSize: "10px", color: "var(--text-muted)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                                    Cible : <strong style={{ color: "var(--text-secondary)" }}>{p.target || "Aucune"}</strong>
-                                  </span>
+                                </div>
+
+                                {/* Right side: PIN */}
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px", flexShrink: 0 }}>
+                                  <span style={{ fontSize: "9px", color: "var(--neon-green)", fontWeight: "800", letterSpacing: "0.05em" }}>PIN</span>
+                                  <span style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-primary)" }}>{p.pin}</span>
                                 </div>
                               </div>
 
-                              {/* Right side: Stats */}
-                              <div style={{ display: "flex", alignItems: "center", gap: "16px", flexShrink: 0, textAlign: "right" }}>
-                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px" }}>
-                                  <span style={{ fontSize: "13px", fontWeight: "800", color: "var(--text-primary)" }}>{p.score} pts</span>
-                                  <span style={{ fontSize: "10px", color: p.isZombie ? "var(--neon-red)" : "var(--neon-green)", fontWeight: "700" }}>
-                                    {p.isZombie ? "💀 Zombie" : `${p.lives} ❤️`}
-                                  </span>
-                                </div>
-                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px", borderLeft: "1px solid rgba(255,255,255,0.06)", paddingLeft: "10px" }}>
-                                  <span style={{ fontSize: "10px", color: "var(--neon-green)", fontWeight: "800" }}>PIN</span>
-                                  <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-primary)" }}>{p.pin}</span>
-                                </div>
-                              </div>
+                              {/* Sub-pane: Current Mission Details */}
+                              {(() => {
+                                const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === p.actionId);
+                                return (
+                                  <div 
+                                    style={{ 
+                                      borderTop: "1px solid rgba(255,255,255,0.06)", 
+                                      paddingTop: "6px", 
+                                      marginTop: "2px", 
+                                      width: "100%", 
+                                      display: "flex", 
+                                      flexDirection: "column", 
+                                      gap: "2px" 
+                                    }}
+                                  >
+                                    <span style={{ fontSize: "9px", fontWeight: "800", color: "var(--neon-gold)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                      Mission active :
+                                    </span>
+                                    <span style={{ fontSize: "11px", color: "var(--text-secondary)", lineHeight: "1.35" }}>
+                                      {action ? (
+                                        <>
+                                          <strong>{action.title}</strong> — {action.description}
+                                        </>
+                                      ) : (
+                                        "Aucune mission"
+                                      )}
+                                    </span>
+                                  </div>
+                                );
+                              })()}
                             </div>
                           );
                         })}
