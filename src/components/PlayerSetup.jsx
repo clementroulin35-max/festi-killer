@@ -17,6 +17,13 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
   const [cameraActive, setCameraActive] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const container = document.querySelector(".app-main-content");
+    if (container) {
+      container.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [currentSlide]);
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 

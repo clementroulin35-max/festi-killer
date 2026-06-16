@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import heartImage from "../assets/heart_neon.png";
 import tokenImage from "../assets/token_neon.png";
+import suicidePreventImage from "../assets/suicide_prevent.png";
 
 /* ============================================
    RANK SYSTEM (computed from score, exposed everywhere)
@@ -125,6 +126,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
   const [confirmModal, setConfirmModal] = useState(null); // { type: 'skip' | 'abandon' }
   const [showTokenTooltip, setShowTokenTooltip] = useState(false);
+  const [showSuicideAlert, setShowSuicideAlert] = useState(false);
 
   useEffect(() => {
     if (showTokenTooltip) {
@@ -173,6 +175,11 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
   const handleConfirmAction = (costType) => {
     if (!confirmModal) return;
     if (confirmModal.type === "abandon") {
+      if (costType === "lives" && player.lives <= 0.5) {
+        setShowSuicideAlert(true);
+        setConfirmModal(null);
+        return;
+      }
       abandonTargetInstant(playerName, costType);
     } else if (confirmModal.type === "skip") {
       skipAction(playerName);
@@ -265,7 +272,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
             }}
           >
             <img src={tokenImage} alt="skips" style={{ width: 28, height: 28, mixBlendMode: "screen" }} />
-            <span style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-gold)", marginLeft: "6px" }}>{player.skips}</span>
+            <span style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-gold)", marginLeft: "2px" }}>{player.skips}</span>
             
             <AnimatePresence>
               {showTokenTooltip && (
@@ -466,6 +473,59 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 </div>
               </motion.div>
             )}
+          </motion.div>
+        )}
+        
+        {showSuicideAlert && (
+          <motion.div
+            className="confirm-modal-backdrop-v2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 11000 }}
+          >
+            <motion.div
+              className="confirm-modal-v2 type-red"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                gap: "14px",
+                maxWidth: "360px",
+                padding: "24px 20px"
+              }}
+            >
+              <img 
+                src={suicidePreventImage} 
+                alt="Suicide interdit" 
+                style={{ 
+                  width: "120px", 
+                  height: "120px", 
+                  borderRadius: "12px", 
+                  border: "2px solid var(--neon-red)",
+                  boxShadow: "0 0 15px rgba(255, 51, 102, 0.4)",
+                  objectFit: "cover"
+                }} 
+              />
+              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)", margin: 0 }}>SUICIDE INTERDIT ! 🛑</h3>
+              <p className="confirm-modal-body-v2" style={{ fontSize: "13.5px", lineHeight: "1.45", margin: 0 }}>
+                Hé, champion ! Le règlement de la Psy Trance est formel : <strong>on ne s'élimine pas soi-même.</strong><br />
+                Abandonner ce défi te coûterait ton tout dernier demi-cœur. Tu ne vas pas capituler comme ça et nourrir les zombies ! 🧠
+              </p>
+              
+              <button 
+                className="confirm-btn-primary-v2"
+                style={{ backgroundColor: "var(--neon-red)", color: "#fff", width: "100%", height: "42px", marginTop: "6px" }}
+                onClick={() => setShowSuicideAlert(false)}
+              >
+                Compris, je reste au combat ⚔️
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

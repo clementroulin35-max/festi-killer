@@ -78,9 +78,27 @@ export function generateTargetLoop(playerNames) {
     throw new Error("Il faut au moins 2 joueurs pour former une boucle de cibles.");
   }
 
-  const shuffled = shuffle(playerNames);
-  const targets = {};
+  let shuffled = shuffle(playerNames);
+  let attempts = 0;
+  let hasSelfTarget = true;
 
+  while (hasSelfTarget && attempts < 100) {
+    hasSelfTarget = false;
+    for (let i = 0; i < shuffled.length; i++) {
+      const killer = shuffled[i];
+      const target = shuffled[(i + 1) % shuffled.length];
+      if (killer === target) {
+        hasSelfTarget = true;
+        break;
+      }
+    }
+    if (hasSelfTarget) {
+      shuffled = shuffle(playerNames);
+    }
+    attempts++;
+  }
+
+  const targets = {};
   for (let i = 0; i < shuffled.length; i++) {
     const killer = shuffled[i];
     const target = shuffled[(i + 1) % shuffled.length];

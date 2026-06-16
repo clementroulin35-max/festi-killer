@@ -1522,7 +1522,8 @@ h2 {
 }
 
 .judge-player-card.card-blurred .j-player-stats,
-.judge-player-card.card-blurred .j-player-actions {
+.judge-player-card.card-blurred .j-player-actions,
+.judge-player-horizontal-card.card-blurred {
   filter: blur(14px);
   pointer-events: none;
   user-select: none;
@@ -3524,7 +3525,7 @@ select option {
   box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.7), 0 0 20px rgba(139, 92, 246, 0.1);
   border-radius: var(--border-radius-lg);
   width: 100%;
-  max-width: 380px;
+  max-width: 420px;
   padding: 24px 18px;
   margin-top: 8px;
   transition: all 0.3s ease;
@@ -3673,7 +3674,7 @@ select option {
   width: 100%;
   height: 100%;
   overflow-y: auto;
-  padding: 32px 8px 80px 8px;
+  padding: 0 0 60px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3690,6 +3691,8 @@ select option {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), 0 0 15px rgba(139, 92, 246, 0.1);
   border-radius: var(--border-radius-md);
   padding: 20px;
+  width: 100%;
+  max-width: 420px;
 }
 
 .glass-card-red {
@@ -3700,6 +3703,8 @@ select option {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 51, 102, 0.1);
   border-radius: var(--border-radius-md);
   padding: 20px;
+  width: 100%;
+  max-width: 420px;
 }
 
 .glass-card-gold {
@@ -3710,6 +3715,8 @@ select option {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), 0 0 15px rgba(245, 158, 11, 0.1);
   border-radius: var(--border-radius-md);
   padding: 20px;
+  width: 100%;
+  max-width: 420px;
 }
 
 /* ==========================================
@@ -3730,6 +3737,8 @@ select option {
   margin-top: 10px;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  max-width: 420px;
 }
 
 .hud-row-v2 {

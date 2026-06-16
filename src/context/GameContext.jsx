@@ -611,6 +611,12 @@ export const GameProvider = ({ children }) => {
         }
       }
 
+      if (newKillerTarget === killer.name) {
+        const alternative = gameState.players.find(p => p.name !== killer.name && !p.isZombie);
+        newKillerTarget = alternative ? alternative.name : null;
+      }
+      playersToUpdate = playersToUpdate.filter(p => p.name !== p.target);
+
       // Draw random action
       const pool = gameState.actionPool;
       const usedActionIds = gameState.players.map(p => p.actionId);
@@ -802,6 +808,12 @@ export const GameProvider = ({ children }) => {
           newKillerTarget = oldVictimTarget;
         }
       }
+
+      if (newKillerTarget === killer.name) {
+        const alternative = gameState.players.find(p => p.name !== killer.name && !p.isZombie);
+        newKillerTarget = alternative ? alternative.name : null;
+      }
+      playersToUpdate = playersToUpdate.filter(p => p.name !== p.target);
 
       // 1. Update killer stats
       await supabase

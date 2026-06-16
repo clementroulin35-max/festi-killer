@@ -361,46 +361,51 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         Aucun joueur connecté pour l'instant.
                       </div>
                     ) : (
-                      <div className="judge-players-grid" style={{ marginTop: 16 }}>
+                      <div className="judge-players-vertical-list" style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%" }}>
                         {gameState.players.map((p) => (
-                          <div key={p.name} className={`judge-player-card ${playersMasked ? "card-blurred" : ""}`}>
-                            <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                              <div className="row-avatar" style={{ width: "24px", height: "24px", fontSize: "10px", minWidth: "24px", minHeight: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <div 
+                            key={p.name} 
+                            className={`judge-player-horizontal-card ${playersMasked ? "card-blurred" : ""}`}
+                            style={{
+                              width: "100%",
+                              background: "rgba(24, 24, 31, 0.65)",
+                              border: "1px solid rgba(255, 255, 255, 0.08)",
+                              borderRadius: "var(--border-radius-sm)",
+                              padding: "10px 12px",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: "12px"
+                            }}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
+                              <div className="row-avatar" style={{ width: "28px", height: "28px", fontSize: "11px", minWidth: "28px", minHeight: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                 {p.name.slice(0, 2).toUpperCase()}
                               </div>
-                              <strong>{p.name}</strong>
+                              <strong style={{ fontSize: "13px", color: "var(--text-primary)" }}>{p.name}</strong>
                             </div>
-                            <div className="j-player-stats" style={{ marginTop: 8 }}>
-                              <div style={{ color: "var(--neon-green)", fontSize: "12px", fontWeight: "700" }}>Code PIN : {p.pin}</div>
-                              <div style={{ fontSize: "12px", color: "var(--text-secondary)", marginTop: 4 }}>Score : 0 pts</div>
-                              <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Cœurs : 7 / 7</div>
-                            </div>
-                            <div className="j-player-actions" style={{ marginTop: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                              <span style={{ fontSize: "11px", color: "var(--neon-green)", fontWeight: "700" }}>PIN : {p.pin}</span>
                               <button 
                                 type="button" 
                                 onClick={() => removePlayer(p.name)} 
                                 className="btn-reject" 
-                                style={{ width: "100%", height: 32, fontSize: 12, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
+                                style={{ height: 28, width: 28, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+                                title="Exclure le joueur"
                               >
-                                <Trash size={12} /> Exclure le joueur
+                                <Trash size={12} />
                               </button>
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
-
-                    <div className="launch-game-btn-container" style={{ marginTop: 24 }}>
-                      <button onClick={handleStartGame} className="launch-game-btn" style={{ width: "100%" }}>
-                        <Play size={20} fill="#121214" /> LANCER LA PARTIE 🚀
-                      </button>
-                    </div>
                   </>
                 ) : (
                   <>
                     {/* God Form Editing */}
                     {editingPlayer && (
-                      <form onSubmit={handleSaveEdit} id="god-player-editor" className="god-edit-form animate-fade-in" style={{ scrollMarginTop: "80px" }}>
+                      <form onSubmit={handleSaveEdit} id="god-player-editor" className="god-edit-form animate-fade-in" style={{ scrollMarginTop: "80px", marginBottom: "20px" }}>
                         <h4 style={{ marginBottom: "12px", borderBottom: "1px solid var(--border-color)", paddingBottom: "6px" }}>Gérer {editingPlayer}</h4>
                         <div className="form-row" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                           <div style={{ display: "flex", gap: "10px", width: "100%", flexWrap: "wrap" }}>
@@ -444,21 +449,18 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       </form>
                     )}
 
-                    {/* Players Horizontal List */}
-                    <div style={{ marginTop: 20 }}>
+                    {/* Players Vertical List */}
+                    <div style={{ marginTop: 8, width: "100%" }}>
                       <label style={{ fontSize: "11px", fontWeight: "800", color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
                         Sélectionner un joueur à gérer :
                       </label>
                       <div 
-                        className="judge-players-horizontal-list" 
+                        className="judge-players-vertical-list" 
                         style={{
                           display: "flex",
-                          gap: "10px",
-                          overflowX: "auto",
+                          flexDirection: "column",
+                          gap: "8px",
                           width: "100%",
-                          padding: "4px 2px 14px 2px",
-                          scrollSnapType: "x mandatory",
-                          WebkitOverflowScrolling: "touch",
                         }}
                       >
                         {gameState.players.map((p) => {
@@ -469,53 +471,52 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                               onClick={() => startEditPlayer(p)}
                               className={`judge-player-horizontal-card ${p.isZombie ? "zombie-player" : ""} ${!p.target ? "player-inactive-card" : ""} ${playersMasked ? "card-blurred" : ""} ${isSelected ? "selected-card" : ""}`}
                               style={{
-                                flex: "0 0 160px",
+                                width: "100%",
                                 background: isSelected 
-                                  ? "rgba(139, 92, 246, 0.22)" 
+                                  ? "rgba(139, 92, 246, 0.18)" 
                                   : "rgba(24, 24, 31, 0.65)",
                                 border: isSelected 
-                                  ? "2px solid var(--neon-purple)" 
+                                  ? "1.5px solid var(--neon-purple)" 
                                   : "1px solid rgba(255, 255, 255, 0.08)",
-                                borderRadius: "var(--border-radius-md)",
-                                padding: "12px",
+                                borderRadius: "var(--border-radius-sm)",
+                                padding: "10px 12px",
                                 cursor: "pointer",
                                 display: "flex",
-                                flexDirection: "column",
-                                gap: "8px",
-                                scrollSnapAlign: "start",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                gap: "12px",
                                 transition: "all 0.2s ease",
-                                boxShadow: isSelected ? "0 0 12px rgba(139, 92, 246, 0.3)" : "none",
+                                boxShadow: isSelected ? "0 0 10px rgba(139, 92, 246, 0.25)" : "none",
                               }}
                             >
-                              <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "6px", width: "100%" }}>
+                              {/* Left side: Avatar + Name */}
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
                                 {p.photo ? (
-                                  <img src={p.photo} alt={p.name} style={{ width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
+                                  <img src={p.photo} alt={p.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
                                 ) : (
-                                  <div className="row-avatar" style={{ width: "22px", height: "22px", fontSize: "9px", minWidth: "22px", minHeight: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                  <div className="row-avatar" style={{ width: "28px", height: "28px", fontSize: "11px", minWidth: "28px", minHeight: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                                     {p.name.slice(0, 2).toUpperCase()}
                                   </div>
                                 )}
-                                <strong style={{ fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "85px", color: isSelected ? "var(--text-primary)" : "var(--text-secondary)" }}>{p.name}</strong>
-                                {p.isZombie && <span style={{ marginLeft: "auto", fontSize: "8px" }}>💀</span>}
-                              </div>
-                              
-                              <div style={{ fontSize: "11px", display: "flex", flexDirection: "column", gap: "4px", color: "var(--text-muted)" }}>
-                                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                  <span>Score:</span>
-                                  <span style={{ fontWeight: "700", color: "var(--text-primary)" }}>{p.score}</span>
-                                </div>
-                                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                                  <span>Cœurs:</span>
-                                  <span style={{ fontWeight: "700", color: p.isZombie ? "var(--neon-red)" : "var(--neon-green)" }}>
-                                    {p.isZombie ? "0 💀" : `${p.lives}`}
+                                <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                                  <strong style={{ fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>{p.name}</strong>
+                                  <span style={{ fontSize: "10px", color: "var(--text-muted)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                                    Cible : <strong style={{ color: "var(--text-secondary)" }}>{p.target || "Aucune"}</strong>
                                   </span>
                                 </div>
-                                <div style={{ display: "flex", justifyContent: "space-between", color: "var(--neon-green)" }}>
-                                  <span>PIN:</span>
-                                  <span style={{ fontWeight: "700" }}>{p.pin}</span>
+                              </div>
+
+                              {/* Right side: Stats */}
+                              <div style={{ display: "flex", alignItems: "center", gap: "16px", flexShrink: 0, textAlign: "right" }}>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px" }}>
+                                  <span style={{ fontSize: "13px", fontWeight: "800", color: "var(--text-primary)" }}>{p.score} pts</span>
+                                  <span style={{ fontSize: "10px", color: p.isZombie ? "var(--neon-red)" : "var(--neon-green)", fontWeight: "700" }}>
+                                    {p.isZombie ? "💀 Zombie" : `${p.lives} ❤️`}
+                                  </span>
                                 </div>
-                                <div style={{ borderTop: "1px dashed rgba(255,255,255,0.06)", paddingTop: "4px", marginTop: "2px", fontSize: "10px", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                                  Cible: <strong style={{ color: "var(--text-primary)" }}>{p.target || "Aucune"}</strong>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px", borderLeft: "1px solid rgba(255,255,255,0.06)", paddingLeft: "10px" }}>
+                                  <span style={{ fontSize: "10px", color: "var(--neon-green)", fontWeight: "800" }}>PIN</span>
+                                  <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-primary)" }}>{p.pin}</span>
                                 </div>
                               </div>
                             </div>
@@ -523,17 +524,26 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         })}
                       </div>
                     </div>
-
-                    <button 
-                      onClick={() => setShowResetConfirmStep(1)} 
-                      className="reset-game-btn" 
-                      style={{ width: "100%", marginTop: 24 }}
-                    >
-                      ⚠️ ARRÊTER / RÉINITIALISER LA PARTIE
-                    </button>
                   </>
                 )}
               </div>
+
+              {/* Action buttons rendered outside the glass-card */}
+              {!gameState.started ? (
+                <div className="launch-game-btn-container" style={{ marginTop: 16, width: "100%" }}>
+                  <button onClick={handleStartGame} className="launch-game-btn" style={{ width: "100%" }}>
+                    <Play size={20} fill="#121214" /> LANCER LA PARTIE 🚀
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setShowResetConfirmStep(1)} 
+                  className="reset-game-btn" 
+                  style={{ width: "100%", marginTop: 16 }}
+                >
+                  ⚠️ ARRÊTER / RÉINITIALISER LA PARTIE
+                </button>
+              )}
             </div>
           </div>
         )}
