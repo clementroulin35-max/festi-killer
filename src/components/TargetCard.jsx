@@ -86,8 +86,7 @@ export default function TargetCard({
   const topContainerClass = [
     "tarot-card-top",
     dragDirTarget === "left" ? "drag-active-left" : "",
-    dragDirTarget === "right" ? "drag-active-right" : "",
-    isMasked ? "card-blurred" : ""
+    dragDirTarget === "right" ? "drag-active-right" : ""
   ].filter(Boolean).join(" ");
 
   // Build bottom drag active classes
@@ -97,8 +96,13 @@ export default function TargetCard({
     dragDirMission === "right" ? "drag-active-right" : ""
   ].filter(Boolean).join(" ");
 
+  const isTargetZombie = targetPlayer?.isZombie;
+
   return (
-    <div className={`tarot-card-v2 rarity-${rarity}`}>
+    <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""}`}>
+      {/* White flash on HIT shoot animation */}
+      {hasPendingHit && <div className="tarot-hit-flash" />}
+
       {/* Hologram scanline */}
       <div className="hologram-overlay">
         <div className="hologram-scan-line" />
@@ -141,19 +145,33 @@ export default function TargetCard({
         </div>
 
         {/* Target radar scope */}
-        <div className="tarot-target-scope">
+        <div className={`tarot-target-scope ${hasPendingHit ? "hit-animation-active" : ""}`}>
           <div className="tarot-target-lines" />
-          {targetPlayer?.photo ? (
-            <img
-              src={targetPlayer.photo}
-              alt={targetName}
-              className="tarot-target-avatar"
-            />
-          ) : (
-            <div className="tarot-target-initials">
-              {getInitials(targetName)}
+          
+          {/* Bullet impact hole */}
+          {hasPendingHit && (
+            <div className="bullet-hole-impact">
+              <svg viewBox="0 0 100 100" style={{ width: 40, height: 40 }}>
+                <circle cx="50" cy="50" r="8" fill="#111116" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+                <path d="M50 42 L50 20 M50 58 L50 80 M42 50 L20 50 M58 50 L80 50 M44 44 L32 32 M56 56 L68 68 M44 56 L32 68 M56 44 L68 32" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" />
+                <circle cx="50" cy="50" r="3" fill="#fff" />
+              </svg>
             </div>
           )}
+
+          <div className={isTargetZombie ? "zombie-avatar-crt" : ""}>
+            {targetPlayer?.photo ? (
+              <img
+                src={targetPlayer.photo}
+                alt={targetName}
+                className={`tarot-target-avatar ${hasPendingHit ? "hit-animation-active" : ""}`}
+              />
+            ) : (
+              <div className={`tarot-target-initials ${hasPendingHit ? "hit-animation-active" : ""}`}>
+                {getInitials(targetName)}
+              </div>
+            )}
+          </div>
         </div>
 
         <div>

@@ -223,39 +223,48 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         {/* Ligne 1: (gauche) photo profil + pseudo, (droite) statut */}
         <div className="hud-row-v2 line-1">
           <div className="hud-left-v2">
-            {player.photo ? (
-              <img
-                src={player.photo}
-                alt={player.name}
-                onClick={onEditPhoto}
-                className="hud-avatar-v2"
-                title="Modifier ma photo"
-              />
-            ) : (
-              <div onClick={onEditPhoto} className="hud-avatar-v2 placeholder" title="Modifier ma photo">
-                <User size={16} style={{ color: "var(--text-muted)" }} />
-              </div>
-            )}
+            <div className={isZombie ? "zombie-avatar-crt" : ""}>
+              {player.photo ? (
+                <img
+                  src={player.photo}
+                  alt={player.name}
+                  onClick={onEditPhoto}
+                  className="hud-avatar-v2"
+                  title="Modifier ma photo"
+                />
+              ) : (
+                <div onClick={onEditPhoto} className="hud-avatar-v2 placeholder" title="Modifier ma photo">
+                  <User size={16} style={{ color: "var(--text-muted)" }} />
+                </div>
+              )}
+            </div>
             <span className="hud-pseudo-v2">{player.name}</span>
           </div>
           <div className="hud-right-v2">
-            {isZombie ? (
-              <span className="hud-status-v2 zombie">🧟 ZOMBIE</span>
-            ) : (
-              <span className="hud-status-v2 alive">🟢 VIVANT</span>
-            )}
+            <div className={`hud-status-v2 ${isZombie ? "zombie" : "alive"}`}>
+              <div className="ecg-dot" />
+              <svg viewBox="0 0 100 30" className="ecg-svg">
+                <path
+                  className="ecg-path"
+                  d="M0 15 h30 l4 -10 l4 20 l4 -15 l4 5 h54"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
           </div>
         </div>
 
         {/* Ligne 2: (gauche) Jetons relance, nombre, (droite) coeurs */}
         <div className="hud-row-v2 line-2">
-          <div className="hud-left-v2">
-            <img src={tokenImage} alt="skips" className="hud-icon-v2" />
-            <span className="hud-label-v2">Relances :</span>
-            <span className="hud-val-v2">{player.skips}</span>
+          <div className="hud-left-v2" style={{ alignItems: "center" }}>
+            <img src={tokenImage} alt="skips" style={{ width: 18, height: 18, mixBlendMode: "screen" }} />
+            <span style={{ fontSize: "15px", fontWeight: "900", color: "var(--neon-gold)", marginLeft: "4px" }}>{player.skips}</span>
           </div>
-          <div className="hud-right-v2" style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <img src={heartImage} alt="HP" className="hud-icon-v2" />
+          <div className="hud-right-v2" style={{ display: "flex", justifyContent: "flex-end" }}>
             <ZeldaHearts lives={player.lives} />
           </div>
         </div>

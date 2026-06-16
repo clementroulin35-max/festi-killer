@@ -165,10 +165,7 @@ body, #root {
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 0.1em;
-  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 /* Badges */
@@ -2366,10 +2363,7 @@ select option {
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
 }
 
 .slide-intro {
@@ -2570,10 +2564,7 @@ select option {
 }
 
 [data-theme="light"] .app-header h1 {
-  background: linear-gradient(135deg, #1a1a2e, #555568);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #1a1a2e;
 }
 
 /* Bottom Nav */
@@ -3760,8 +3751,8 @@ select option {
   height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1.5px solid var(--neon-purple);
-  box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+  border: 1px solid #1e1e24; /* Noir anthracite très fin */
+  box-shadow: none;
   cursor: pointer;
   transition: transform 0.2s;
 }
@@ -3771,7 +3762,7 @@ select option {
   align-items: center;
   justify-content: center;
   background-color: var(--bg-input);
-  border: 1.5px dashed var(--border-color);
+  border: 1px dashed #1e1e24; /* Noir anthracite très fin */
 }
 
 .hud-avatar-v2:hover {
@@ -3786,24 +3777,58 @@ select option {
 }
 
 .hud-status-v2 {
-  font-size: 11px;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  padding: 0;
+  border: none;
 }
 
-.hud-status-v2.alive {
-  background: rgba(16, 185, 129, 0.12);
+.hud-status-v2 .ecg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.hud-status-v2.alive .ecg-dot {
+  background-color: var(--neon-green);
+  box-shadow: 0 0 8px var(--neon-green);
+  animation: flashRed 1.8s infinite ease-in-out;
+}
+
+.hud-status-v2.zombie .ecg-dot {
+  background-color: var(--neon-red);
+  box-shadow: 0 0 8px var(--neon-red);
+  animation: flashRed 1.0s infinite ease-in-out;
+}
+
+.hud-status-v2 .ecg-svg {
+  width: 50px;
+  height: 20px;
+  overflow: visible;
+}
+
+.hud-status-v2.alive .ecg-svg {
   color: var(--neon-green);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.5));
 }
 
-.hud-status-v2.zombie {
-  background: rgba(255, 51, 102, 0.12);
+.hud-status-v2.zombie .ecg-svg {
   color: var(--neon-red);
-  border: 1px solid rgba(255, 51, 102, 0.25);
-  animation: flashRed 2s infinite;
+  filter: drop-shadow(0 0 3px rgba(255, 51, 102, 0.5));
+}
+
+.hud-status-v2 .ecg-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ecgFlow 2.5s linear infinite;
+}
+
+@keyframes ecgFlow {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 .hud-icon-v2 {
@@ -4368,6 +4393,140 @@ select option {
   align-items: center;
   justify-content: center;
   font-family: var(--font-sans);
+}
+
+/* ==========================================
+   TAROT CARD BLUR (PANIC MODE FIX)
+   ========================================== */
+
+.tarot-card-v2.card-blurred .tarot-card-top,
+.tarot-card-v2.card-blurred .tarot-card-bottom {
+  filter: blur(25px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ==========================================
+   CRT SCANLINE FLICKER FOR ZOMBIES
+   ========================================== */
+
+.zombie-avatar-crt {
+  position: relative;
+}
+
+.zombie-avatar-crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(120, 120, 120, 0.25) 0px,
+    rgba(120, 120, 120, 0.25) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: crtFlicker 0.15s infinite;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes crtFlicker {
+  0% { opacity: 0.85; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.85; }
+}
+
+/* ==========================================
+   VIDEO GAME HIT ANIMATION
+   ========================================== */
+
+/* Target scope animation on HIT */
+.tarot-target-scope.hit-animation-active::before {
+  animation: hitTargetLockBefore 1.5s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+.tarot-target-scope.hit-animation-active::after {
+  animation: hitTargetLockAfter 1.5s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+.tarot-target-scope.hit-animation-active .tarot-target-lines {
+  animation: hitTargetLinesFade 1.2s ease-out forwards;
+}
+
+@keyframes hitTargetLockBefore {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; border-color: rgba(255, 51, 102, 0.5); }
+  35% { transform: scale(1.3) rotate(180deg); opacity: 1; border-color: var(--neon-red); }
+  50% { transform: scale(0.6) rotate(360deg); opacity: 1; border-color: #fff; border-width: 3px; }
+  75% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes hitTargetLockAfter {
+  0% { transform: scale(1) rotate(0deg); opacity: 1; }
+  35% { transform: scale(1.4) rotate(-180deg); opacity: 1; }
+  50% { transform: scale(0.5) rotate(-360deg); opacity: 1; border-color: #fff; }
+  75% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes hitTargetLinesFade {
+  0% { opacity: 0.55; }
+  45% { opacity: 0.85; }
+  50% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+/* Grayscale avatar transition */
+.tarot-target-avatar.hit-animation-active,
+.tarot-target-initials.hit-animation-active {
+  animation: hitTargetGrayscale 1.5s ease-out forwards;
+}
+
+@keyframes hitTargetGrayscale {
+  0% { filter: grayscale(0); }
+  45% { filter: grayscale(0); }
+  50% { filter: grayscale(1) brightness(2.0); } /* Shoot flash */
+  65% { filter: grayscale(1) brightness(0.5); }
+  100% { filter: grayscale(1) brightness(0.65); }
+}
+
+/* Bullet Hole Impact */
+.bullet-hole-impact {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bulletShootImpact 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes bulletShootImpact {
+  0% { transform: scale(3.5); opacity: 0; }
+  49% { transform: scale(3.5); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.95; }
+}
+
+/* White screen flash on shoot */
+.tarot-hit-flash {
+  position: absolute;
+  inset: 0;
+  background-color: #fff;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 0;
+  animation: shootWhiteFlash 0.5s ease-out forwards;
+}
+
+@keyframes shootWhiteFlash {
+  0% { opacity: 0; }
+  49% { opacity: 0; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0; }
 }
 
 
