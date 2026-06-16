@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify } from "lucide-react";
+import { getRank } from "./PlayerDashboard";
 
 export default function Leaderboard({ players, history }) {
   const [subTab, setSubTab] = useState("scores"); // scores, trophies
@@ -162,16 +163,17 @@ export default function Leaderboard({ players, history }) {
                       )}
                     </div>
                     <div className="row-player-info">
-                      <div className="row-player-name">
-                        {player.name}
-                        {player.isZombie && <span className="zombie-text-label">ZOMBIE</span>}
-                      </div>
-                      <div className="row-trophies">
-                        {isPredator && <Trophy size={12} className="row-trophy trophy-gold" title="Prédateur Alpha" />}
-                        {isSurvivor && <Heart size={12} className="row-trophy trophy-red" fill="#ef4444" color="#ef4444" title="Survivant Ultime" />}
-                        {isCrazy && <Shuffle size={12} className="row-trophy trophy-purple" title="Joueur Fou" />}
-                      </div>
-                    </div>
+                       <div className="row-player-name">
+                         {player.name}
+                         {player.isZombie && <span className="zombie-text-label">ZOMBIE</span>}
+                       </div>
+                       <div className="row-trophies">
+                         {(() => { const r = getRank(player.score); return <span className={`rank-badge ${r.css}`} style={{ fontSize: 9, padding: '2px 6px' }}>{r.icon} {r.label}</span>; })()}
+                         {isPredator && <Trophy size={12} className="row-trophy trophy-gold" title="Prédateur Alpha" />}
+                         {isSurvivor && <Heart size={12} className="row-trophy trophy-red" fill="#ef4444" color="#ef4444" title="Survivant Ultime" />}
+                         {isCrazy && <Shuffle size={12} className="row-trophy trophy-purple" title="Joueur Fou" />}
+                       </div>
+                     </div>
                   </div>
                   <div className="row-right">
                     <span className="row-lives">
