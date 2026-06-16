@@ -36,87 +36,91 @@ export default function SuggestActionTab({ playerName }) {
 
   if (hasPendingSuggest) {
     return (
-      <div className="player-waiting-screen animate-fade-in">
-        <div className="waiting-card" style={{ borderColor: "var(--neon-purple)", boxShadow: "0 0 15px rgba(139, 92, 246, 0.2)" }}>
-          <Loader2 size={48} className="animate-spin" style={{ color: "var(--neon-purple)" }} />
-          <h2 style={{ color: "var(--neon-purple)", fontSize: "20px", fontWeight: "800", textTransform: "uppercase" }}>Idée envoyée</h2>
-          <p style={{ fontSize: "14px", color: "var(--text-secondary)", textAlign: "center", lineHeight: "1.5" }}>
-            Ta suggestion a été transmise. Dès que le GameMaster l'aura validée, elle sera ajoutée à la pool active.
-          </p>
+      <div className="suggest-screen-layout" style={{ paddingTop: "64px", paddingBottom: "80px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <div className="glass-card-gold" style={{ textAlign: "center", width: "100%" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
+            <Loader2 size={48} className="animate-spin" style={{ color: "var(--neon-gold)" }} />
+            <h2 style={{ color: "var(--neon-gold)", fontSize: "20px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.05em" }}>Idée envoyée</h2>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+              Ta suggestion a été transmise. Dès que le GameMaster l'aura validée, elle sera ajoutée à la pool active.
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="suggest-action-tab-view animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-      <h2>BOÎTE À IDÉES</h2>
-      <form onSubmit={handleSuggestSubmit} className="counter-attack-form" style={{ border: "1px solid rgba(139, 92, 246, 0.3)", backgroundColor: "var(--bg-card)", padding: "20px", borderRadius: "var(--border-radius-md)" }}>
-        <h3 style={{ color: "var(--neon-purple)", display: "flex", alignItems: "center", gap: "8px", fontSize: "16px", textTransform: "uppercase", fontWeight: "800", marginBottom: "12px" }}>
-          <Lightbulb size={18} /> Proposer un défi
-        </h3>
-        <p className="ca-help" style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5", marginBottom: "16px" }}>
-          Suggère un nouveau défi farfelu. S'il est validé par le GM, il rejoindra la pool des actions disponibles en jeu.
-        </p>
+    <div className="suggest-screen-layout" style={{ paddingTop: "64px", paddingBottom: "80px" }}>
+      <div className="glass-card-gold" style={{ width: "100%" }}>
+        <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-gold)", textAlign: "center", marginBottom: "14px", textTransform: "uppercase" }}>
+          Boîte à Idées
+        </h2>
+        
+        <form onSubmit={handleSuggestSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <h3 style={{ color: "var(--neon-gold)", display: "flex", alignItems: "center", gap: "8px", fontSize: "15px", textTransform: "uppercase", fontWeight: "800", marginBottom: "4px" }}>
+            <Lightbulb size={18} /> Proposer un défi
+          </h3>
+          <p className="ca-help" style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+            Suggère un nouveau défi farfelu. S'il est validé par le GM, il rejoindra la pool des actions disponibles en jeu.
+          </p>
 
-        <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "12px" }}>
-          Titre du défi :
-          <input
-            type="text"
-            placeholder="Ex: Le Vol de Chaussure"
-            value={sugTitle}
-            onChange={(e) => setSugTitle(e.target.value)}
-            className="neon-input"
-            style={{ padding: "10px 12px", fontSize: "14px", backgroundColor: "var(--bg-input)" }}
-            required
-          />
-        </label>
-
-        <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "12px" }}>
-          Description du défi :
-          <textarea
-            placeholder="Ex: Faire danser la cible..."
-            value={sugDesc}
-            onChange={(e) => setSugDesc(e.target.value)}
-            className="neon-input"
-            style={{ height: "60px", resize: "none", padding: "10px 12px", fontSize: "14px", backgroundColor: "var(--bg-input)" }}
-            required
-          />
-        </label>
-
-        <div style={{ display: "flex", gap: "12px", marginBottom: "12px" }}>
-          <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)" }}>
-            Points :
+          <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Titre du défi :
             <input
-              type="number"
-              min="0"
-              value={sugPoints}
-              onChange={(e) => setSugPoints(Number(e.target.value))}
-              className="neon-input"
-              style={{ padding: "8px 10px", fontSize: "14px", backgroundColor: "var(--bg-input)" }}
+              type="text"
+              placeholder="Ex: Le Vol de Chaussure"
+              value={sugTitle}
+              onChange={(e) => setSugTitle(e.target.value)}
+              className="neon-input-premium"
               required
             />
           </label>
-          <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "13px", fontWeight: "600", color: "var(--text-secondary)" }}>
-            Cœurs perdus :
-            <input
-              type="number"
-              step="0.25"
-              min="0"
-              max="7"
-              value={sugDamage}
-              onChange={(e) => setSugDamage(Number(e.target.value))}
-              className="neon-input"
-              style={{ padding: "8px 10px", fontSize: "14px", backgroundColor: "var(--bg-input)" }}
+
+          <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Description du défi :
+            <textarea
+              placeholder="Ex: Faire danser la cible..."
+              value={sugDesc}
+              onChange={(e) => setSugDesc(e.target.value)}
+              className="neon-input-premium"
+              style={{ height: "60px", resize: "none", textAlign: "left" }}
               required
             />
           </label>
-        </div>
 
-        <button type="submit" className="ca-submit-btn" style={{ width: "100%", padding: "12px", fontSize: "14px", fontWeight: "800", backgroundColor: "var(--neon-purple)", marginTop: "8px" }}>
-          SOUMETTRE LE DÉFI
-        </button>
-      </form>
+          <div style={{ display: "flex", gap: "12px" }}>
+            <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Points :
+              <input
+                type="number"
+                min="0"
+                value={sugPoints}
+                onChange={(e) => setSugPoints(Number(e.target.value))}
+                className="neon-input-premium"
+                required
+              />
+            </label>
+            <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              Dégâts (PV) :
+              <input
+                type="number"
+                step="0.25"
+                min="0"
+                max="7"
+                value={sugDamage}
+                onChange={(e) => setSugDamage(Number(e.target.value))}
+                className="neon-input-premium"
+                required
+              />
+            </label>
+          </div>
+
+          <button type="submit" className="ca-submit-btn" style={{ width: "100%", padding: "12px", fontSize: "14px", fontWeight: "800", backgroundColor: "var(--neon-gold)", color: "#000", border: "none", borderRadius: "var(--border-radius-sm)", cursor: "pointer", transition: "all 0.2s", marginTop: "8px" }}>
+            SOUMETTRE LE DÉFI
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
