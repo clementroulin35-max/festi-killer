@@ -268,7 +268,7 @@ function MainAppContent() {
               />
             </div>
 
-            <div className="glass-card">
+            <div className={`glass-card ${loginRole === "gm" ? "glass-card-gm-auth" : "glass-card-player-auth"}`}>
               <AnimatePresence mode="wait">
                 {joinStep === "create" && (
                   <motion.div
@@ -392,22 +392,126 @@ function MainAppContent() {
                       </button>
                     </div>
 
-                    {/* Role selector */}
-                    <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                      <button
-                        type="button"
+                    {/* Role Avatar Badge */}
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px", marginTop: "4px" }}>
+                      <AnimatePresence mode="wait">
+                        {loginRole === "player" ? (
+                          <motion.div
+                            key="player"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            style={{
+                              width: "56px",
+                              height: "56px",
+                              borderRadius: "50%",
+                              background: "rgba(139, 92, 246, 0.12)",
+                              border: "2px solid var(--neon-purple)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              boxShadow: "0 0 15px rgba(139, 92, 246, 0.35)",
+                            }}
+                          >
+                            <User size={26} style={{ color: "var(--neon-purple)" }} />
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key="gm"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            style={{
+                              width: "56px",
+                              height: "56px",
+                              borderRadius: "50%",
+                              background: "rgba(245, 158, 11, 0.12)",
+                              border: "2px solid var(--neon-gold)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              boxShadow: "0 0 15px rgba(245, 158, 11, 0.35)",
+                            }}
+                          >
+                            <Shield size={26} style={{ color: "var(--neon-gold)" }} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Role selector slider */}
+                    <div style={{
+                      display: "flex",
+                      position: "relative",
+                      background: "rgba(10, 10, 12, 0.5)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "30px",
+                      padding: "4px",
+                      marginBottom: "18px",
+                      width: "100%",
+                      height: "42px",
+                      alignItems: "center",
+                      cursor: "pointer",
+                      userSelect: "none"
+                    }}>
+                      <motion.div
+                        style={{
+                          position: "absolute",
+                          left: loginRole === "player" ? "4px" : "calc(50% + 2px)",
+                          width: "calc(50% - 6px)",
+                          height: "32px",
+                          background: loginRole === "player" 
+                            ? "linear-gradient(135deg, var(--neon-purple), #a855f7)" 
+                            : "linear-gradient(135deg, var(--neon-gold), #d97706)",
+                          boxShadow: loginRole === "player" 
+                            ? "0 0 10px rgba(139, 92, 246, 0.4)" 
+                            : "0 0 10px rgba(245, 158, 11, 0.4)",
+                          borderRadius: "26px",
+                          zIndex: 1,
+                        }}
+                        layout
+                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                      />
+
+                      <div 
                         onClick={() => { setLoginRole("player"); setError(""); }}
-                        className={`role-btn ${loginRole === "player" ? "active-player" : ""}`}
+                        style={{
+                          flex: 1,
+                          textAlign: "center",
+                          fontSize: "13px",
+                          fontWeight: "800",
+                          color: loginRole === "player" ? "#121214" : "var(--text-muted)",
+                          zIndex: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "6px",
+                          transition: "color 0.2s"
+                        }}
                       >
-                        <User size={14} style={{ marginRight: 6 }} /> Joueur
-                      </button>
-                      <button
-                        type="button"
+                        <User size={13} /> Joueur
+                      </div>
+
+                      <div 
                         onClick={() => { setLoginRole("gm"); setError(""); }}
-                        className={`role-btn ${loginRole === "gm" ? "active-gm" : ""}`}
+                        style={{
+                          flex: 1,
+                          textAlign: "center",
+                          fontSize: "13px",
+                          fontWeight: "800",
+                          color: loginRole === "gm" ? "#121214" : "var(--text-muted)",
+                          zIndex: 2,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "6px",
+                          transition: "color 0.2s"
+                        }}
                       >
-                        <Shield size={14} style={{ marginRight: 6 }} /> GameMaster
-                      </button>
+                        <Shield size={13} /> GameMaster
+                      </div>
                     </div>
 
                     <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 10 }}>

@@ -444,44 +444,84 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       </form>
                     )}
 
-                    {/* Players Grid */}
-                    <div className="judge-players-grid" style={{ marginTop: 16 }}>
-                      {gameState.players.map((p) => (
-                        <div key={p.name} className={`judge-player-card ${p.isZombie ? "zombie-player" : ""} ${!p.target ? "player-inactive-card" : ""} ${playersMasked ? "card-blurred" : ""}`}>
-                          <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            {p.photo ? (
-                              <img src={p.photo} alt={p.name} style={{ width: "24px", height: "24px", borderRadius: "50%", objectFit: "cover" }} />
-                            ) : (
-                              <div className="row-avatar" style={{ width: "24px", height: "24px", fontSize: "10px", minWidth: "24px", minHeight: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                {p.name.slice(0, 2).toUpperCase()}
-                              </div>
-                            )}
-                            <strong>{p.name}</strong>
-                            {p.isZombie && <span className="z-label" style={{ marginLeft: "auto" }}>ZOMBIE</span>}
-                            {!p.target && <span className="z-label" style={{ marginLeft: "auto", background: "rgba(245, 158, 11, 0.15)", color: "var(--neon-gold)", borderColor: "rgba(245, 158, 11, 0.3)" }}>ABSENT</span>}
-                          </div>
-                          <div className="j-player-stats">
-                            <div>Score : {p.score} pts</div>
-                            <div>Cœurs : {p.lives} / 7</div>
-                            <div style={{ color: "var(--neon-green)", fontSize: "11px", fontWeight: "700", marginTop: "2px", marginBottom: "2px" }}>Code PIN : {p.pin}</div>
-                            <div className="target-preview">Cible : <strong>{p.target || "Aucune"}</strong></div>
-                            {p.target && (() => {
-                              const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === p.actionId);
-                              return (
-                                <div className="gm-action-preview" style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "4px", borderTop: "1px dashed var(--border-color)", paddingTop: "4px" }}>
-                                  Défi : <strong>{action ? action.title : "Inconnu"}</strong>
-                                  <div style={{ fontSize: "10px", color: "var(--text-muted)", fontStyle: "italic", marginTop: "2px" }}>
-                                    « {action ? action.description : ""} »
+                    {/* Players Horizontal List */}
+                    <div style={{ marginTop: 20 }}>
+                      <label style={{ fontSize: "11px", fontWeight: "800", color: "var(--text-muted)", letterSpacing: "0.08em", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>
+                        Sélectionner un joueur à gérer :
+                      </label>
+                      <div 
+                        className="judge-players-horizontal-list" 
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          overflowX: "auto",
+                          width: "100%",
+                          padding: "4px 2px 14px 2px",
+                          scrollSnapType: "x mandatory",
+                          WebkitOverflowScrolling: "touch",
+                        }}
+                      >
+                        {gameState.players.map((p) => {
+                          const isSelected = editingPlayer === p.name;
+                          return (
+                            <div 
+                              key={p.name} 
+                              onClick={() => startEditPlayer(p)}
+                              className={`judge-player-horizontal-card ${p.isZombie ? "zombie-player" : ""} ${!p.target ? "player-inactive-card" : ""} ${playersMasked ? "card-blurred" : ""} ${isSelected ? "selected-card" : ""}`}
+                              style={{
+                                flex: "0 0 160px",
+                                background: isSelected 
+                                  ? "rgba(139, 92, 246, 0.22)" 
+                                  : "rgba(24, 24, 31, 0.65)",
+                                border: isSelected 
+                                  ? "2px solid var(--neon-purple)" 
+                                  : "1px solid rgba(255, 255, 255, 0.08)",
+                                borderRadius: "var(--border-radius-md)",
+                                padding: "12px",
+                                cursor: "pointer",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                                scrollSnapAlign: "start",
+                                transition: "all 0.2s ease",
+                                boxShadow: isSelected ? "0 0 12px rgba(139, 92, 246, 0.3)" : "none",
+                              }}
+                            >
+                              <div className="j-player-header" style={{ display: "flex", alignItems: "center", gap: "6px", width: "100%" }}>
+                                {p.photo ? (
+                                  <img src={p.photo} alt={p.name} style={{ width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
+                                ) : (
+                                  <div className="row-avatar" style={{ width: "22px", height: "22px", fontSize: "9px", minWidth: "22px", minHeight: "22px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                    {p.name.slice(0, 2).toUpperCase()}
                                   </div>
+                                )}
+                                <strong style={{ fontSize: "12px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "85px", color: isSelected ? "var(--text-primary)" : "var(--text-secondary)" }}>{p.name}</strong>
+                                {p.isZombie && <span style={{ marginLeft: "auto", fontSize: "8px" }}>💀</span>}
+                              </div>
+                              
+                              <div style={{ fontSize: "11px", display: "flex", flexDirection: "column", gap: "4px", color: "var(--text-muted)" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                  <span>Score:</span>
+                                  <span style={{ fontWeight: "700", color: "var(--text-primary)" }}>{p.score}</span>
                                 </div>
-                              );
-                            })()}
-                          </div>
-                          <div className="j-player-actions" style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
-                            <button onClick={() => startEditPlayer(p)} className="j-btn-edit" style={{ flex: 1 }}>Gérer</button>
-                          </div>
-                        </div>
-                      ))}
+                                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                                  <span>Cœurs:</span>
+                                  <span style={{ fontWeight: "700", color: p.isZombie ? "var(--neon-red)" : "var(--neon-green)" }}>
+                                    {p.isZombie ? "0 💀" : `${p.lives}`}
+                                  </span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", color: "var(--neon-green)" }}>
+                                  <span>PIN:</span>
+                                  <span style={{ fontWeight: "700" }}>{p.pin}</span>
+                                </div>
+                                <div style={{ borderTop: "1px dashed rgba(255,255,255,0.06)", paddingTop: "4px", marginTop: "2px", fontSize: "10px", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                                  Cible: <strong style={{ color: "var(--text-primary)" }}>{p.target || "Aucune"}</strong>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     <button 

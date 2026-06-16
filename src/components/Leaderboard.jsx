@@ -170,7 +170,6 @@ export default function Leaderboard({ players, history }) {
                         <div className="row-player-info" style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0, flex: 1 }}>
                            <div className="row-player-name" style={{ fontWeight: "700", display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
                              <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{player.name}</span>
-                             {player.isZombie && <span className="zombie-text-label" style={{ backgroundColor: "rgba(255, 51, 102, 0.15)", color: "var(--neon-red)", border: "1px solid rgba(255, 51, 102, 0.3)" }}>ZOMBIE</span>}
                            </div>
                            <div className="row-trophies" style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
                              {(() => { const r = getRank(player.score); return <span className={`rank-badge ${r.css}`} style={{ fontSize: 9, padding: '1px 5px', lineHeight: "1" }}>{r.icon} {r.label}</span>; })()}
