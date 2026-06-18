@@ -4169,7 +4169,7 @@ select option {
 }
 
 .tarot-mission-name {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 900;
   text-align: center;
   color: var(--text-primary);
@@ -4177,7 +4177,7 @@ select option {
 }
 
 .tarot-mission-desc {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-secondary);
   line-height: 1.5;
   text-align: center;

@@ -158,7 +158,8 @@ export default function TargetCard({
   const isTargetZombie = targetPlayer?.isZombie;
 
   return (
-    <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""} ${hasPendingHit ? "hit-shattered" : ""}`}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: "100%", maxWidth: 420 }}>
+      <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""} ${hasPendingHit ? "hit-shattered" : ""}`}>
       {/* White flash on HIT shoot animation */}
       {hasPendingHit && <div className="tarot-hit-flash" />}
 
@@ -203,10 +204,7 @@ export default function TargetCard({
         {isMasked ? <Eye size={15} /> : <EyeOff size={15} />}
       </motion.button>
 
-      {/* Rarity small indicator */}
-      <div style={{ position: "absolute", top: 12, right: 12, zIndex: 12, fontSize: 11, fontWeight: 800, color: rarityConf.contractColor }}>
-        {rarityConf.icon} {rarityConf.label}
-      </div>
+
 
       {/* ============================================================ */}
       {/* 1. UPPER HALF: THE TARGET */}
@@ -225,9 +223,7 @@ export default function TargetCard({
         <div className="tarot-indicator-left">Reroll Cible</div>
         <div className="tarot-indicator-right">Reroll Cible</div>
 
-        <div className="contract-header" style={{ marginBottom: 4, width: "100%", textAlign: "center" }}>
-          <span className="contract-label" style={{ fontSize: 9, opacity: 0.6, letterSpacing: "0.15em" }}>◈ CONTRAT #{contractNum} ◈</span>
-        </div>
+
 
         {/* Target radar scope */}
         <div className={`tarot-target-scope ${hasPendingHit ? "hit-animation-active" : ""}`}>
@@ -261,9 +257,6 @@ export default function TargetCard({
 
         <div>
           <div className="tarot-target-name">{targetName}</div>
-          <div style={{ textAlign: "center", marginTop: 2 }}>
-            <span className="tarot-target-status">🎯 Cible Verrouillée</span>
-          </div>
         </div>
       </motion.div>
 
@@ -301,45 +294,39 @@ export default function TargetCard({
         {/* Rewards */}
         <div className="tarot-rewards-row">
           <div className="tarot-reward-pill pts">
-            <span>+{action.points} PTS</span>
+            <span>+{isZombie ? Math.floor(action.points / 2) : action.points} PTS</span>
           </div>
           <div className="tarot-reward-pill dmg">
-            <span>-{action.damage} HP</span>
+            <span>-{isZombie ? 0 : action.damage} HP</span>
           </div>
         </div>
-
-        {/* Zombie warning */}
-        {isZombie && (
-          <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: "10px", color: "var(--neon-red)", opacity: 0.8, marginTop: 4 }}>
-            <ShieldAlert size={12} />
-            <span>Zombie : 0 dégât, points divisés par 2.</span>
-          </div>
-        )}
       </motion.div>
 
-      {/* ============================================================ */}
-      {/* 3. INTERACTIVE SEAL BUTTON (HIT RÉUSSI) */}
-      {/* ============================================================ */}
-      <div className="tarot-seal-hit-btn-container" style={{ paddingBottom: 20 }}>
-        <AnimatePresence mode="wait">
-          {hasPendingHit ? (
-            <button key="pending" className="tarot-seal-hit-btn pending" disabled>
-              <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} />
-              Validation GM en cours...
-            </button>
-          ) : (
-            <motion.button
-              key="hit"
-              className="tarot-seal-hit-btn"
-              onClick={onDeclareHit}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              ☠️ Signer le contrat (Hit)
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
     </div>
-  );
+
+    {/* ============================================================ */}
+    {/* 3. INTERACTIVE SEAL BUTTON (HIT RÉUSSI) */}
+    {/* ============================================================ */}
+    <div className="tarot-seal-hit-btn-container" style={{ paddingBottom: 20 }}>
+      <AnimatePresence mode="wait">
+        {hasPendingHit ? (
+          <button key="pending" className="tarot-seal-hit-btn pending" disabled>
+            <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} />
+            Validation GM en cours...
+          </button>
+        ) : (
+          <motion.button
+            key="hit"
+            className="tarot-seal-hit-btn"
+            onClick={onDeclareHit}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            ☠️ Tirer
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
+  </div>
+);
 }
