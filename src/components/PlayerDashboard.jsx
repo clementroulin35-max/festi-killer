@@ -223,7 +223,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
       {/* 2. HUD Header V2 */}
       <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }}>
-        {/* Ligne 1: Avatar à gauche avec ECG par-dessus, Pseudo + Cœurs à côté */}
+        {/* Ligne 1: Avatar à gauche, Pseudo + Cœurs au milieu, ECG brut à droite */}
         <div className="hud-top-row-v2">
           <div className="hud-profile-left-v2">
             <div className="hud-avatar-wrapper-v2">
@@ -242,21 +242,6 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   </div>
                 )}
               </div>
-              
-              {/* Moniteur vital (ECG) intégré par-dessus la photo du joueur */}
-              <div className={`hud-avatar-ecg-overlay-v2 ${isZombie ? "zombie" : "alive"}`}>
-                <svg viewBox="0 0 100 30" className="ecg-svg">
-                  <path
-                    className="ecg-path"
-                    d="M0 15 h30 l4 -10 l4 20 l4 -15 l4 5 h54"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
             </div>
             <div className="hud-identity-v2">
               <span className="hud-pseudo-v2">{player.name}</span>
@@ -264,6 +249,21 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 <ZeldaHearts lives={player.lives} size={18} />
               </div>
             </div>
+          </div>
+          
+          {/* Moniteur vital (ECG) brut déporté à droite */}
+          <div className={`hud-vital-monitor-raw-v2 ${isZombie ? "zombie" : "alive"}`}>
+            <svg viewBox="0 0 100 30" className="ecg-svg">
+              <path
+                className="ecg-path"
+                d="M0 15 h30 l4 -10 l4 20 l4 -15 l4 5 h54"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
         </div>
 
@@ -289,7 +289,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
       {/* 3. Target card V2 (Tarot layout) */}
       {player.target ? (
-        <div className={isZombie ? "zombie-mode-active" : ""} style={{ display: "flex", justifyContent: "center" }}>
+        <div className={`tarot-card-container-v2 ${isZombie ? "zombie-mode-active" : ""}`}>
           <TargetCard
             targetName={player.target}
             actionId={player.actionId}

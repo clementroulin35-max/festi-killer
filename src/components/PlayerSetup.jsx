@@ -357,7 +357,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
                     )}
 
                     <div className="file-upload-wrapper">
-                      <label className="upload-file-btn">
+                      <label className="upload-file-btn-white">
                         <Upload size={16} />
                         <span>Importer un fichier image</span>
                         <input type="file" accept="image/*" onChange={handleFileUpload} style={{ display: "none" }} />
@@ -485,22 +485,6 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
         </div>
 
       </div>
-      {currentSlide < 5 && (
-        <div className="scroll-indicator-hint" style={{
-          textAlign: "center",
-          fontSize: "12.5px",
-          color: "var(--neon-purple)",
-          marginTop: "10px",
-          fontWeight: "bold",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "4px",
-          animation: "pulse 1.5s infinite"
-        }}>
-          <span>👇 Défile vers le bas pour tout lire</span>
-        </div>
-      )}
     </div>
   );
 }

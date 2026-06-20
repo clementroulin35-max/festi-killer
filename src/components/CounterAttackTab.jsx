@@ -56,7 +56,7 @@ export default function CounterAttackTab({ playerName }) {
             Contre-Attaque
           </h2>
           
-          <form onSubmit={handleCounterAttackSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <form onSubmit={handleCounterAttackSubmit} className="counter-attack-form-v2">
             <h3 style={{ color: "var(--neon-red)", display: "flex", alignItems: "center", gap: "8px", fontSize: "15px", textTransform: "uppercase", fontWeight: "800", marginBottom: "4px" }}>
               <ShieldAlert size={18} /> Accuser mon tueur
             </h3>

@@ -159,7 +159,7 @@ export default function TargetCard({
   const isTargetZombie = targetPlayer?.isZombie;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, width: "100%", maxWidth: 420 }}>
+    <div className="tarot-card-wrapper-v2">
       <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""} ${hasPendingHit ? "hit-shattered" : ""}`}>
       {/* White flash on HIT shoot animation */}
       {hasPendingHit && <div className="tarot-hit-flash" />}

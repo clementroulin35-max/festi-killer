@@ -60,7 +60,7 @@ export default function SuggestActionTab({ playerName }) {
             Boîte à Idées
           </h2>
           
-          <form onSubmit={handleSuggestSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+          <form onSubmit={handleSuggestSubmit} className="suggest-action-form-v2">
             <h3 style={{ color: "var(--neon-gold)", display: "flex", alignItems: "center", gap: "8px", fontSize: "15px", textTransform: "uppercase", fontWeight: "800", marginBottom: "4px" }}>
               <Lightbulb size={18} /> Proposer un défi
             </h3>
