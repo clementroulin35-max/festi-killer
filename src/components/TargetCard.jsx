@@ -28,6 +28,7 @@ export default function TargetCard({
 }) {
   const { gameState } = useGame();
   const [isMasked, setIsMasked] = useState(false);
+  const [showConfirmHit, setShowConfirmHit] = useState(false);
   const [dragDirTarget, setDragDirTarget] = useState(null); // 'left', 'right', or null
   const [dragDirMission, setDragDirMission] = useState(null);
 
@@ -218,10 +219,25 @@ export default function TargetCard({
         {/* Label CIBLE rétro */}
         <div className="tarot-target-label-v2">CIBLE</div>
 
-        {/* Target radar scope */}
-        <div className={`tarot-target-scope ${hasPendingHit ? "hit-animation-active" : ""}`}>
+        {/* Target radar scope (cliquable pour déclencher le HIT) */}
+        <div 
+          className={`tarot-target-scope ${hasPendingHit ? "hit-animation-active" : "interactive-target"}`}
+          onClick={() => {
+            if (!hasPendingHit) {
+              setShowConfirmHit(true);
+            }
+          }}
+          style={{ cursor: hasPendingHit ? "default" : "pointer" }}
+        >
           <div className="tarot-target-lines" />
           
+          {/* Viseur / Overlay "HIT" au survol */}
+          {!hasPendingHit && (
+            <div className="tarot-target-hit-overlay">
+              <span>HIT</span>
+            </div>
+          )}
+
           {/* Bullet impact hole */}
           {hasPendingHit && (
             <div className="bullet-hole-impact">
@@ -304,39 +320,63 @@ export default function TargetCard({
         </div>
       </motion.div>
 
+      {/* ============================================================ */}
+      {/* 3. PENDING STATE BANNER */}
+      {/* ============================================================ */}
+      {hasPendingHit && (
+        <div className="tarot-pending-banner-v2">
+          <Loader2 size={12} className="animate-spin" style={{ marginRight: 6 }} />
+          <span>Validation GM en cours...</span>
+        </div>
+      )}
+
       </div>
 
       {/* ============================================================ */}
-      {/* 3. INTERACTIVE SEAL BUTTON (HIT RÉUSSI) */}
+      {/* 4. CONFIRM HIT MODAL (LOCAL POPUP) */}
       {/* ============================================================ */}
-      <div className="tarot-seal-hit-btn-container" style={{ paddingBottom: 20 }}>
-        <AnimatePresence mode="wait">
-          {hasPendingHit ? (
-            <button key="pending" className="tarot-seal-hit-btn pending" style={{ borderRadius: "50px" }} disabled>
-              <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} />
-              Validation GM...
-            </button>
-          ) : (
-            <div className="hit-button-wrapper-v2">
-              {/* Flèche gauche animée */}
-              <span className="hit-arrow-left-v2">❯❯</span>
-              
-              <motion.button
-                key="hit"
-                className="tarot-seal-hit-btn-circular"
-                onClick={onDeclareHit}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                HIT
-              </motion.button>
-              
-              {/* Flèche droite animée */}
-              <span className="hit-arrow-right-v2">❮❮</span>
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
+      <AnimatePresence>
+        {showConfirmHit && (
+          <motion.div
+            className="confirm-modal-backdrop-v2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 11000 }}
+          >
+            <motion.div
+              className="confirm-modal-v2 type-red"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)" }}>CONFIRMER L'ASSASSINAT ☠️</h3>
+              <p className="confirm-modal-body-v2">
+                Confirmez-vous avoir réussi votre mission secrète sur <strong style={{ color: "var(--text-primary)" }}>{targetName}</strong> ?
+                <br /><br />
+                <em style={{ color: "var(--neon-gold)", fontSize: "11px" }}>« {action.title} »</em>
+              </p>
+
+              <div className="confirm-action-btns-v2">
+                <button
+                  className="confirm-btn-primary-v2"
+                  style={{ backgroundColor: "var(--neon-red)", color: "#fff" }}
+                  onClick={() => {
+                    onDeclareHit();
+                    setShowConfirmHit(false);
+                  }}
+                >
+                  Confirmer
+                </button>
+                <button className="confirm-btn-cancel-v2" onClick={() => setShowConfirmHit(false)}>
+                  Annuler
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
   </div>
 );
 }

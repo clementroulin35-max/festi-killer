@@ -4595,31 +4595,37 @@ select option {
    REFRACTORED HUD & TARGET CARD STYLES
    ========================================== */
 
-/* Nouveau layout HUD */
-.hud-main-container-v2 {
+/* Structure du HUD réorganisé */
+.hud-header-v2 {
+  background: rgba(18, 18, 24, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  border-radius: var(--border-radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Ligne 1: Profil à gauche, ECG à droite */
+.hud-top-row-v2 {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
 }
 
-.hud-left-column-v2 {
+.hud-profile-left-v2 {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.hud-hearts-wrapper-v2 {
-  display: flex;
-  margin-top: 4px;
-}
-
-.hud-right-column-v2 {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  position: relative;
+  gap: 12px;
 }
 
 .hud-avatar-wrapper-v2 {
@@ -4633,7 +4639,10 @@ select option {
   height: 48px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  object-fit: cover;
+  transition: transform 0.2s;
 }
 
 .hud-avatar-wrapper-v2 .hud-avatar-v2.placeholder {
@@ -4644,64 +4653,100 @@ select option {
   border: 1px dashed rgba(255, 255, 255, 0.25);
 }
 
-/* Moniteur vital / Voyant ECG en diagonale haut droite */
-.hud-vital-monitor-v2 {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(10, 10, 12, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+.hud-avatar-wrapper-v2 .hud-avatar-v2:hover {
+  transform: scale(1.05);
+}
+
+.hud-identity-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hud-pseudo-v2 {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.hud-hearts-wrapper-v2 {
+  display: flex;
+}
+
+/* Moniteur vital (ECG) brut sans cercle */
+.hud-vital-monitor-raw-v2 {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 10;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
+  height: 20px;
+  width: 60px;
 }
 
-.hud-vital-monitor-v2 .ecg-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  position: absolute;
-  top: 3px;
-  right: 3px;
+.hud-vital-monitor-raw-v2 .ecg-svg {
+  width: 60px;
+  height: 20px;
+  overflow: visible;
 }
 
-.hud-vital-monitor-v2.alive .ecg-dot {
-  background-color: var(--neon-green);
-  box-shadow: 0 0 6px var(--neon-green);
-}
-
-.hud-vital-monitor-v2.zombie .ecg-dot {
-  background-color: var(--neon-red);
-  box-shadow: 0 0 6px var(--neon-red);
-}
-
-.hud-vital-monitor-v2 .ecg-svg {
-  width: 14px;
-  height: 8px;
-  color: inherit;
-}
-
-.hud-vital-monitor-v2.alive .ecg-svg {
+.hud-vital-monitor-raw-v2.alive .ecg-svg {
   color: var(--neon-green);
-  filter: drop-shadow(0 0 1px var(--neon-green));
+  filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.6));
 }
 
-.hud-vital-monitor-v2.zombie .ecg-svg {
+.hud-vital-monitor-raw-v2.zombie .ecg-svg {
   color: var(--neon-red);
-  filter: drop-shadow(0 0 1px var(--neon-red));
+  filter: drop-shadow(0 0 3px rgba(255, 51, 102, 0.6));
+}
+
+.hud-vital-monitor-raw-v2 .ecg-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ecgFlow 2.5s linear infinite;
+}
+
+/* Ligne 2: Rang à gauche, Score à droite */
+.hud-middle-row-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 8px;
+  padding: 0 4px;
 }
 
 .hud-rank-wrapper-v2 {
-  margin-top: 2px;
+  display: flex;
+  align-items: center;
 }
 
-/* Barre XP retro hachurée */
+.hud-rank-label-v2 {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-secondary);
+}
+
+.hud-score-wrapper-v2 {
+  display: flex;
+  align-items: center;
+}
+
+.hud-score-wrapper-v2 .score-val {
+  font-size: 20px;
+  font-weight: 950;
+  color: var(--text-primary);
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.35);
+}
+
+.hud-score-wrapper-v2 .score-lbl {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-left: 4px;
+}
+
+/* Ligne 3: Barre d'XP fine pleine et épurée */
 .hud-xp-row-v2 {
   width: 100%;
   margin-top: 8px;
@@ -4717,53 +4762,30 @@ select option {
 
 .hud-xp-row-v2 .xp-bar-bg-v2 {
   flex: 1;
-  height: 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 3px;
   overflow: hidden;
-  position: relative;
-  /* Hachures cyberpunk rétro */
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.03) 0px,
-    rgba(255, 255, 255, 0.03) 4px,
-    transparent 4px,
-    transparent 8px
-  );
+  box-shadow: none;
+  background-image: none;
 }
 
 .hud-xp-row-v2 .xp-bar-v2 {
   height: 100%;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
-  border-radius: 2px;
-  /* Hachures sur la barre elle-même */
-  background-image: repeating-linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0.15) 0px,
-    rgba(255, 255, 255, 0.15) 4px,
-    transparent 4px,
-    transparent 8px
-  );
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+  border-radius: 3px;
+  background-image: none;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Section Score avec séparateurs horizontaux */
-.hud-score-row-v2 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 100%;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.hud-score-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+.hud-xp-row-v2 .xp-text-v2 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 24px;
+  text-align: right;
 }
 
 /* Styles de l'en-tête de carte "MISSION" */
@@ -4794,6 +4816,52 @@ select option {
 .tarot-target-scope {
   border: 1px solid rgba(255, 51, 102, 0.3);
   box-shadow: 0 0 15px rgba(255, 51, 102, 0.15);
+}
+
+/* Cible interactive cliquable pour HIT */
+.interactive-target {
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.interactive-target:hover {
+  transform: scale(1.04);
+}
+
+/* Viseur / Overlay "HIT" rouge au survol */
+.tarot-target-hit-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(255, 51, 102, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, backdrop-filter 0.2s ease;
+  z-index: 8;
+  pointer-events: none;
+  border: 2px solid var(--neon-red);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.6);
+}
+
+.interactive-target:hover .tarot-target-hit-overlay {
+  opacity: 1;
+  backdrop-filter: blur(1px);
+}
+
+.tarot-target-hit-overlay span {
+  font-size: 16px;
+  font-weight: 950;
+  color: #ffffff;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 8px #ff3366, 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.interactive-target:hover .tarot-target-avatar,
+.interactive-target:hover .tarot-target-initials {
+  border-color: #ffffff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
 }
 
 /* Bouton œil cliquable central */
@@ -4882,78 +4950,23 @@ select option {
   font-family: var(--font-sans);
 }
 
-/* Bouton HIT circulaire pulsant cyberpunk */
-.hit-button-wrapper-v2 {
+/* Bannière d'attente (validation GM en cours) discrète en bas de carte */
+.tarot-pending-banner-v2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin-top: 10px;
-}
-
-.tarot-seal-hit-btn-circular {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--neon-red) 30%, #b91c1c 90%);
-  border: 2px solid #fff;
-  box-shadow: 0 0 20px rgba(255, 51, 102, 0.65), inset 0 0 10px rgba(255, 255, 255, 0.4);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 950;
-  letter-spacing: 0.05em;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  outline: none;
-  animation: hitPulseNeon 2s infinite ease-in-out;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
-}
-
-.tarot-seal-hit-btn-circular:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 30px rgba(255, 51, 102, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.6);
-}
-
-.tarot-seal-hit-btn-circular:active {
-  transform: scale(0.92);
-  box-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
-}
-
-@keyframes hitPulseNeon {
-  0%, 100% {
-    box-shadow: 0 0 18px rgba(255, 51, 102, 0.65), inset 0 0 10px rgba(255, 255, 255, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 32px rgba(255, 51, 102, 0.95), inset 0 0 15px rgba(255, 255, 255, 0.5);
-  }
-}
-
-/* Flèches indicatrices animées */
-.hit-arrow-left-v2, .hit-arrow-right-v2 {
-  font-size: 16px;
-  font-weight: 900;
+  gap: 8px;
+  width: calc(100% - 24px);
+  margin: 12px auto;
+  padding: 10px;
+  background: rgba(255, 51, 102, 0.04);
+  border: 1px dashed rgba(255, 51, 102, 0.25);
+  border-radius: var(--border-radius-sm);
   color: var(--neon-red);
-  text-shadow: 0 0 8px var(--neon-red-glow);
-  opacity: 0.85;
-}
-
-.hit-arrow-left-v2 {
-  animation: hitArrowMoveLeft 1.2s infinite ease-in-out;
-}
-
-.hit-arrow-right-v2 {
-  animation: hitArrowMoveRight 1.2s infinite ease-in-out;
-}
-
-@keyframes hitArrowMoveLeft {
-  0%, 100% { transform: translateX(0); opacity: 0.6; }
-  50% { transform: translateX(6px); opacity: 1; }
-}
-
-@keyframes hitArrowMoveRight {
-  0%, 100% { transform: translateX(0); opacity: 0.6; }
-  50% { transform: translateX(-6px); opacity: 1; }
+  text-shadow: 0 0 8px rgba(255, 51, 102, 0.25);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.05);
 }

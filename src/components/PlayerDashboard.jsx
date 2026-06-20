@@ -223,17 +223,9 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
       {/* 2. HUD Header V2 */}
       <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }}>
-        <div className="hud-main-container-v2">
-          {/* Bloc Gauche: Pseudo + Cœurs */}
-          <div className="hud-left-column-v2">
-            <span className="hud-pseudo-v2">{player.name}</span>
-            <div className="hud-hearts-wrapper-v2">
-              <ZeldaHearts lives={player.lives} />
-            </div>
-          </div>
-
-          {/* Bloc Droite: Avatar + Vital Monitor + Badge Rang */}
-          <div className="hud-right-column-v2">
+        {/* Ligne 1: Avatar à gauche, Pseudo + Cœurs au milieu, ECG brut à droite */}
+        <div className="hud-top-row-v2">
+          <div className="hud-profile-left-v2">
             <div className="hud-avatar-wrapper-v2">
               <div className={isZombie ? "zombie-avatar-crt" : ""}>
                 {player.photo ? (
@@ -250,32 +242,42 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   </div>
                 )}
               </div>
-              
-              {/* Moniteur vital (ECG) en diagonale haut droite */}
-              <div className={`hud-vital-monitor-v2 ${isZombie ? "zombie" : "alive"}`}>
-                <div className="ecg-dot" />
-                <svg viewBox="0 0 100 30" className="ecg-svg">
-                  <path
-                    className="ecg-path"
-                    d="M0 15 h30 l4 -10 l4 20 l4 -15 l4 5 h54"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+            </div>
+            <div className="hud-identity-v2">
+              <span className="hud-pseudo-v2">{player.name}</span>
+              <div className="hud-hearts-wrapper-v2">
+                <ZeldaHearts lives={player.lives} />
               </div>
             </div>
-            
-            {/* Rang juste sous l'avatar */}
-            <div className="hud-rank-wrapper-v2">
-              <span className="hud-rank-label-v2">{rank.icon} {rank.label}</span>
-            </div>
+          </div>
+          
+          {/* Moniteur vital (ECG) brut à droite */}
+          <div className={`hud-vital-monitor-raw-v2 ${isZombie ? "zombie" : "alive"}`}>
+            <svg viewBox="0 0 100 30" className="ecg-svg">
+              <path
+                className="ecg-path"
+                d="M0 15 h30 l4 -10 l4 20 l4 -15 l4 5 h54"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
         </div>
 
-        {/* Section Médiane: XP Bar hachurée */}
+        {/* Ligne 2: Rang à gauche, Score / Points à droite */}
+        <div className="hud-middle-row-v2">
+          <div className="hud-rank-wrapper-v2">
+            <span className="hud-rank-label-v2">{rank.icon} {rank.label}</span>
+          </div>
+          <div className="hud-score-wrapper-v2">
+            <AnimatedScore score={player.score} />
+          </div>
+        </div>
+
+        {/* Ligne 3: Barre d'XP fine sous le score */}
         <div className="hud-xp-row-v2">
           <div className="xp-bar-container-v2">
             <div className="xp-bar-bg-v2">
@@ -283,13 +285,6 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
             </div>
             <span className="xp-text-v2">{Math.round(progressPercent)}%</span>
           </div>
-        </div>
-
-        {/* Section Basse: Score (centré) avec lignes de séparation */}
-        <div className="hud-score-row-v2">
-          <div className="hud-score-line" />
-          <AnimatedScore score={player.score} />
-          <div className="hud-score-line" />
         </div>
       </motion.div>
 
