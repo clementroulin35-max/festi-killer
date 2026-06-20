@@ -81,60 +81,62 @@ export default function Leaderboard({ players, history }) {
           {/* Sub-tabs Navigation */}
           <div className="leaderboard-subtabs" style={{
             display: "flex",
-            backgroundColor: "rgba(18, 18, 22, 0.4)",
+            backgroundColor: "rgba(10, 10, 14, 0.6)",
             backdropFilter: "blur(8px)",
             borderRadius: "var(--border-radius-sm)",
-            padding: "4px",
-            marginTop: "12px",
-            marginBottom: "16px",
-            border: "1px solid rgba(139, 92, 246, 0.2)"
+            padding: "2px",
+            marginTop: "4px",
+            marginBottom: "8px",
+            border: "1px solid rgba(139, 92, 246, 0.15)"
           }}>
             <button
               onClick={() => setSubTab("scores")}
               style={{
                 flex: 1,
-                backgroundColor: subTab === "scores" ? "rgba(139, 92, 246, 0.15)" : "transparent",
-                color: subTab === "scores" ? "var(--text-primary)" : "var(--text-muted)",
-                border: subTab === "scores" ? "1px solid rgba(139, 92, 246, 0.3)" : "none",
+                backgroundColor: subTab === "scores" ? "rgba(139, 92, 246, 0.25)" : "transparent",
+                color: subTab === "scores" ? "#ffffff" : "var(--text-muted)",
+                border: subTab === "scores" ? "1px solid rgba(139, 92, 246, 0.7)" : "1px solid transparent",
+                boxShadow: subTab === "scores" ? "0 0 8px rgba(139, 92, 246, 0.4)" : "none",
                 borderRadius: "4px",
-                padding: "8px",
-                fontSize: "12px",
-                fontWeight: "700",
+                padding: "5px 8px",
+                fontSize: "11px",
+                fontWeight: "800",
                 textTransform: "uppercase",
                 cursor: "pointer",
                 fontFamily: "var(--font-sans)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "6px",
+                gap: "5px",
                 transition: "all 0.2s"
               }}
             >
-              <AlignJustify size={14} />
+              <AlignJustify size={13} />
               Scores & Vies
             </button>
             <button
               onClick={() => setSubTab("trophies")}
               style={{
                 flex: 1,
-                backgroundColor: subTab === "trophies" ? "rgba(139, 92, 246, 0.15)" : "transparent",
-                color: subTab === "trophies" ? "var(--text-primary)" : "var(--text-muted)",
-                border: subTab === "trophies" ? "1px solid rgba(139, 92, 246, 0.3)" : "none",
+                backgroundColor: subTab === "trophies" ? "rgba(139, 92, 246, 0.25)" : "transparent",
+                color: subTab === "trophies" ? "#ffffff" : "var(--text-muted)",
+                border: subTab === "trophies" ? "1px solid rgba(139, 92, 246, 0.7)" : "1px solid transparent",
+                boxShadow: subTab === "trophies" ? "0 0 8px rgba(139, 92, 246, 0.4)" : "none",
                 borderRadius: "4px",
-                padding: "8px",
-                fontSize: "12px",
-                fontWeight: "700",
+                padding: "5px 8px",
+                fontSize: "11px",
+                fontWeight: "800",
                 textTransform: "uppercase",
                 cursor: "pointer",
                 fontFamily: "var(--font-sans)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "6px",
+                gap: "5px",
                 transition: "all 0.2s"
               }}
             >
-              <Award size={14} />
+              <Award size={13} />
               Trophées Spéciaux
             </button>
           </div>

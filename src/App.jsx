@@ -221,7 +221,7 @@ function MainAppContent() {
       case "leaderboard":
         return <Leaderboard players={gameState.players} history={gameState.history} />;
       case "counter":
-        return <CounterAttackTab playerName={currentUser} />;
+        return <CounterAttackTab playerName={currentUser} logo={heroImage} />;
       case "suggest":
         return <SuggestActionTab playerName={currentUser} />;
       case "arbitrage":

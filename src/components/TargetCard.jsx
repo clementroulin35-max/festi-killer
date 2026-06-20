@@ -29,8 +29,18 @@ export default function TargetCard({
   const { gameState } = useGame();
   const [isMasked, setIsMasked] = useState(false);
   const [showConfirmHit, setShowConfirmHit] = useState(false);
+  const [justShot, setJustShot] = useState(false);
   const [dragDirTarget, setDragDirTarget] = useState(null); // 'left', 'right', or null
   const [dragDirMission, setDragDirMission] = useState(null);
+
+  useEffect(() => {
+    if (justShot) {
+      const timer = setTimeout(() => {
+        setJustShot(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [justShot]);
 
   const topControls = useAnimation();
   const bottomControls = useAnimation();
@@ -158,15 +168,18 @@ export default function TargetCard({
 
   const isTargetZombie = targetPlayer?.isZombie;
 
+  const isShatteredAnimated = hasPendingHit && justShot;
+  const isShatteredStatic = hasPendingHit && !justShot;
+
   return (
     <div className="tarot-card-wrapper-v2">
-      <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""} ${hasPendingHit ? "hit-shattered" : ""}`}>
+      <div className={`tarot-card-v2 rarity-${rarity} ${isMasked ? "card-blurred" : ""} ${isShatteredAnimated ? "hit-shattered" : ""} ${isShatteredStatic ? "hit-shattered-static" : ""}`}>
       {/* White flash on HIT shoot animation */}
-      {hasPendingHit && <div className="tarot-hit-flash" />}
+      {isShatteredAnimated && <div className="tarot-hit-flash" />}
 
       {/* Broken glass overlay on pending hit */}
       {hasPendingHit && (
-        <div className="tarot-broken-overlay" style={{
+        <div className={isShatteredAnimated ? "tarot-broken-overlay" : "tarot-broken-overlay-static"} style={{
           position: "absolute",
           top: 0,
           left: 0,
@@ -221,7 +234,7 @@ export default function TargetCard({
 
         {/* Target radar scope (cliquable pour déclencher le HIT) */}
         <div 
-          className={`tarot-target-scope ${hasPendingHit ? "hit-animation-active" : "interactive-target"}`}
+          className={`tarot-target-scope ${isShatteredAnimated ? "hit-animation-active" : isShatteredStatic ? "hit-static-active" : "interactive-target"}`}
           onClick={() => {
             if (!hasPendingHit) {
               setShowConfirmHit(true);
@@ -240,7 +253,7 @@ export default function TargetCard({
 
           {/* Bullet impact hole */}
           {hasPendingHit && (
-            <div className="bullet-hole-impact">
+            <div className={isShatteredAnimated ? "bullet-hole-impact" : "bullet-hole-impact-static"}>
               <svg viewBox="0 0 100 100" style={{ width: 40, height: 40 }}>
                 <circle cx="50" cy="50" r="8" fill="#111116" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
                 <path d="M50 42 L50 20 M50 58 L50 80 M42 50 L20 50 M58 50 L80 50 M44 44 L32 32 M56 56 L68 68 M44 56 L32 68 M56 44 L68 32" stroke="rgba(255,255,255,0.4)" strokeWidth="2.5" strokeLinecap="round" />
@@ -254,10 +267,10 @@ export default function TargetCard({
               <img
                 src={targetPlayer.photo}
                 alt={targetName}
-                className={`tarot-target-avatar ${hasPendingHit ? "hit-animation-active" : ""}`}
+                className={`tarot-target-avatar ${isShatteredAnimated ? "hit-animation-active" : isShatteredStatic ? "hit-static-active" : ""}`}
               />
             ) : (
-              <div className={`tarot-target-initials ${hasPendingHit ? "hit-animation-active" : ""}`}>
+              <div className={`tarot-target-initials ${isShatteredAnimated ? "hit-animation-active" : isShatteredStatic ? "hit-static-active" : ""}`}>
                 {getInitials(targetName)}
               </div>
             )}
@@ -356,6 +369,7 @@ export default function TargetCard({
                   style={{ backgroundColor: "var(--neon-red)", color: "#fff" }}
                   onClick={() => {
                     onDeclareHit();
+                    setJustShot(true);
                     setShowConfirmHit(false);
                   }}
                 >

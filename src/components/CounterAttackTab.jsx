@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { ShieldAlert, Loader2 } from "lucide-react";
 
-export default function CounterAttackTab({ playerName }) {
+export default function CounterAttackTab({ playerName, logo }) {
   const { gameState, counterAttack } = useGame();
   const [suspect, setSuspect] = useState("");
   const [accusedActionText, setAccusedActionText] = useState("");
@@ -32,9 +32,9 @@ export default function CounterAttackTab({ playerName }) {
 
   if (hasPendingCounter) {
     return (
-      <div className="counter-screen-layout">
-        <div className="view-scroll-content" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div className="glass-card-red" style={{ textAlign: "center", width: "100%" }}>
+      <div className="counter-screen-layout" style={{ height: "100%" }}>
+        <div className="view-scroll-content" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", height: "100%", paddingBottom: "20px" }}>
+          <div className="glass-card-red" style={{ textAlign: "center", width: "100%", flex: "none" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
               <Loader2 size={48} className="animate-spin" style={{ color: "var(--neon-red)" }} />
               <h2 style={{ color: "var(--neon-red)", fontSize: "20px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.05em" }}>Dénonciation en cours</h2>
@@ -43,6 +43,23 @@ export default function CounterAttackTab({ playerName }) {
               </p>
             </div>
           </div>
+
+          {logo && (
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+              <img 
+                src={logo} 
+                alt="Cooki'llers logo" 
+                className="floating-logo"
+                style={{ 
+                  width: "100%", 
+                  maxWidth: "180px", 
+                  height: "auto",
+                  opacity: 0.8,
+                  marginTop: "20px"
+                }} 
+              />
+            </div>
+          )}
         </div>
       </div>
     );
