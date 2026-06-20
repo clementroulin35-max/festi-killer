@@ -173,7 +173,7 @@ export default function SuggestActionTab({ playerName }) {
               </button>
             </form>
           ) : (
-            <div className="my-submissions-list animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", flex: 1 }}>
+            <div className="my-submissions-list animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", flex: 1, minHeight: 0 }}>
               <h3 style={{ fontSize: "14px", fontWeight: "900", color: "var(--neon-gold)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
                 Défis proposés ({mySuggestions.length})
               </h3>
@@ -183,7 +183,7 @@ export default function SuggestActionTab({ playerName }) {
                   Vous n'avez pas encore soumis de défis.
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto", paddingRight: "4px", flex: 1 }}>
+                <div className="actions-scroll-list" style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "280px", overflowY: "auto", paddingRight: "4px" }}>
                   {mySuggestions.map((sug) => {
                     const title = sug.metadata?.title || sug.actionTitle || "Défi sans titre";
                     const desc = sug.metadata?.description || "";
@@ -204,26 +204,25 @@ export default function SuggestActionTab({ playerName }) {
                     return (
                       <div 
                         key={sug.id} 
+                        className="action-item-mini"
                         style={{
+                          borderLeftColor: statusColor,
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
-                          background: "rgba(255, 255, 255, 0.02)",
-                          border: "1px solid rgba(255, 255, 255, 0.05)",
-                          borderRadius: "var(--border-radius-sm)",
-                          padding: "8px 10px",
-                          gap: "10px"
+                          gap: "10px",
+                          cursor: "default"
                         }}
                       >
                         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <strong style={{ fontSize: "12px", color: "var(--text-primary)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{title}</strong>
-                            <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>(+{pts} pts, -{dmg} HP)</span>
+                          <div className="action-mini-header">
+                            <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
+                            <span className="action-mini-rewards">+{pts} pts / -{dmg} HP</span>
                           </div>
                           {desc && (
-                            <div style={{ fontSize: "11px", color: "var(--text-secondary)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                            <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "normal" }}>
                               {desc}
-                            </div>
+                            </p>
                           )}
                           <div style={{ fontSize: "10px", fontWeight: "800", color: statusColor, textTransform: "uppercase", letterSpacing: "0.03em", marginTop: "2px" }}>
                             ● {statusLabel}
@@ -242,7 +241,8 @@ export default function SuggestActionTab({ playerName }) {
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
-                              transition: "color 0.2s"
+                              transition: "color 0.2s",
+                              flexShrink: 0
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.color = "var(--neon-red)"}
                             onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}

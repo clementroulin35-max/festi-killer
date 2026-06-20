@@ -43,6 +43,22 @@ function MainAppContent() {
     localStorage.setItem("fk_theme", theme);
   }, [theme]);
 
+  // Prevent viewport resizing on mobile keyboard popups
+  useEffect(() => {
+    let lastWidth = window.innerWidth;
+    const updateAppHeight = () => {
+      const currentWidth = window.innerWidth;
+      // Only recalculate height if width changed (orientation change) or if on desktop
+      if (Math.abs(currentWidth - lastWidth) > 10 || currentWidth > 768) {
+        document.documentElement.style.setProperty("--app-height", `${window.innerHeight}px`);
+        lastWidth = currentWidth;
+      }
+    };
+    document.documentElement.style.setProperty("--app-height", `${window.innerHeight}px`);
+    window.addEventListener("resize", updateAppHeight);
+    return () => window.removeEventListener("resize", updateAppHeight);
+  }, []);
+
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };

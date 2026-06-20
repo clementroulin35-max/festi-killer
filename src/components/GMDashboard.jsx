@@ -172,7 +172,8 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
     try {
       // 1. Sauvegarde des stats (Score, Vies, Zombie, Nom, PIN)
-      await manualEditPlayer(editingPlayer, editScore, editLives, editZombie, cleanNewName, editPin.trim());
+      const finalLives = editZombie ? 0 : editLives;
+      await manualEditPlayer(editingPlayer, editScore, finalLives, editZombie, cleanNewName, editPin.trim());
       
       // 2. Gestion du statut gelé/actif si nécessaire
       const playerObj = gameState.players.find(p => p.name === editingPlayer);
@@ -432,7 +433,20 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
                           <div style={{ display: "flex", gap: "20px", marginTop: "4px", flexWrap: "wrap" }}>
                             <label className="checkbox-row" style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px" }}>
-                              <input type="checkbox" checked={editZombie} onChange={(e) => setEditZombie(e.target.checked)} style={{ width: "auto", margin: 0 }} />
+                              <input 
+                                type="checkbox" 
+                                checked={editZombie} 
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  setEditZombie(checked);
+                                  if (checked) {
+                                    setEditLives(0);
+                                  } else {
+                                    setEditLives(1);
+                                  }
+                                }} 
+                                style={{ width: "auto", margin: 0 }} 
+                              />
                               Statut Zombie 💀
                             </label>
                             <label className="checkbox-row" style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px" }}>
