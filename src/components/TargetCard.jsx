@@ -320,15 +320,7 @@ export default function TargetCard({
         </div>
       </motion.div>
 
-      {/* ============================================================ */}
-      {/* 3. PENDING STATE BANNER */}
-      {/* ============================================================ */}
-      {hasPendingHit && (
-        <div className="tarot-pending-banner-v2">
-          <Loader2 size={12} className="animate-spin" style={{ marginRight: 6 }} />
-          <span>Validation GM en cours...</span>
-        </div>
-      )}
+
 
       </div>
 

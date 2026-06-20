@@ -3510,11 +3510,24 @@ select option {
   right: 0;
   bottom: 0;
   left: 0;
-  background-image: linear-gradient(rgba(10, 10, 12, 0.5), rgba(10, 10, 12, 0.8)), url('./assets/onboarding_bg.png');
   background-size: cover;
   background-position: center;
   z-index: 1;
   pointer-events: none;
+  transition: background-image 0.5s ease-in-out;
+}
+
+.auth-screen-layout.bg-room::before {
+  background-image: linear-gradient(rgba(10, 10, 12, 0.55), rgba(10, 10, 12, 0.85)), url('./assets/onboarding_bg.png');
+}
+.auth-screen-layout.bg-create::before {
+  background-image: linear-gradient(rgba(10, 10, 12, 0.55), rgba(10, 10, 12, 0.85)), url('./assets/idees_bg.png');
+}
+.auth-screen-layout.bg-login-player::before {
+  background-image: linear-gradient(rgba(10, 10, 12, 0.55), rgba(10, 10, 12, 0.85)), url('./assets/denoncer_bg.png');
+}
+.auth-screen-layout.bg-login-gm::before {
+  background-image: linear-gradient(rgba(10, 10, 12, 0.55), rgba(10, 10, 12, 0.85)), url('./assets/leaderboard_bg.png');
 }
 
 .glass-card {
@@ -4548,14 +4561,27 @@ select option {
    ========================================== */
 
 .tarot-card-v2.hit-shattered {
-  filter: grayscale(0.55) contrast(1.1) brightness(0.6);
+  animation: shatterCardBrightness 1.5s ease-out forwards;
   border-color: rgba(255, 51, 102, 0.35) !important;
   box-shadow: 0 0 20px rgba(255, 51, 102, 0.15), var(--shadow-md) !important;
   transition: all 0.5s ease-in-out;
 }
 
+@keyframes shatterCardBrightness {
+  0%, 49% {
+    filter: grayscale(0) contrast(1) brightness(1);
+  }
+  50% {
+    filter: grayscale(0.55) contrast(1.1) brightness(0.6);
+  }
+  100% {
+    filter: grayscale(0.55) contrast(1.1) brightness(0.6);
+  }
+}
+
 .tarot-broken-overlay {
-  animation: glassShatter 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  animation: glassShatter 0.5s cubic-bezier(0.19, 1, 0.22, 1) 0.75s forwards;
+  opacity: 0;
 }
 
 @keyframes glassShatter {
@@ -5310,4 +5336,130 @@ select option {
 
 .setup-controls {
   gap: 8px !important;
+}
+
+/* ==========================================
+   AUTHENTICATION DYNAMIQUE, SPACING & BANDEAU EXTERNE
+   ========================================== */
+
+.auth-content-v2 {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  gap: 12px;
+}
+
+.auth-content-v2 .setup-header {
+  margin-bottom: 8px !important;
+}
+
+/* Typographie soignée Dénoncer & Idées */
+.counter-attack-form-v2, .suggest-action-form-v2 {
+  line-height: 1.6;
+}
+
+.counter-attack-form-v2 label, .suggest-action-form-v2 label {
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  color: var(--text-secondary) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  margin-bottom: 2px !important;
+  line-height: 1.45 !important;
+}
+
+.counter-attack-form-v2 input, 
+.counter-attack-form-v2 select,
+.suggest-action-form-v2 input,
+.suggest-action-form-v2 select,
+.suggest-action-form-v2 textarea {
+  font-family: var(--font-sans) !important;
+  font-size: 13.5px !important;
+  font-weight: 550 !important;
+  letter-spacing: 0.03em !important;
+  line-height: 1.45 !important;
+  padding: 10px 14px !important;
+  text-align: left !important;
+}
+
+.counter-attack-form-v2 select {
+  padding-left: 10px !important;
+}
+
+.ca-help {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  color: var(--text-secondary) !important;
+  margin-bottom: 6px !important;
+}
+
+/* Bandeau de validation GM en dehors de la carte */
+.tarot-pending-banner-outside {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 11px;
+  background: rgba(255, 51, 102, 0.05);
+  border: 1px solid rgba(255, 51, 102, 0.2);
+  border-radius: var(--border-radius-md);
+  color: var(--neon-red);
+  text-shadow: 0 0 8px rgba(255, 51, 102, 0.25);
+  font-size: 11.5px;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.05);
+  animation: pulse-border-red-outside 2.0s infinite alternate;
+}
+
+@keyframes pulse-border-red-outside {
+  from {
+    box-shadow: 0 0 2px rgba(255, 51, 102, 0.1);
+    border-color: rgba(255, 51, 102, 0.25);
+  }
+  to {
+    box-shadow: 0 0 12px rgba(255, 51, 102, 0.35);
+    border-color: rgba(255, 51, 102, 0.5);
+  }
+}
+
+/* Responsive auth sur petite hauteur */
+@media (max-height: 670px) {
+  .auth-content-v2 {
+    gap: 8px;
+  }
+  .auth-content-v2 .setup-header img {
+    max-width: 200px !important;
+  }
+  .auth-content-v2 .glass-card {
+    padding: 14px 16px !important;
+  }
+  .pin-pad-container {
+    gap: 6px !important;
+  }
+  .pin-dots-display {
+    margin-bottom: 4px !important;
+  }
+  .pin-keyboard-grid {
+    gap: 8px !important;
+  }
+  .pin-key-btn {
+    height: 44px !important;
+    width: 44px !important;
+    font-size: 16px !important;
+  }
+  .pin-key-empty {
+    height: 44px !important;
+    width: 44px !important;
+  }
 }

@@ -74,6 +74,28 @@ function MainAppContent() {
     }
   }, []);
 
+  // iOS Safari zoom reset on input blur
+  useEffect(() => {
+    const handleBlur = (e) => {
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) {
+        window.scrollTo(document.body.scrollLeft, document.body.scrollTop);
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+          const originalContent = viewport.content;
+          viewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+          setTimeout(() => {
+            viewport.content = originalContent;
+          }, 150);
+        }
+      }
+    };
+
+    document.addEventListener("blur", handleBlur, true);
+    return () => {
+      document.removeEventListener("blur", handleBlur, true);
+    };
+  }, []);
+
   const handleCreateRoom = async (e) => {
     if (e) e.preventDefault();
     setError("");
@@ -249,8 +271,12 @@ function MainAppContent() {
 
     return (
       <div className="app-container" style={{ padding: 0, overflow: "hidden" }}>
-        <div className="auth-screen-layout">
-          <div className="view-scroll-content" style={{ padding: "16px 8px 40px 8px" }}>
+        <div className={`auth-screen-layout ${
+          joinStep === "create" ? "bg-create" :
+          joinStep === "login" ? (loginRole === "gm" ? "bg-login-gm" : "bg-login-player") :
+          "bg-room"
+        }`}>
+          <div className="auth-content-v2">
             
             <div className="setup-header" style={{ marginBottom: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
               <img 

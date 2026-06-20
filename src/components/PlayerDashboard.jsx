@@ -287,6 +287,14 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         </div>
       </motion.div>
 
+      {/* Bandeau de validation GM externe */}
+      {hasPendingHit && (
+        <div className="tarot-pending-banner-outside">
+          <Loader2 size={14} className="animate-spin" style={{ marginRight: 8 }} />
+          <span>Validation GM en cours...</span>
+        </div>
+      )}
+
       {/* 3. Target card V2 (Tarot layout) */}
       {player.target ? (
         <div className={`tarot-card-container-v2 ${isZombie ? "zombie-mode-active" : ""}`}>
