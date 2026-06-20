@@ -4590,3 +4590,370 @@ select option {
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.15) !important;
   transition: all 0.3s ease-in-out;
 }
+
+/* ==========================================
+   REFRACTORED HUD & TARGET CARD STYLES
+   ========================================== */
+
+/* Nouveau layout HUD */
+.hud-main-container-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.hud-left-column-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hud-hearts-wrapper-v2 {
+  display: flex;
+  margin-top: 4px;
+}
+
+.hud-right-column-v2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.hud-avatar-wrapper-v2 {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.hud-avatar-wrapper-v2 .hud-avatar-v2 {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.hud-avatar-wrapper-v2 .hud-avatar-v2.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-input);
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+}
+
+/* Moniteur vital / Voyant ECG en diagonale haut droite */
+.hud-vital-monitor-v2 {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(10, 10, 12, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.hud-vital-monitor-v2 .ecg-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+}
+
+.hud-vital-monitor-v2.alive .ecg-dot {
+  background-color: var(--neon-green);
+  box-shadow: 0 0 6px var(--neon-green);
+}
+
+.hud-vital-monitor-v2.zombie .ecg-dot {
+  background-color: var(--neon-red);
+  box-shadow: 0 0 6px var(--neon-red);
+}
+
+.hud-vital-monitor-v2 .ecg-svg {
+  width: 14px;
+  height: 8px;
+  color: inherit;
+}
+
+.hud-vital-monitor-v2.alive .ecg-svg {
+  color: var(--neon-green);
+  filter: drop-shadow(0 0 1px var(--neon-green));
+}
+
+.hud-vital-monitor-v2.zombie .ecg-svg {
+  color: var(--neon-red);
+  filter: drop-shadow(0 0 1px var(--neon-red));
+}
+
+.hud-rank-wrapper-v2 {
+  margin-top: 2px;
+}
+
+/* Barre XP retro hachurée */
+.hud-xp-row-v2 {
+  width: 100%;
+  margin-top: 8px;
+  padding: 0 4px;
+}
+
+.hud-xp-row-v2 .xp-bar-container-v2 {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hud-xp-row-v2 .xp-bar-bg-v2 {
+  flex: 1;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+  /* Hachures cyberpunk rétro */
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.03) 0px,
+    rgba(255, 255, 255, 0.03) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.hud-xp-row-v2 .xp-bar-v2 {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  border-radius: 2px;
+  /* Hachures sur la barre elle-même */
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 0px,
+    rgba(255, 255, 255, 0.15) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+/* Section Score avec séparateurs horizontaux */
+.hud-score-row-v2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hud-score-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
+/* Styles de l'en-tête de carte "MISSION" */
+.tarot-card-header-v2 {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.25em;
+  color: var(--text-primary);
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+/* Label CIBLE en haut */
+.tarot-target-label-v2 {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: var(--neon-red);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+/* Réticule de visée */
+.tarot-target-scope {
+  border: 1px solid rgba(255, 51, 102, 0.3);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.15);
+}
+
+/* Bouton œil cliquable central */
+.clickable-eye-btn {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #181822;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.clickable-eye-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan) !important;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+  transform: scale(1.1);
+}
+
+.clickable-eye-btn.masked {
+  border-color: var(--neon-red);
+  color: var(--neon-red) !important;
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.4);
+}
+
+/* Section basse de Mission (Gains + Skips) */
+.tarot-mission-footer-v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 14px;
+  padding: 0 8px;
+}
+
+.tarot-rewards-discret-v2 {
+  display: flex;
+  gap: 8px;
+}
+
+.reward-pts-v2 {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--neon-gold);
+  background: rgba(245, 158, 11, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.reward-dmg-v2 {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--neon-red);
+  background: rgba(255, 51, 102, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 51, 102, 0.2);
+}
+
+/* Badge des jetons de relance (Skips) en bas à droite */
+.tarot-skips-badge-v2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(24, 24, 32, 0.9);
+  border: 1px solid var(--neon-gold);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--neon-gold);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.tarot-skips-badge-v2:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+}
+
+.skips-icon-v2 {
+  font-size: 12px;
+}
+
+.skips-val-v2 {
+  font-family: var(--font-sans);
+}
+
+/* Bouton HIT circulaire pulsant cyberpunk */
+.hit-button-wrapper-v2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.tarot-seal-hit-btn-circular {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--neon-red) 30%, #b91c1c 90%);
+  border: 2px solid #fff;
+  box-shadow: 0 0 20px rgba(255, 51, 102, 0.65), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 950;
+  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  animation: hitPulseNeon 2s infinite ease-in-out;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
+}
+
+.tarot-seal-hit-btn-circular:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 30px rgba(255, 51, 102, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+.tarot-seal-hit-btn-circular:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.5);
+}
+
+@keyframes hitPulseNeon {
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(255, 51, 102, 0.65), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(255, 51, 102, 0.95), inset 0 0 15px rgba(255, 255, 255, 0.5);
+  }
+}
+
+/* Flèches indicatrices animées */
+.hit-arrow-left-v2, .hit-arrow-right-v2 {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--neon-red);
+  text-shadow: 0 0 8px var(--neon-red-glow);
+  opacity: 0.85;
+}
+
+.hit-arrow-left-v2 {
+  animation: hitArrowMoveLeft 1.2s infinite ease-in-out;
+}
+
+.hit-arrow-right-v2 {
+  animation: hitArrowMoveRight 1.2s infinite ease-in-out;
+}
+
+@keyframes hitArrowMoveLeft {
+  0%, 100% { transform: translateX(0); opacity: 0.6; }
+  50% { transform: translateX(6px); opacity: 1; }
+}
+
+@keyframes hitArrowMoveRight {
+  0%, 100% { transform: translateX(0); opacity: 0.6; }
+  50% { transform: translateX(-6px); opacity: 1; }
+}

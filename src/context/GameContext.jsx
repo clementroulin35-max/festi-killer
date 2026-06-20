@@ -316,7 +316,7 @@ export const GameProvider = ({ children }) => {
           is_zombie: false,
           target: playerBName,
           action_id: initialActionId,
-          action_ephemeral: Math.random() < 0.25
+          action_ephemeral: false
         }]);
 
       // 2. Update player A to target new player
@@ -670,7 +670,7 @@ export const GameProvider = ({ children }) => {
         systemMsg += ` ${victim.name} ne perd pas de coeur (Mode Zombie).`;
       }
       if (diedNow) {
-        systemMsg += ` ${victim.name} est éliminé et devient un ZOMBIE ! Bonus Coup de Grâce (+100 pts) pour ${killer.name}.`;
+        systemMsg += ` ${victim.name} est éliminé et devient un ZOMBIE ! Bonus Coup de Grâce (+${GAME_CONFIG.BONUS_KILL} pts) pour ${killer.name}.`;
       }
 
       await logEvent("hit_validation", {

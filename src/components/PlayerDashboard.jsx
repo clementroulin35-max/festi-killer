@@ -14,11 +14,11 @@ import suicidePreventImage from "../assets/suicide_prevent.png";
    RANK SYSTEM (computed from score, exposed everywhere)
    ============================================ */
 const RANKS = [
-  { min: 5000, key: "alpha",    icon: "👑", label: "Alpha",          css: "rank-alpha" },
-  { min: 3000, key: "legende",  icon: "💀", label: "Légende",        css: "rank-legende" },
-  { min: 1500, key: "fantome",  icon: "👻", label: "Tueur Fantôme",  css: "rank-fantome" },
-  { min: 750,  key: "predateur",icon: "🐺", label: "Prédateur",      css: "rank-predateur" },
-  { min: 250,  key: "chasseur", icon: "🏹", label: "Chasseur",       css: "rank-chasseur" },
+  { min: 3500, key: "alpha",    icon: "👑", label: "Alpha",          css: "rank-alpha" },
+  { min: 2000, key: "legende",  icon: "💀", label: "Légende",        css: "rank-legende" },
+  { min: 1000, key: "fantome",  icon: "👻", label: "Tueur Fantôme",  css: "rank-fantome" },
+  { min: 450,  key: "predateur",icon: "🐺", label: "Prédateur",      css: "rank-predateur" },
+  { min: 150,  key: "chasseur", icon: "🏹", label: "Chasseur",       css: "rank-chasseur" },
   { min: 0,    key: "civil",    icon: "⚔️", label: "Civil",          css: "rank-civil" },
 ];
 
@@ -223,112 +223,61 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
       {/* 2. HUD Header V2 */}
       <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }}>
-        {/* Ligne 1: (gauche) photo profil + pseudo, (droite) statut */}
-        <div className="hud-row-v2 line-1">
-          <div className="hud-left-v2">
-            <div className={isZombie ? "zombie-avatar-crt" : ""}>
-              {player.photo ? (
-                <img
-                  src={player.photo}
-                  alt={player.name}
-                  onClick={onEditPhoto}
-                  className="hud-avatar-v2"
-                  title="Modifier ma photo"
-                />
-              ) : (
-                <div onClick={onEditPhoto} className="hud-avatar-v2 placeholder" title="Modifier ma photo">
-                  <User size={16} style={{ color: "var(--text-muted)" }} />
-                </div>
-              )}
-            </div>
+        <div className="hud-main-container-v2">
+          {/* Bloc Gauche: Pseudo + Cœurs */}
+          <div className="hud-left-column-v2">
             <span className="hud-pseudo-v2">{player.name}</span>
+            <div className="hud-hearts-wrapper-v2">
+              <ZeldaHearts lives={player.lives} />
+            </div>
           </div>
-          <div className="hud-right-v2">
-            <div className={`hud-status-v2 ${isZombie ? "zombie" : "alive"}`}>
-              <div className="ecg-dot" />
-              <svg viewBox="0 0 100 30" className="ecg-svg">
-                <path
-                  className="ecg-path"
-                  d="M0 15 h30 l4 -10 l4 20 l4 -15 l4 5 h54"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+
+          {/* Bloc Droite: Avatar + Vital Monitor + Badge Rang */}
+          <div className="hud-right-column-v2">
+            <div className="hud-avatar-wrapper-v2">
+              <div className={isZombie ? "zombie-avatar-crt" : ""}>
+                {player.photo ? (
+                  <img
+                    src={player.photo}
+                    alt={player.name}
+                    onClick={onEditPhoto}
+                    className="hud-avatar-v2"
+                    title="Modifier ma photo"
+                  />
+                ) : (
+                  <div onClick={onEditPhoto} className="hud-avatar-v2 placeholder" title="Modifier ma photo">
+                    <User size={16} style={{ color: "var(--text-muted)" }} />
+                  </div>
+                )}
+              </div>
+              
+              {/* Moniteur vital (ECG) en diagonale haut droite */}
+              <div className={`hud-vital-monitor-v2 ${isZombie ? "zombie" : "alive"}`}>
+                <div className="ecg-dot" />
+                <svg viewBox="0 0 100 30" className="ecg-svg">
+                  <path
+                    className="ecg-path"
+                    d="M0 15 h30 l4 -10 l4 20 l4 -15 l4 5 h54"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            
+            {/* Rang juste sous l'avatar */}
+            <div className="hud-rank-wrapper-v2">
+              <span className="hud-rank-label-v2">{rank.icon} {rank.label}</span>
             </div>
           </div>
         </div>
 
-        {/* Ligne 2: (gauche) Jetons relance, nombre, (droite) coeurs */}
-        <div className="hud-row-v2 line-2">
-          <div 
-            className="hud-left-v2 token-tooltip-trigger" 
-            style={{ alignItems: "center", cursor: "pointer", position: "relative", userSelect: "none" }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowTokenTooltip(prev => !prev);
-            }}
-          >
-            <img src={tokenImage} alt="skips" style={{ width: 28, height: 28, mixBlendMode: "screen" }} />
-            <span style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-gold)", marginLeft: "2px" }}>{player.skips}</span>
-            
-            <AnimatePresence>
-              {showTokenTooltip && (
-                <motion.div
-                  className="token-tooltip-bubble"
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    position: "absolute",
-                    top: "34px",
-                    left: "0",
-                    width: "200px",
-                    background: "rgba(24, 24, 31, 0.95)",
-                    border: "1px solid var(--neon-gold)",
-                    borderRadius: "8px",
-                    padding: "8px 12px",
-                    boxShadow: "0 4px 15px rgba(245, 158, 11, 0.2), var(--shadow-md)",
-                    backdropFilter: "blur(10px)",
-                    zIndex: 1000,
-                  }}
-                >
-                  <div style={{ fontSize: "11px", fontWeight: "800", color: "var(--neon-gold)", marginBottom: "3px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    Jeton de Relance
-                  </div>
-                  <div style={{ fontSize: "11px", color: "var(--text-primary)", lineHeight: "1.35", fontWeight: "400" }}>
-                    Permet de changer de mission/défi sans pénalité depuis le bas de la carte.
-                  </div>
-                  <div className="tooltip-arrow" style={{
-                    position: "absolute",
-                    top: "-5px",
-                    left: "14px",
-                    width: "8px",
-                    height: "8px",
-                    background: "rgba(24, 24, 31, 0.95)",
-                    borderLeft: "1px solid var(--neon-gold)",
-                    borderTop: "1px solid var(--neon-gold)",
-                    transform: "rotate(45deg)",
-                  }} />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          <div className="hud-right-v2" style={{ display: "flex", justifyContent: "flex-end" }}>
-            <ZeldaHearts lives={player.lives} />
-          </div>
-        </div>
-
-        {/* Ligne 3: (gauche) Rang, (droite) barre d'xp */}
-        <div className="hud-row-v2 line-3">
-          <div className="hud-left-v2">
-            <span className="hud-rank-label-v2">{rank.icon} {rank.label}</span>
-          </div>
-          <div className="hud-right-v2 xp-bar-container-v2">
+        {/* Section Médiane: XP Bar hachurée */}
+        <div className="hud-xp-row-v2">
+          <div className="xp-bar-container-v2">
             <div className="xp-bar-bg-v2">
               <div className="xp-bar-v2" style={{ width: `${progressPercent}%` }} />
             </div>
@@ -336,9 +285,11 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           </div>
         </div>
 
-        {/* Score (centré) */}
-        <div className="hud-score-center-v2">
+        {/* Section Basse: Score (centré) avec lignes de séparation */}
+        <div className="hud-score-row-v2">
+          <div className="hud-score-line" />
           <AnimatedScore score={player.score} />
+          <div className="hud-score-line" />
         </div>
       </motion.div>
 

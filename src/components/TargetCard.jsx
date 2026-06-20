@@ -193,18 +193,10 @@ export default function TargetCard({
         <div className="hologram-scan-line" />
       </div>
 
-      {/* Panic toggle */}
-      <motion.button
-        className="panic-toggle-inline-btn"
-        onClick={() => setIsMasked(v => !v)}
-        title={isMasked ? "Révéler la cible" : "Masquer (Panic Mode)"}
-        whileTap={{ scale: 0.9 }}
-        style={{ top: 12, left: 12, zIndex: 12 }}
-      >
-        {isMasked ? <Eye size={15} /> : <EyeOff size={15} />}
-      </motion.button>
-
-
+      {/* Header MISSION de la carte */}
+      <div className="tarot-card-header-v2">
+        <span>MISSION</span>
+      </div>
 
       {/* ============================================================ */}
       {/* 1. UPPER HALF: THE TARGET */}
@@ -223,7 +215,8 @@ export default function TargetCard({
         <div className="tarot-indicator-left">Reroll Cible</div>
         <div className="tarot-indicator-right">Reroll Cible</div>
 
-
+        {/* Label CIBLE rétro */}
+        <div className="tarot-target-label-v2">CIBLE</div>
 
         {/* Target radar scope */}
         <div className={`tarot-target-scope ${hasPendingHit ? "hit-animation-active" : ""}`}>
@@ -265,7 +258,12 @@ export default function TargetCard({
       {/* ============================================================ */}
       <div className="tarot-card-divider">
         <div className="tarot-divider-line" />
-        <div className="tarot-divider-eye">
+        <div 
+          className={`tarot-divider-eye clickable-eye-btn ${isMasked ? "masked" : ""}`}
+          onClick={() => setIsMasked(v => !v)}
+          title={isMasked ? "Révéler la cible" : "Masquer la cible (Panic Mode)"}
+          style={{ cursor: "pointer", zIndex: 15 }}
+        >
           <span style={{ fontSize: "14px", transform: "scale(1.2)" }}>👁️</span>
         </div>
       </div>
@@ -287,46 +285,58 @@ export default function TargetCard({
         <div className="tarot-indicator-left">Relancer Défi</div>
         <div className="tarot-indicator-right">Relancer Défi</div>
 
-        <span className="tarot-mission-title">Mission Secrète</span>
         <div className="tarot-mission-name">« {action.title} »</div>
         <p className="tarot-mission-desc">{action.description}</p>
 
-        {/* Rewards */}
-        <div className="tarot-rewards-row">
-          <div className="tarot-reward-pill pts">
-            <span>+{isZombie ? Math.floor(action.points / 2) : action.points} PTS</span>
+        {/* Section Basse: Gains discrets et badge des Skips */}
+        <div className="tarot-mission-footer-v2">
+          {/* Récompenses discrètes */}
+          <div className="tarot-rewards-discret-v2">
+            <span className="reward-pts-v2">+{isZombie ? Math.floor(action.points / 2) : action.points} PTS</span>
+            <span className="reward-dmg-v2">-{isZombie ? 0 : action.damage} HP</span>
           </div>
-          <div className="tarot-reward-pill dmg">
-            <span>-{isZombie ? 0 : action.damage} HP</span>
+          
+          {/* Badge jetons relance en bas à droite */}
+          <div className="tarot-skips-badge-v2" title={`${playerSkips} relances disponibles`}>
+            <span className="skips-icon-v2">🪙</span>
+            <span className="skips-val-v2">{playerSkips}</span>
           </div>
         </div>
       </motion.div>
 
-    </div>
+      </div>
 
-    {/* ============================================================ */}
-    {/* 3. INTERACTIVE SEAL BUTTON (HIT RÉUSSI) */}
-    {/* ============================================================ */}
-    <div className="tarot-seal-hit-btn-container" style={{ paddingBottom: 20 }}>
-      <AnimatePresence mode="wait">
-        {hasPendingHit ? (
-          <button key="pending" className="tarot-seal-hit-btn pending" disabled>
-            <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} />
-            Validation GM en cours...
-          </button>
-        ) : (
-          <motion.button
-            key="hit"
-            className="tarot-seal-hit-btn"
-            onClick={onDeclareHit}
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-          >
-            ☠️ Tirer
-          </motion.button>
-        )}
-      </AnimatePresence>
-    </div>
+      {/* ============================================================ */}
+      {/* 3. INTERACTIVE SEAL BUTTON (HIT RÉUSSI) */}
+      {/* ============================================================ */}
+      <div className="tarot-seal-hit-btn-container" style={{ paddingBottom: 20 }}>
+        <AnimatePresence mode="wait">
+          {hasPendingHit ? (
+            <button key="pending" className="tarot-seal-hit-btn pending" style={{ borderRadius: "50px" }} disabled>
+              <Loader2 size={14} className="animate-spin" style={{ marginRight: 6 }} />
+              Validation GM...
+            </button>
+          ) : (
+            <div className="hit-button-wrapper-v2">
+              {/* Flèche gauche animée */}
+              <span className="hit-arrow-left-v2">❯❯</span>
+              
+              <motion.button
+                key="hit"
+                className="tarot-seal-hit-btn-circular"
+                onClick={onDeclareHit}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                HIT
+              </motion.button>
+              
+              {/* Flèche droite animée */}
+              <span className="hit-arrow-right-v2">❮❮</span>
+            </div>
+          )}
+        </AnimatePresence>
+      </div>
   </div>
 );
 }
