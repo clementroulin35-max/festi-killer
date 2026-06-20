@@ -24,7 +24,8 @@ export default function TargetCard({
   onAbandonSwipe,
   onSkipSwipe,
   playerSkips = 0,
-  playerScore = 0
+  playerScore = 0,
+  onTriggerTooltip
 }) {
   const { gameState } = useGame();
   const [isMasked, setIsMasked] = useState(false);
@@ -208,7 +209,12 @@ export default function TargetCard({
       </div>
 
       {/* Header MISSION de la carte */}
-      <div className="tarot-card-header-v2">
+      <div 
+        className="tarot-card-header-v2"
+        onClick={() => onTriggerTooltip && onTriggerTooltip("Cadre de Mission : Glissez la cible vers la gauche/droite pour l'abandonner (pénalité de score ou de cœur), ou glissez le défi pour le relancer (consomme 1 jeton).")}
+        style={{ cursor: "pointer" }}
+        title="Cliquez pour obtenir des explications"
+      >
         <span>MISSION</span>
       </div>
 
@@ -326,7 +332,15 @@ export default function TargetCard({
           </div>
           
           {/* Badge jetons relance en bas à droite */}
-          <div className="tarot-skips-badge-v2" title={`${playerSkips} relances disponibles`}>
+          <div 
+            className="tarot-skips-badge-v2" 
+            title={`${playerSkips} relances disponibles`}
+            onClick={(e) => {
+              e.stopPropagation();
+              onTriggerTooltip && onTriggerTooltip(`Jetons de Relance : Vous disposez de ${playerSkips} relance(s). Glissez le défi du bas vers le côté pour en utiliser une.`);
+            }}
+            style={{ cursor: "pointer" }}
+          >
             <span className="skips-icon-v2">🪙</span>
             <span className="skips-val-v2">{playerSkips}</span>
           </div>

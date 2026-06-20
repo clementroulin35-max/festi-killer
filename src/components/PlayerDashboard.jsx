@@ -127,6 +127,16 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
   const [confirmModal, setConfirmModal] = useState(null); // { type: 'skip' | 'abandon' }
   const [showTokenTooltip, setShowTokenTooltip] = useState(false);
   const [showSuicideAlert, setShowSuicideAlert] = useState(false);
+  const [activeTooltip, setActiveTooltip] = useState(null);
+
+  useEffect(() => {
+    if (activeTooltip) {
+      const timer = setTimeout(() => {
+        setActiveTooltip(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTooltip]);
 
   useEffect(() => {
     if (showTokenTooltip) {
@@ -215,7 +225,37 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
       {/* Zombie scanline overlay */}
       {isZombie && <div className="zombie-overlay" />}
 
-
+      {/* Floating help tooltip */}
+      <AnimatePresence>
+        {activeTooltip && (
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "10px",
+              right: "10px",
+              backgroundColor: "rgba(18, 18, 22, 0.95)",
+              border: "1px solid var(--neon-gold)",
+              boxShadow: "0 0 15px rgba(245, 158, 11, 0.4)",
+              borderRadius: "var(--border-radius-sm)",
+              padding: "10px 14px",
+              zIndex: 1000,
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              cursor: "pointer"
+            }}
+            onClick={() => setActiveTooltip(null)}
+          >
+            <span style={{ fontSize: "16px", flexShrink: 0 }}>💡</span>
+            <span style={{ fontSize: "12px", color: "#fff", lineHeight: "1.4", fontWeight: "600" }}>{activeTooltip}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 2. HUD Header V2 */}
       <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }}>
@@ -248,7 +288,12 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           </div>
           
           {/* Moniteur vital (ECG) brut déporté à droite */}
-          <div className={`hud-vital-monitor-raw-v2 ${isZombie ? "zombie" : "alive"}`}>
+          <div 
+            className={`hud-vital-monitor-raw-v2 ${isZombie ? "zombie" : "alive"}`}
+            onClick={() => setActiveTooltip("ECG de combat. Indique vos constantes vitales. Si vos cœurs tombent à 0, vous devenez un Zombie.")}
+            style={{ cursor: "pointer" }}
+            title="Cliquez pour obtenir des explications"
+          >
             <svg viewBox="0 0 100 30" className="ecg-svg">
               <path
                 className="ecg-path"
@@ -265,10 +310,20 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
         {/* Ligne 2: Rang à gauche, Score / Points à droite */}
         <div className="hud-middle-row-v2">
-          <div className="hud-rank-wrapper-v2">
+          <div 
+            className="hud-rank-wrapper-v2"
+            onClick={() => setActiveTooltip("Votre rang évolue selon vos points. Devenez une Légende ou le Prédateur Alpha !")}
+            style={{ cursor: "pointer" }}
+            title="Cliquez pour obtenir des explications"
+          >
             <span className="hud-rank-label-v2">{rank.icon} {rank.label}</span>
           </div>
-          <div className="hud-score-wrapper-v2">
+          <div 
+            className="hud-score-wrapper-v2"
+            onClick={() => setActiveTooltip("Vos points accumulés. Réussir un défi vous rapporte des points, mourir ou paranoïer vous en fait perdre.")}
+            style={{ cursor: "pointer" }}
+            title="Cliquez pour obtenir des explications"
+          >
             <AnimatedScore score={player.score} />
           </div>
         </div>
@@ -304,6 +359,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
             onSkipSwipe={handleSkipTrigger}
             playerSkips={player.skips}
             playerScore={player.score}
+            onTriggerTooltip={(text) => setActiveTooltip(text)}
           />
         </div>
       ) : (

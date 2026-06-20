@@ -3342,7 +3342,6 @@ select option {
 
 /* === ZOMBIE GLITCH MODE === */
 .zombie-mode-active {
-  animation: glitchShake 3s ease-in-out infinite;
   filter: hue-rotate(180deg) saturate(0.7);
 }
 
@@ -4868,8 +4867,8 @@ select option {
 /* Styles de l'en-tête de carte "MISSION" */
 .tarot-card-header-v2 {
   width: 100%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #5c1122 !important;
+  border-bottom: 2px solid rgba(255, 51, 102, 0.25) !important;
   padding: 8px 16px;
   text-align: center;
   font-size: 13px;
@@ -4877,6 +4876,11 @@ select option {
   letter-spacing: 0.25em;
   color: var(--text-primary);
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.zombie-mode-active .tarot-card-header-v2 {
+  background: #092f1d !important;
+  border-bottom: 2px solid rgba(51, 255, 102, 0.25) !important;
 }
 
 /* Label CIBLE en haut */

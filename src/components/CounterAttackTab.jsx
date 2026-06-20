@@ -77,13 +77,50 @@ export default function CounterAttackTab({ playerName, logo }) {
             <h3 style={{ color: "var(--neon-red)", display: "flex", alignItems: "center", gap: "8px", fontSize: "15px", textTransform: "uppercase", fontWeight: "800", marginBottom: "4px" }}>
               <ShieldAlert size={18} /> Accuser mon tueur
             </h3>
-            <p className="ca-help" style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+            <p className="ca-help" style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: "1.4", marginBottom: "12px" }}>
               Si tu suspectes quelqu'un de vouloir te faire faire une action, dénonce-le.
-              <br />
-              <span style={{ color: "var(--neon-green)" }}>●</span> <strong>Correct :</strong> Son action est brûlée, il perd 25 pts.
-              <br />
-              <span style={{ color: "var(--neon-red)" }}>●</span> <strong>Incorrect :</strong> Tu perds 0.5 cœur pour paranoïa.
             </p>
+
+            <table style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              border: "1px solid rgba(255, 51, 102, 0.2)",
+              borderRadius: "var(--border-radius-sm)",
+              backgroundColor: "rgba(255, 51, 102, 0.03)",
+              marginBottom: "14px",
+              fontSize: "12px",
+              textAlign: "center"
+            }}>
+              <tbody>
+                {/* Ligne 1: Logos */}
+                <tr>
+                  <td style={{ padding: "6px", width: "50%", borderRight: "1px solid rgba(255, 51, 102, 0.2)" }}>
+                    <span style={{ fontSize: "18px" }}>🟢</span>
+                  </td>
+                  <td style={{ padding: "6px", width: "50%" }}>
+                    <span style={{ fontSize: "18px" }}>🔴</span>
+                  </td>
+                </tr>
+                {/* Ligne 2: Libellés */}
+                <tr>
+                  <td style={{ padding: "2px 6px", fontWeight: "900", color: "var(--neon-green)", textTransform: "uppercase", borderRight: "1px solid rgba(255, 51, 102, 0.2)", fontSize: "11px" }}>
+                    Correct
+                  </td>
+                  <td style={{ padding: "2px 6px", fontWeight: "900", color: "var(--neon-red)", textTransform: "uppercase", fontSize: "11px" }}>
+                    Incorrect
+                  </td>
+                </tr>
+                {/* Ligne 3: Descriptions */}
+                <tr>
+                  <td style={{ padding: "6px 8px 10px 8px", color: "#ffffff", borderRight: "1px solid rgba(255, 51, 102, 0.2)", verticalAlign: "top", fontSize: "10.5px", lineHeight: "1.4" }}>
+                    Son action est brûlée, il perd <strong>25 pts</strong>.
+                  </td>
+                  <td style={{ padding: "6px 8px 10px 8px", color: "#ffffff", verticalAlign: "top", fontSize: "10.5px", lineHeight: "1.4" }}>
+                    Tu perds <strong>0.5 cœur</strong> pour paranoïa.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
             {caMessage && <div className="ca-error-msg" style={{ color: "var(--neon-red)", fontSize: "12px", fontWeight: "700" }}>{caMessage}</div>}
 
@@ -105,15 +142,15 @@ export default function CounterAttackTab({ playerName, logo }) {
               </select>
             </label>
 
-            <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginTop: "4px" }}>
               Défi suspecté (facultatif) :
-              <input
-                type="text"
+              <textarea
                 placeholder="Ex: Te faire chanter une chanson..."
                 value={accusedActionText}
                 onChange={(e) => setAccusedActionText(e.target.value)}
                 className="neon-input-premium"
-                style={{ textAlign: "left" }}
+                rows={3}
+                style={{ height: "66px", resize: "none", textAlign: "left", paddingTop: "8px" }}
               />
             </label>
 

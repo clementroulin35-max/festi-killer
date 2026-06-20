@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
-import { Lightbulb, Loader2, X, PlusCircle, AlignJustify } from "lucide-react";
+import { Lightbulb, Loader2, X, PlusCircle, AlignJustify, Trash2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function SuggestActionTab({ playerName }) {
   const { gameState, suggestAction, deleteSuggestedAction } = useGame();
@@ -9,6 +10,7 @@ export default function SuggestActionTab({ playerName }) {
   const [sugDesc, setSugDesc] = useState("");
   const [sugPoints, setSugPoints] = useState(30);
   const [sugDamage, setSugDamage] = useState(1.0);
+  const [deletingActionId, setDeletingActionId] = useState(null);
 
   const player = gameState.players.find(p => p.name === playerName);
   if (!player) return null;
@@ -16,6 +18,18 @@ export default function SuggestActionTab({ playerName }) {
   const mySuggestions = gameState.history.filter(
     (h) => h.type === "action_suggestion" && h.killer === playerName
   );
+
+  // Liste 1 : en attente (pending) et refusées (rejected), triées (pending d'abord)
+  const pendingAndRejected = mySuggestions
+    .filter(sug => sug.status === "pending" || sug.status === "rejected")
+    .sort((a, b) => {
+      if (a.status === "pending" && b.status === "rejected") return -1;
+      if (a.status === "rejected" && b.status === "pending") return 1;
+      return 0;
+    });
+
+  // Liste 2 : validées (approved)
+  const approvedSuggestions = mySuggestions.filter(sug => sug.status === "approved");
 
   const handleSuggestSubmit = (e) => {
     e.preventDefault();
@@ -32,14 +46,13 @@ export default function SuggestActionTab({ playerName }) {
     setSugDesc("");
     setSugPoints(30);
     setSugDamage(1.0);
-    // Basculer sur l'onglet mes soumissions pour voir sa création
     setSubTab("list");
   };
 
   return (
-    <div className="suggest-screen-layout">
-      <div className="view-scroll-content">
-        <div className="glass-card-gold" style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+    <div className="suggest-screen-layout" style={{ height: "100%" }}>
+      <div className="view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <div className="glass-card-gold" style={{ width: "100%", display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
           <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-gold)", textAlign: "center", marginBottom: "12px", textTransform: "uppercase" }}>
             Boîte à Idées
           </h2>
@@ -52,7 +65,8 @@ export default function SuggestActionTab({ playerName }) {
             borderRadius: "var(--border-radius-sm)",
             padding: "2px",
             marginBottom: "12px",
-            border: "1px solid rgba(245, 158, 11, 0.15)"
+            border: "1px solid rgba(245, 158, 11, 0.15)",
+            flexShrink: 0
           }}>
             <button
               onClick={() => setSubTab("new_request")}
@@ -173,93 +187,231 @@ export default function SuggestActionTab({ playerName }) {
               </button>
             </form>
           ) : (
-            <div className="my-submissions-list animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%", flex: 1, minHeight: 0 }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "900", color: "var(--neon-gold)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
-                Défis proposés ({mySuggestions.length})
-              </h3>
+            <div className="my-submissions-list animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "14px", width: "100%", flex: 1, minHeight: 0 }}>
               
-              {mySuggestions.length === 0 ? (
-                <div style={{ padding: "40px 10px", textAlign: "center", color: "var(--text-muted)", fontSize: "13px" }}>
-                  Vous n'avez pas encore soumis de défis.
-                </div>
-              ) : (
-                <div className="actions-scroll-list" style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "280px", overflowY: "auto", paddingRight: "4px" }}>
-                  {mySuggestions.map((sug) => {
-                    const title = sug.metadata?.title || sug.actionTitle || "Défi sans titre";
-                    const desc = sug.metadata?.description || "";
-                    const pts = sug.metadata?.points || sug.points || 0;
-                    const dmg = sug.metadata?.damage || sug.damage || 0;
-                    const status = sug.status; // pending, approved, rejected
-
-                    let statusLabel = "En attente GM";
-                    let statusColor = "var(--neon-gold)";
-                    if (status === "approved") {
-                      statusLabel = "Validé & Intégré";
-                      statusColor = "var(--neon-green)";
-                    } else if (status === "rejected") {
-                      statusLabel = "Rejeté par le GM";
-                      statusColor = "var(--neon-red)";
-                    }
-
-                    return (
-                      <div 
-                        key={sug.id} 
-                        className="action-item-mini"
-                        style={{
-                          borderLeftColor: statusColor,
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          gap: "10px",
-                          cursor: "default"
-                        }}
-                      >
-                        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
-                          <div className="action-mini-header">
-                            <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
-                            <span className="action-mini-rewards">+{pts} pts / -{dmg} HP</span>
-                          </div>
-                          {desc && (
-                            <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "normal" }}>
-                              {desc}
-                            </p>
-                          )}
-                          <div style={{ fontSize: "10px", fontWeight: "800", color: statusColor, textTransform: "uppercase", letterSpacing: "0.03em", marginTop: "2px" }}>
-                            ● {statusLabel}
-                          </div>
-                        </div>
-
-                        {status !== "approved" && (
-                          <button
-                            onClick={() => deleteSuggestedAction(sug.id)}
-                            style={{
-                              background: "transparent",
-                              border: "none",
-                              color: "var(--text-muted)",
-                              cursor: "pointer",
-                              padding: "4px",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              transition: "color 0.2s",
-                              flexShrink: 0
-                            }}
-                            onMouseEnter={(e) => e.currentTarget.style.color = "var(--neon-red)"}
-                            onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
-                            title="Supprimer la proposition"
-                          >
-                            <X size={16} />
-                          </button>
-                        )}
+              {/* Division 50/50 avec flexbox vertical */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px", flex: 1, minHeight: 0 }}>
+                
+                {/* Liste 1 : En attente & Refusés */}
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+                  <h4 style={{ fontSize: "11px", fontWeight: "900", color: "var(--neon-gold)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px", flexShrink: 0 }}>
+                    En attente & Refusés ({pendingAndRejected.length})
+                  </h4>
+                  <div className="actions-scroll-list" style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px", paddingRight: "4px" }}>
+                    {pendingAndRejected.length === 0 ? (
+                      <div style={{ padding: "16px 10px", textAlign: "center", color: "var(--text-muted)", fontSize: "12px", fontStyle: "italic" }}>
+                        Aucun défi en attente ou rejeté.
                       </div>
-                    );
-                  })}
+                    ) : (
+                      pendingAndRejected.map((sug) => {
+                        const title = sug.metadata?.title || sug.actionTitle || "Défi sans titre";
+                        const desc = sug.metadata?.description || "";
+                        const pts = sug.metadata?.points || sug.points || 0;
+                        const dmg = sug.metadata?.damage || sug.damage || 0;
+                        const status = sug.status; // pending, rejected
+
+                        let statusLabel = "En attente GM";
+                        let statusColor = "var(--neon-gold)";
+                        if (status === "rejected") {
+                          statusLabel = "Rejeté par le GM";
+                          statusColor = "var(--neon-red)";
+                        }
+
+                        return (
+                          <div 
+                            key={sug.id} 
+                            style={{ 
+                              position: "relative", 
+                              overflow: "hidden", 
+                              borderRadius: "var(--border-radius-sm)",
+                              flexShrink: 0,
+                              width: "100%"
+                            }}
+                          >
+                            {/* Bouton de suppression rouge caché en arrière-plan */}
+                            <div 
+                              style={{
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                width: "100px",
+                                backgroundColor: "var(--neon-red)",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                zIndex: 1,
+                                borderRadius: "0 var(--border-radius-sm) var(--border-radius-sm) 0"
+                              }}
+                            >
+                              <div style={{
+                                writingMode: "vertical-lr",
+                                textTransform: "uppercase",
+                                fontWeight: "900",
+                                fontSize: "10px",
+                                letterSpacing: "0.1em",
+                                color: "#fff",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px"
+                              }}>
+                                <Trash2 size={11} style={{ transform: "rotate(270deg)" }} /> Supprimer
+                              </div>
+                            </div>
+
+                            {/* Composant glissable de premier plan */}
+                            <motion.div
+                              drag="x"
+                              dragConstraints={{ left: -100, right: 0 }}
+                              dragElastic={{ left: 0.1, right: 0 }}
+                              onDragEnd={(event, info) => {
+                                if (info.offset.x < -60) {
+                                  setDeletingActionId(sug.id);
+                                }
+                              }}
+                              className="action-item-mini"
+                              style={{
+                                position: "relative",
+                                zIndex: 2,
+                                borderLeftColor: statusColor,
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                gap: "10px",
+                                cursor: "grab",
+                                x: 0,
+                                background: "rgba(20, 20, 25, 0.95)"
+                              }}
+                            >
+                              <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+                                <div className="action-mini-header">
+                                  <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
+                                  <span className="action-mini-rewards">+{pts} pts / -{dmg} HP</span>
+                                </div>
+                                {desc && (
+                                  <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "normal" }}>
+                                    {desc}
+                                  </p>
+                                )}
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "2px" }}>
+                                  <div style={{ fontSize: "10px", fontWeight: "800", color: statusColor, textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                                    ● {statusLabel}
+                                  </div>
+                                  <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Glisser</span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
-              )}
+
+                {/* Liste 2 : Validés & Intégrés */}
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+                  <h4 style={{ fontSize: "11px", fontWeight: "900", color: "var(--neon-green)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px", flexShrink: 0 }}>
+                    Validés & Intégrés ({approvedSuggestions.length})
+                  </h4>
+                  <div className="actions-scroll-list" style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px", paddingRight: "4px" }}>
+                    {approvedSuggestions.length === 0 ? (
+                      <div style={{ padding: "16px 10px", textAlign: "center", color: "var(--text-muted)", fontSize: "12px", fontStyle: "italic" }}>
+                        Aucune idée validée par le GM pour le moment.
+                      </div>
+                    ) : (
+                      approvedSuggestions.map((sug) => {
+                        const title = sug.metadata?.title || sug.actionTitle || "Défi sans titre";
+                        const desc = sug.metadata?.description || "";
+                        const pts = sug.metadata?.points || sug.points || 0;
+                        const dmg = sug.metadata?.damage || sug.damage || 0;
+                        const statusColor = "var(--neon-green)";
+
+                        return (
+                          <div 
+                            key={sug.id} 
+                            className="action-item-mini"
+                            style={{
+                              borderLeftColor: statusColor,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              gap: "10px",
+                              cursor: "default"
+                            }}
+                          >
+                            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+                              <div className="action-mini-header">
+                                <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
+                                <span className="action-mini-rewards">+{pts} pts / -{dmg} HP</span>
+                              </div>
+                              {desc && (
+                                <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>
+                                  {desc}
+                                </p>
+                              )}
+                              <div style={{ fontSize: "10px", fontWeight: "800", color: statusColor, textTransform: "uppercase", letterSpacing: "0.03em", marginTop: "2px" }}>
+                                ● Validé & Intégré
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+
+              </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* Pop-up de confirmation de suppression */}
+      <AnimatePresence>
+        {deletingActionId && (
+          <motion.div
+            className="confirm-modal-backdrop-v2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 11000 }}
+          >
+            <motion.div
+              className="confirm-modal-v2 type-red"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)", textTransform: "uppercase" }}>Supprimer la proposition ?</h3>
+              <p className="confirm-modal-body-v2">
+                Es-tu sûr de vouloir supprimer cette proposition de défi ? Cette action est irréversible.
+              </p>
+
+              <div className="confirm-action-btns-v2">
+                <button
+                  className="confirm-btn-primary-v2"
+                  style={{ backgroundColor: "var(--neon-red)", color: "#fff" }}
+                  onClick={() => {
+                    deleteSuggestedAction(deletingActionId);
+                    setDeletingActionId(null);
+                  }}
+                >
+                  Supprimer
+                </button>
+                <button 
+                  className="confirm-btn-cancel-v2" 
+                  onClick={() => {
+                    setDeletingActionId(null);
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
