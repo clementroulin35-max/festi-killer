@@ -231,7 +231,7 @@ function MainAppContent() {
         }
 
         // If player has no photo set or is actively editing it, force/redirect to onboarding
-        if (currentPlayer && (!currentPlayer.photo || editPhotoActive)) {
+        if (currentPlayer && ((!currentPlayer.photo && currentPlayer.photo !== "skipped") || editPhotoActive)) {
           return <PlayerSetup playerName={currentUser} initialSlide={editPhotoActive ? 5 : 0} onComplete={() => setEditPhotoActive(false)} />;
         }
 

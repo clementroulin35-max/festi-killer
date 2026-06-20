@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function ZeldaHearts({ lives, maxLives = 7 }) {
+export default function ZeldaHearts({ lives, maxLives = 7, size = 28 }) {
   // Generate hearts list
   const hearts = [];
   for (let i = 0; i < maxLives; i++) {
@@ -16,7 +16,7 @@ export default function ZeldaHearts({ lives, maxLives = 7 }) {
   }
 
   return (
-    <div className="hearts-container" style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+    <div className="hearts-container" style={{ display: "flex", gap: `${size / 4}px`, alignItems: "center" }}>
       {hearts.map((heart) => {
         const percentage = heart.fillRatio * 100;
         const gradId = `heart-grad-${heart.id}-${percentage}`;
@@ -24,8 +24,8 @@ export default function ZeldaHearts({ lives, maxLives = 7 }) {
         return (
           <svg
             key={heart.id}
-            width="28"
-            height="28"
+            width={size}
+            height={size}
             viewBox="0 0 24 24"
             className="zelda-heart"
             style={{

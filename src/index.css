@@ -4630,13 +4630,13 @@ select option {
 
 .hud-avatar-wrapper-v2 {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 64px; /* Agrandie */
+  height: 64px; /* Agrandie */
 }
 
 .hud-avatar-wrapper-v2 .hud-avatar-v2 {
-  width: 48px;
-  height: 48px;
+  width: 64px; /* Agrandie */
+  height: 64px; /* Agrandie */
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
@@ -4657,14 +4657,48 @@ select option {
   transform: scale(1.05);
 }
 
+/* ECG en superposition absolue sur la photo de profil */
+.hud-avatar-ecg-overlay-v2 {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* Les clics traversent vers l'avatar */
+  z-index: 10;
+  opacity: 0.85;
+}
+
+.hud-avatar-ecg-overlay-v2 .ecg-svg {
+  width: 100%;
+  height: 35%; /* Centré verticalement sur l'avatar */
+  overflow: visible;
+}
+
+.hud-avatar-ecg-overlay-v2.alive .ecg-svg {
+  color: var(--neon-green);
+  filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.75));
+}
+
+.hud-avatar-ecg-overlay-v2.zombie .ecg-svg {
+  color: var(--neon-red);
+  filter: drop-shadow(0 0 3px rgba(255, 51, 102, 0.75));
+}
+
+.hud-avatar-ecg-overlay-v2 .ecg-path {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: ecgFlow 2.5s linear infinite;
+}
+
 .hud-identity-v2 {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .hud-pseudo-v2 {
-  font-size: 16px;
+  font-size: 18px; /* Un peu plus grand */
   font-weight: 900;
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -4674,44 +4708,15 @@ select option {
   display: flex;
 }
 
-/* Moniteur vital (ECG) brut sans cercle */
-.hud-vital-monitor-raw-v2 {
-  display: flex;
-  align-items: center;
-  height: 20px;
-  width: 60px;
-}
-
-.hud-vital-monitor-raw-v2 .ecg-svg {
-  width: 60px;
-  height: 20px;
-  overflow: visible;
-}
-
-.hud-vital-monitor-raw-v2.alive .ecg-svg {
-  color: var(--neon-green);
-  filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.6));
-}
-
-.hud-vital-monitor-raw-v2.zombie .ecg-svg {
-  color: var(--neon-red);
-  filter: drop-shadow(0 0 3px rgba(255, 51, 102, 0.6));
-}
-
-.hud-vital-monitor-raw-v2 .ecg-path {
-  stroke-dasharray: 100;
-  stroke-dashoffset: 100;
-  animation: ecgFlow 2.5s linear infinite;
-}
-
 /* Ligne 2: Rang à gauche, Score à droite */
 .hud-middle-row-v2 {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 4px;
   padding: 0 4px;
+  margin-bottom: 8px; /* Espace avant la bordure basse XP */
 }
 
 .hud-rank-wrapper-v2 {
@@ -4746,26 +4751,30 @@ select option {
   margin-left: 4px;
 }
 
-/* Ligne 3: Barre d'XP fine pleine et épurée */
+/* Ligne 3: Barre d'XP intégrée comme bordure inférieure du bloc */
 .hud-xp-row-v2 {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  margin-top: 8px;
-  padding: 0 4px;
+  padding: 0;
+  margin: 0;
 }
 
 .hud-xp-row-v2 .xp-bar-container-v2 {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0;
 }
 
 .hud-xp-row-v2 .xp-bar-bg-v2 {
   flex: 1;
-  height: 6px;
+  height: 4px; /* Fin et épuré */
   background: rgba(255, 255, 255, 0.08);
   border: none;
-  border-radius: 3px;
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); /* Épouse les coins arrondis inférieurs */
   overflow: hidden;
   box-shadow: none;
   background-image: none;
@@ -4775,7 +4784,7 @@ select option {
   height: 100%;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
   box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
-  border-radius: 3px;
+  border-radius: 0;
   background-image: none;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -4969,4 +4978,177 @@ select option {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   box-shadow: 0 0 10px rgba(255, 51, 102, 0.05);
+}
+
+/* Cible interactive cliquable pour HIT */
+.interactive-target {
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.interactive-target:hover {
+  transform: scale(1.04);
+}
+
+/* Viseur / Overlay "HIT" rouge au survol */
+.tarot-target-hit-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(255, 51, 102, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, backdrop-filter 0.2s ease;
+  z-index: 8;
+  pointer-events: none;
+  border: 2px solid var(--neon-red);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.6);
+}
+
+.interactive-target:hover .tarot-target-hit-overlay {
+  opacity: 1;
+  backdrop-filter: blur(1.5px);
+}
+
+.tarot-target-hit-overlay span {
+  font-size: 16px;
+  font-weight: 950;
+  color: #ffffff;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 8px #ff3366, 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.interactive-target:hover .tarot-target-avatar,
+.interactive-target:hover .tarot-target-initials {
+  border-color: #ffffff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN SANS SCROLL (PLEINE PAGE)
+   ========================================== */
+
+/* Ajustements pour les écrans de hauteur moyenne (max 780px) */
+@media (max-height: 780px) {
+  .app-main-content {
+    padding: 8px var(--safe-x);
+    gap: 10px;
+  }
+  .hud-header-v2 {
+    margin-top: 6px;
+    padding: 12px 14px 0 14px;
+    gap: 8px;
+  }
+  .hud-avatar-wrapper-v2 {
+    width: 54px;
+    height: 54px;
+  }
+  .hud-avatar-wrapper-v2 .hud-avatar-v2 {
+    width: 54px;
+    height: 54px;
+  }
+  .hud-pseudo-v2 {
+    font-size: 15px;
+  }
+  .hud-middle-row-v2 {
+    margin-bottom: 6px;
+  }
+  .tarot-card-v2 {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  .tarot-card-top {
+    padding: 14px 14px 8px 14px;
+    gap: 8px;
+  }
+  .tarot-target-scope {
+    width: 76px;
+    height: 76px;
+  }
+  .tarot-target-avatar,
+  .tarot-target-initials {
+    width: 64px;
+    height: 64px;
+    font-size: 20px;
+  }
+  .tarot-card-divider {
+    height: 20px;
+  }
+  .tarot-card-bottom {
+    padding: 10px 14px 14px 14px;
+    gap: 8px;
+  }
+  .tarot-mission-desc {
+    font-size: 13.5px;
+    min-height: 44px;
+    line-height: 1.4;
+  }
+  .tarot-mission-footer-v2 {
+    margin-top: 8px;
+  }
+}
+
+/* Ajustements pour les écrans de faible hauteur (max 670px) */
+@media (max-height: 670px) {
+  .app-main-content {
+    gap: 6px;
+    padding: 4px var(--safe-x);
+  }
+  .hud-header-v2 {
+    margin-top: 4px;
+    padding: 10px 10px 0 10px;
+    gap: 6px;
+  }
+  .hud-avatar-wrapper-v2 {
+    width: 46px;
+    height: 46px;
+  }
+  .hud-avatar-wrapper-v2 .hud-avatar-v2 {
+    width: 46px;
+    height: 46px;
+  }
+  .hud-pseudo-v2 {
+    font-size: 14px;
+  }
+  .hud-middle-row-v2 {
+    margin-bottom: 4px;
+  }
+  .tarot-card-top {
+    padding: 10px 10px 6px 10px;
+    gap: 4px;
+  }
+  .tarot-target-scope {
+    width: 60px;
+    height: 60px;
+  }
+  .tarot-target-avatar,
+  .tarot-target-initials {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+  .tarot-target-name {
+    font-size: 16px;
+    margin-top: 2px;
+  }
+  .tarot-card-divider {
+    height: 14px;
+  }
+  .tarot-card-bottom {
+    padding: 6px 10px 10px 10px;
+    gap: 4px;
+  }
+  .tarot-mission-desc {
+    font-size: 12.5px;
+    min-height: 34px;
+    line-height: 1.3;
+    padding: 0 4px;
+  }
+  .tarot-mission-name {
+    font-size: 15px;
+  }
+  .tarot-mission-footer-v2 {
+    margin-top: 4px;
+  }
 }

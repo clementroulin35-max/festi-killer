@@ -365,6 +365,43 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
                     </div>
                   </div>
                 )}
+
+                {/* Bouton Annuler pour l'édition de photo depuis l'écran de mission */}
+                {initialSlide === 5 && (
+                  <button 
+                    onClick={onComplete}
+                    className="panic-btn"
+                    style={{ width: "100%", marginTop: "12px", borderColor: "var(--text-muted)", color: "var(--text-muted)", fontWeight: "700" }}
+                  >
+                    Annuler
+                  </button>
+                )}
+
+                {/* Bouton Skip (Passer sans photo) pour l'initialisation */}
+                {initialSlide !== 5 && !capturedPhoto && (
+                  <button 
+                    onClick={() => {
+                      savePlayerPhoto(playerName, "skipped");
+                      if (onComplete) onComplete();
+                    }}
+                    className="skip-photo-setup-btn-v2"
+                    style={{
+                      width: "100%",
+                      background: "transparent",
+                      border: "1px dashed var(--border-color)",
+                      color: "var(--text-muted)",
+                      padding: "11px",
+                      borderRadius: "var(--border-radius-sm)",
+                      fontSize: "12px",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                      marginTop: "12px",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    Passer cette étape (sans photo)
+                  </button>
+                )}
               </div>
             </div>
           )}
