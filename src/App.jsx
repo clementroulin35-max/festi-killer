@@ -278,21 +278,23 @@ function MainAppContent() {
         }`}>
           <div className="auth-content-v2">
             
-            <div className="setup-header" style={{ marginBottom: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <img 
-                src={heroImage} 
-                alt="Cooki'llers logo" 
-                onClick={toggleTheme}
-                className="floating-logo"
-                style={{ 
-                  width: "100%", 
-                  maxWidth: "280px", 
-                  height: "auto", 
-                  cursor: "pointer"
-                }} 
-                title="Basculer thème jour/nuit"
-              />
-            </div>
+            {joinStep === "room" && (
+              <div className="setup-header" style={{ marginBottom: "16px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <img 
+                  src={heroImage} 
+                  alt="Cooki'llers logo" 
+                  onClick={toggleTheme}
+                  className="floating-logo"
+                  style={{ 
+                    width: "100%", 
+                    maxWidth: "280px", 
+                    height: "auto", 
+                    cursor: "pointer"
+                  }} 
+                  title="Basculer thème jour/nuit"
+                />
+              </div>
+            )}
 
             <div className={`glass-card ${loginRole === "gm" ? "glass-card-gm-auth" : "glass-card-player-auth"}`}>
               <AnimatePresence mode="wait">

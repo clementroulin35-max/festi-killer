@@ -2304,20 +2304,22 @@ select option {
 
 .player-setup-screen {
   height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  padding-bottom: 15px;
+  min-height: 0;
+  padding-bottom: 0;
 }
 
 .tutorial-carousel-card {
-  max-height: calc(100% - 55px);
-  flex-shrink: 0;
+  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-color: var(--neon-purple);
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+  margin-bottom: 4px;
 }
 
 .carousel-body {
@@ -5271,77 +5273,7 @@ select option {
   border-color: #f1f5f9 !important;
 }
 
-/* Version compacte du tutoriel onboarding pour éviter tout scroll */
-.tutorial-carousel-card {
-  max-height: 100%;
-  flex: 1;
-  padding: 16px;
-  gap: 10px;
-}
-
-.tutorial-slide {
-  gap: 6px;
-}
-
-.tutorial-slide h3 {
-  font-size: 14px;
-}
-
-.slide-intro {
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.slide-points {
-  gap: 6px;
-}
-
-.point-item {
-  padding: 6px 10px;
-  font-size: 11.5px;
-}
-
-.slide-icon-container {
-  width: 48px;
-  height: 48px;
-}
-
-.slide-icon-container svg {
-  width: 28px;
-  height: 28px;
-}
-
-.carousel-navigation-bar {
-  margin-top: 10px !important;
-  padding-top: 8px !important;
-}
-
-.photo-setup-step {
-  gap: 8px !important;
-}
-
-.photo-setup-step h2 {
-  font-size: 15px;
-  margin-bottom: 0;
-}
-
-.camera-box-outer {
-  margin: 4px 0 !important;
-}
-
-.video-viewport, .photo-preview-container {
-  width: 140px;
-  height: 140px;
-}
-
-.setup-controls {
-  gap: 8px !important;
-}
-
-/* ==========================================
-   AUTHENTICATION DYNAMIQUE, SPACING & BANDEAU EXTERNE
-   ========================================== */
-
+/* Authentification dynamique avec défilement de secours */
 .auth-content-v2 {
   position: relative;
   z-index: 2;
@@ -5353,6 +5285,7 @@ select option {
   justify-content: center;
   padding: 16px;
   gap: 12px;
+  overflow-y: auto; /* Autorise le scroll si trop petit ou clavier ouvert */
 }
 
 .auth-content-v2 .setup-header {
@@ -5433,13 +5366,10 @@ select option {
   }
 }
 
-/* Responsive auth sur petite hauteur */
+/* Ajustements pour les très petits écrans (max 670px) */
 @media (max-height: 670px) {
   .auth-content-v2 {
     gap: 8px;
-  }
-  .auth-content-v2 .setup-header img {
-    max-width: 200px !important;
   }
   .auth-content-v2 .glass-card {
     padding: 14px 16px !important;
@@ -5461,5 +5391,39 @@ select option {
   .pin-key-empty {
     height: 44px !important;
     width: 44px !important;
+  }
+  /* Guide compact de secours */
+  .tutorial-carousel-card {
+    padding: 12px !important;
+    gap: 8px !important;
+  }
+  .tutorial-slide {
+    gap: 4px !important;
+  }
+  .slide-icon-container {
+    width: 44px !important;
+    height: 44px !important;
+  }
+  .slide-icon-container svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .tutorial-slide h3 {
+    font-size: 13.5px !important;
+  }
+  .slide-intro {
+    font-size: 11.5px !important;
+    margin-bottom: 2px !important;
+  }
+  .point-item {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+  }
+  .photo-setup-step {
+    gap: 6px !important;
+  }
+  .video-viewport, .photo-preview-container {
+    width: 120px !important;
+    height: 120px !important;
   }
 }

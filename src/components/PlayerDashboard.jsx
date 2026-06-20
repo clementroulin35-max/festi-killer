@@ -215,11 +215,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
       {/* Zombie scanline overlay */}
       {isZombie && <div className="zombie-overlay" />}
 
-      {/* 1. Transmission banners */}
-      <TransmissionBanners
-        hasPendingCounter={hasPendingCounter}
-        hasPendingSuggest={hasPendingSuggest}
-      />
+
 
       {/* 2. HUD Header V2 */}
       <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }}>

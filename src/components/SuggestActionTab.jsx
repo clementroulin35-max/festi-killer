@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
-import { Lightbulb, Loader2 } from "lucide-react";
+import { Lightbulb, Loader2, X } from "lucide-react";
 
 export default function SuggestActionTab({ playerName }) {
-  const { gameState, suggestAction } = useGame();
+  const { gameState, suggestAction, deleteSuggestedAction } = useGame();
   const [sugTitle, setSugTitle] = useState("");
   const [sugDesc, setSugDesc] = useState("");
   const [sugPoints, setSugPoints] = useState(30);
@@ -12,13 +12,12 @@ export default function SuggestActionTab({ playerName }) {
   const player = gameState.players.find(p => p.name === playerName);
   if (!player) return null;
 
-  const hasPendingSuggest = gameState.history.some(
-    (h) => h.status === "pending" && h.type === "action_suggestion" && h.killer === playerName
+  const mySuggestions = gameState.history.filter(
+    (h) => h.type === "action_suggestion" && h.killer === playerName
   );
 
   const handleSuggestSubmit = (e) => {
     e.preventDefault();
-    if (hasPendingSuggest) return;
     if (!sugTitle.trim() || !sugDesc.trim()) return;
     suggestAction(
       playerName,
@@ -33,24 +32,6 @@ export default function SuggestActionTab({ playerName }) {
     setSugPoints(30);
     setSugDamage(1.0);
   };
-
-  if (hasPendingSuggest) {
-    return (
-      <div className="suggest-screen-layout">
-        <div className="view-scroll-content" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-          <div className="glass-card-gold" style={{ textAlign: "center", width: "100%" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px" }}>
-              <Loader2 size={48} className="animate-spin" style={{ color: "var(--neon-gold)" }} />
-              <h2 style={{ color: "var(--neon-gold)", fontSize: "20px", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.05em" }}>Idée envoyée</h2>
-              <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5" }}>
-                Ta suggestion a été transmise. Dès que le GameMaster l'aura validée, elle sera ajoutée à la pool active.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="suggest-screen-layout">
@@ -125,6 +106,86 @@ export default function SuggestActionTab({ playerName }) {
             </button>
           </form>
         </div>
+
+        {mySuggestions.length > 0 && (
+          <div className="glass-card-gold" style={{ width: "100%", marginTop: "14px", display: "flex", flexDirection: "column", gap: "10px" }}>
+            <h3 style={{ fontSize: "14px", fontWeight: "900", color: "var(--neon-gold)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "4px" }}>
+              Mes suggestions ({mySuggestions.length})
+            </h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "160px", overflowY: "auto", paddingRight: "4px" }}>
+              {mySuggestions.map((sug) => {
+                const title = sug.metadata?.title || sug.actionTitle || "Défi sans titre";
+                const desc = sug.metadata?.description || "";
+                const pts = sug.metadata?.points || sug.points || 0;
+                const dmg = sug.metadata?.damage || sug.damage || 0;
+                const status = sug.status; // pending, approved, rejected
+
+                let statusLabel = "En attente GM";
+                let statusColor = "var(--neon-gold)";
+                if (status === "approved") {
+                  statusLabel = "Validé & Intégré";
+                  statusColor = "var(--neon-green)";
+                } else if (status === "rejected") {
+                  statusLabel = "Rejeté par le GM";
+                  statusColor = "var(--neon-red)";
+                }
+
+                return (
+                  <div 
+                    key={sug.id} 
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      background: "rgba(255, 255, 255, 0.02)",
+                      border: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderRadius: "var(--border-radius-sm)",
+                      padding: "8px 10px",
+                      gap: "10px"
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <strong style={{ fontSize: "12px", color: "var(--text-primary)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>{title}</strong>
+                        <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>(+{pts} pts, -{dmg} HP)</span>
+                      </div>
+                      {desc && (
+                        <div style={{ fontSize: "11px", color: "var(--text-secondary)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                          {desc}
+                        </div>
+                      )}
+                      <div style={{ fontSize: "10px", fontWeight: "800", color: statusColor, textTransform: "uppercase", letterSpacing: "0.03em", marginTop: "2px" }}>
+                        ● {statusLabel}
+                      </div>
+                    </div>
+
+                    {status !== "approved" && (
+                      <button
+                        onClick={() => deleteSuggestedAction(sug.id)}
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "var(--text-muted)",
+                          cursor: "pointer",
+                          padding: "4px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          transition: "color 0.2s"
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = "var(--neon-red)"}
+                        onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}
+                        title="Supprimer la proposition"
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

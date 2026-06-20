@@ -1458,6 +1458,21 @@ export const GameProvider = ({ children }) => {
     }
   };
 
+  const deleteSuggestedAction = async (historyId) => {
+    try {
+      const { error } = await supabase
+        .from("history")
+        .delete()
+        .eq("id", historyId)
+        .neq("status", "approved");
+
+      if (error) throw error;
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error("Erreur suppression suggestion :", err);
+    }
+  };
+
   return (
     <GameContext.Provider value={{
       gameState,
@@ -1489,6 +1504,7 @@ export const GameProvider = ({ children }) => {
       suggestAction,
       approveSuggestedAction,
       rejectSuggestedAction,
+      deleteSuggestedAction,
       addCustomActionDirectly,
       deleteAction,
       editAction,
