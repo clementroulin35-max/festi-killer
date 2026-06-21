@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
-import { Lightbulb, Loader2, X, PlusCircle, AlignJustify, Trash2, History, Check } from "lucide-react";
+import { Lightbulb, Loader2, X, PlusCircle, AlignJustify, Trash2, History, Check, Target, Droplet, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SuggestActionTab({ playerName }) {
@@ -35,11 +35,13 @@ export default function SuggestActionTab({ playerName }) {
 
   const handleSuggestSubmit = (e) => {
     e.preventDefault();
-    if (!sugTitle.trim() || !sugDesc.trim()) return;
+    const titleVal = sugCategory === "defi" ? sugTitle.trim() : sugDesc.trim().slice(0, 35);
+    const descVal = sugDesc.trim();
+    if (!descVal || (sugCategory === "defi" && !titleVal)) return;
     suggestAction(
       playerName,
-      sugTitle.trim(),
-      sugDesc.trim(),
+      titleVal,
+      descVal,
       sugCategory === "defi" ? Number(sugPoints) : 0,
       sugCategory === "defi" ? Number(sugDamage) : 0,
       sugCategory,
@@ -154,14 +156,25 @@ export default function SuggestActionTab({ playerName }) {
           {/* Tab contents */}
           {subTab === "new_request" && (
             <form onSubmit={handleSuggestSubmit} className="suggest-action-form-v2" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <h3 style={{ color: "var(--neon-gold)", display: "flex", alignItems: "center", gap: "8px", fontSize: "15px", textTransform: "uppercase", fontWeight: "800", marginBottom: "2px" }}>
-                <Lightbulb size={18} /> Suggérer un défi
+              <h3 style={{ color: sugCategory === "defi" ? "var(--neon-purple)" : sugCategory === "action_fountain" ? "var(--neon-blue)" : "var(--neon-red)", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", textTransform: "uppercase", fontWeight: "800", marginBottom: "2px" }}>
+                {sugCategory === "defi" ? (
+                  <><Target size={16} /> Suggérer un défi</>
+                ) : sugCategory === "action_fountain" ? (
+                  <><Droplet size={16} /> Suggérer une action</>
+                ) : (
+                  <><HelpCircle size={16} /> Suggérer une vérité</>
+                )}
               </h3>
-              <p className="ca-help" style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: "1.4", margin: "0 0 4px 0" }}>
-                Suggère un nouveau défi farfelu ou un contenu pour la Fontaine de Vie. Après validation, il rejoindra le pool du jeu.
+              <p className="ca-help" style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: "1.4", margin: "0 0 4px 0" }}>
+                {sugCategory === "defi" 
+                  ? "Propose un défi secret pour le pool de cibles du jeu. Après validation, les joueurs pourront le piocher."
+                  : sugCategory === "action_fountain"
+                  ? "Propose une action physique ou drôle pour la Fontaine de Vie. Elle permettra aux joueurs blessés de se soigner."
+                  : "Propose une question indiscrète ou drôle pour la Fontaine de Vie. Elle permettra aux joueurs blessés de se soigner."
+                }
               </p>
 
-              {/* Boutons Poussoirs 3 Catégories */}
+              {/* Boutons Poussoirs 3 Catégories Réduits et Colorés */}
               <div style={{
                 display: "flex",
                 backgroundColor: "rgba(10, 10, 14, 0.6)",
@@ -169,26 +182,34 @@ export default function SuggestActionTab({ playerName }) {
                 borderRadius: "var(--border-radius-sm)",
                 padding: "2px",
                 margin: "4px 0 10px 0",
-                border: "1px solid rgba(245, 158, 11, 0.15)"
+                border: "1px solid rgba(245, 158, 11, 0.15)",
+                gap: "4px",
+                flexShrink: 0
               }}>
                 <button
                   type="button"
                   onClick={() => setSugCategory("defi")}
                   style={{
                     flex: 1,
-                    backgroundColor: sugCategory === "defi" ? "rgba(245, 158, 11, 0.2)" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    backgroundColor: sugCategory === "defi" ? "rgba(139, 92, 246, 0.2)" : "transparent",
                     color: sugCategory === "defi" ? "#ffffff" : "var(--text-muted)",
-                    border: sugCategory === "defi" ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid transparent",
+                    border: sugCategory === "defi" ? "1px solid var(--neon-purple)" : "1px solid transparent",
                     borderRadius: "4px",
-                    padding: "6px 2px",
-                    fontSize: "10px",
+                    padding: "4px 2px",
+                    fontSize: "9.5px",
                     fontWeight: "900",
                     textTransform: "uppercase",
                     cursor: "pointer",
                     fontFamily: "var(--font-sans)",
+                    boxShadow: sugCategory === "defi" ? "0 0 8px rgba(139, 92, 246, 0.3)" : "none",
                     transition: "all 0.2s"
                   }}
                 >
+                  <Target size={10} />
                   Défi
                 </button>
                 <button
@@ -196,109 +217,137 @@ export default function SuggestActionTab({ playerName }) {
                   onClick={() => setSugCategory("action_fountain")}
                   style={{
                     flex: 1,
-                    backgroundColor: sugCategory === "action_fountain" ? "rgba(245, 158, 11, 0.2)" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    backgroundColor: sugCategory === "action_fountain" ? "rgba(59, 130, 246, 0.2)" : "transparent",
                     color: sugCategory === "action_fountain" ? "#ffffff" : "var(--text-muted)",
-                    border: sugCategory === "action_fountain" ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid transparent",
+                    border: sugCategory === "action_fountain" ? "1px solid var(--neon-blue)" : "1px solid transparent",
                     borderRadius: "4px",
-                    padding: "6px 2px",
-                    fontSize: "10px",
+                    padding: "4px 2px",
+                    fontSize: "9.5px",
                     fontWeight: "900",
                     textTransform: "uppercase",
                     cursor: "pointer",
                     fontFamily: "var(--font-sans)",
+                    boxShadow: sugCategory === "action_fountain" ? "0 0 8px rgba(59, 130, 246, 0.3)" : "none",
                     transition: "all 0.2s"
                   }}
                 >
-                  Action Fontaine
+                  <Droplet size={10} />
+                  Action
                 </button>
                 <button
                   type="button"
                   onClick={() => setSugCategory("verite_fountain")}
                   style={{
                     flex: 1,
-                    backgroundColor: sugCategory === "verite_fountain" ? "rgba(245, 158, 11, 0.2)" : "transparent",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "4px",
+                    backgroundColor: sugCategory === "verite_fountain" ? "rgba(255, 51, 102, 0.15)" : "transparent",
                     color: sugCategory === "verite_fountain" ? "#ffffff" : "var(--text-muted)",
-                    border: sugCategory === "verite_fountain" ? "1px solid rgba(245, 158, 11, 0.4)" : "1px solid transparent",
+                    border: sugCategory === "verite_fountain" ? "1px solid var(--neon-red)" : "1px solid transparent",
                     borderRadius: "4px",
-                    padding: "6px 2px",
-                    fontSize: "10px",
+                    padding: "4px 2px",
+                    fontSize: "9.5px",
                     fontWeight: "900",
                     textTransform: "uppercase",
                     cursor: "pointer",
                     fontFamily: "var(--font-sans)",
+                    boxShadow: sugCategory === "verite_fountain" ? "0 0 8px rgba(255, 51, 102, 0.3)" : "none",
                     transition: "all 0.2s"
                   }}
                 >
-                  Vérité Fontaine
+                  <HelpCircle size={10} />
+                  Vérité
                 </button>
               </div>
 
-              <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Titre de la proposition :
-                <input
-                  type="text"
-                  placeholder="Ex: Le Vol de Chaussure"
-                  value={sugTitle}
-                  onChange={(e) => setSugTitle(e.target.value)}
-                  className="neon-input-premium"
-                  style={{ textAlign: "left" }}
-                  required
-                />
-              </label>
-
-              <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                Description de la proposition :
-                <textarea
-                  placeholder="Expliquer en quelques mots ce que le joueur doit faire ou révéler..."
-                  value={sugDesc}
-                  onChange={(e) => setSugDesc(e.target.value)}
-                  className="neon-input-premium"
-                  style={{ height: "60px", resize: "none", textAlign: "left" }}
-                  required
-                />
-              </label>
-
               {sugCategory === "defi" ? (
-                <div style={{ display: "flex", gap: "12px" }}>
-                  <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    Points :
+                <>
+                  <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Titre de la proposition :
                     <input
-                      type="number"
-                      min="0"
-                      value={sugPoints}
-                      onChange={(e) => setSugPoints(Number(e.target.value))}
+                      type="text"
+                      placeholder="Ex: Le Vol de Chaussure"
+                      value={sugTitle}
+                      onChange={(e) => setSugTitle(e.target.value)}
                       className="neon-input-premium"
+                      style={{ textAlign: "left" }}
                       required
                     />
                   </label>
-                  <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                    Dégâts (PV) :
-                    <input
-                      type="number"
-                      step="0.25"
-                      min="0"
-                      max="7"
-                      value={sugDamage}
-                      onChange={(e) => setSugDamage(Number(e.target.value))}
+
+                  <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Description de la proposition :
+                    <textarea
+                      placeholder="Expliquer en quelques mots ce que le joueur doit faire..."
+                      value={sugDesc}
+                      onChange={(e) => setSugDesc(e.target.value)}
                       className="neon-input-premium"
+                      style={{ height: "60px", resize: "none", textAlign: "left" }}
                       required
                     />
                   </label>
-                </div>
+
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Points :
+                      <input
+                        type="number"
+                        min="0"
+                        value={sugPoints}
+                        onChange={(e) => setSugPoints(Number(e.target.value))}
+                        className="neon-input-premium"
+                        required
+                      />
+                    </label>
+                    <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      Dégâts (PV) :
+                      <input
+                        type="number"
+                        step="0.25"
+                        min="0"
+                        max="7"
+                        value={sugDamage}
+                        onChange={(e) => setSugDamage(Number(e.target.value))}
+                        className="neon-input-premium"
+                        required
+                      />
+                    </label>
+                  </div>
+                </>
               ) : (
-                <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Difficulté Fontaine :
-                  <select
-                    value={sugFountainDifficulty}
-                    onChange={(e) => setSugFountainDifficulty(e.target.value)}
-                    className="neon-input-premium"
-                    style={{ textAlign: "left" }}
-                  >
-                    <option value="facile">Facile (Tier 1)</option>
-                    <option value="moyen">Moyen (Tier 2)</option>
-                    <option value="difficile">Difficile (Tier 3)</option>
-                  </select>
-                </label>
+                <>
+                  <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Intitulé de la proposition :
+                    <textarea
+                      placeholder={sugCategory === "action_fountain" ? "Ex: Faire 10 pompes devant un inconnu..." : "Ex: Quel est ton pire secret de festival ?"}
+                      value={sugDesc}
+                      onChange={(e) => setSugDesc(e.target.value)}
+                      className="neon-input-premium"
+                      style={{ height: "70px", resize: "none", textAlign: "left" }}
+                      required
+                    />
+                  </label>
+
+                  <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    Difficulté Fontaine :
+                    <select
+                      value={sugFountainDifficulty}
+                      onChange={(e) => setSugFountainDifficulty(e.target.value)}
+                      className="neon-input-premium"
+                      style={{ textAlign: "left" }}
+                    >
+                      <option value="facile">Facile (Tier 1)</option>
+                      <option value="moyen">Moyen (Tier 2)</option>
+                      <option value="difficile">Difficile (Tier 3)</option>
+                    </select>
+                  </label>
+                </>
               )}
 
               <button type="submit" className="ca-submit-btn" style={{ width: "100%", padding: "12px", fontSize: "14px", fontWeight: "800", backgroundColor: "var(--neon-gold)", color: "#000", border: "none", borderRadius: "var(--border-radius-sm)", cursor: "pointer", transition: "all 0.2s", marginTop: "8px" }}>

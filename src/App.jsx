@@ -646,15 +646,12 @@ function MainAppContent() {
           <h1>COOKI'LLERS</h1>
         </div>
         <div className="user-indicator" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {currentUser === "GM" && <span className="badge badge-juge"><Shield size={12} /> GM</span>}
-
           <button
             onClick={handleLogout}
             title="Quitter le salon"
             className="header-logout-btn"
           >
             <LogOut size={16} />
-            <span>Quitter</span>
           </button>
         </div>
       </header>

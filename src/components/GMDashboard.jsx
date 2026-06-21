@@ -1080,78 +1080,75 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         </label>
 
                         <div className="direct-action-row" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                          <div style={{ display: "flex", gap: 12, alignItems: "flex-end" }}>
-                            <label className="sug-diff-lbl" style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                              Difficulté :
-                              <select
-                                value={fountainDiff}
-                                onChange={(e) => setFountainDiff(e.target.value)}
-                                className="neon-input-premium"
-                                style={{ textAlign: "left" }}
-                              >
-                                <option value="facile">Facile (Tier 1)</option>
-                                <option value="moyen">Moyen (Tier 2)</option>
-                                <option value="difficile">Difficile (Tier 3)</option>
-                              </select>
-                            </label>
+                          <label className="sug-diff-lbl" style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                            Difficulté :
+                            <select
+                              value={fountainDiff}
+                              onChange={(e) => setFountainDiff(e.target.value)}
+                              className="neon-input-premium"
+                              style={{ textAlign: "left" }}
+                            >
+                              <option value="facile">Facile (Tier 1)</option>
+                              <option value="moyen">Moyen (Tier 2)</option>
+                              <option value="difficile">Difficile (Tier 3)</option>
+                            </select>
+                          </label>
 
-                            <div style={{ display: "flex", gap: 8 }}>
+                          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 4 }}>
+                            <button
+                              type="submit"
+                              disabled={loadingFountain}
+                              style={{
+                                backgroundColor: "var(--neon-gold)",
+                                color: "#121214",
+                                border: "none",
+                                borderRadius: "var(--border-radius-sm)",
+                                padding: "8px 12px",
+                                fontSize: "12px",
+                                fontWeight: "800",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                gap: 6,
+                                fontFamily: "var(--font-sans)",
+                                height: "38px",
+                                boxSizing: "border-box"
+                              }}
+                            >
+                              <Plus size={16} /> {loadingFountain ? "Enregistrement..." : (editingFountainId !== null ? "Enregistrer" : "Ajouter à la Pool")}
+                            </button>
+                            {editingFountainId !== null && (
                               <button
-                                type="submit"
-                                disabled={loadingFountain}
+                                type="button"
+                                onClick={cancelEditFountainChallenge}
                                 style={{
-                                  backgroundColor: "var(--neon-gold)",
-                                  color: "#121214",
-                                  border: "none",
+                                  backgroundColor: "#27272a",
+                                  border: "1px solid var(--border-color)",
+                                  color: "var(--text-primary)",
                                   borderRadius: "var(--border-radius-sm)",
                                   padding: "8px 12px",
                                   fontSize: "12px",
-                                  fontWeight: "800",
+                                  fontWeight: "700",
                                   cursor: "pointer",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  gap: 6,
                                   fontFamily: "var(--font-sans)",
                                   height: "38px",
                                   boxSizing: "border-box"
                                 }}
                               >
-                                <Plus size={16} /> {loadingFountain ? "Enregistrement..." : (editingFountainId !== null ? "Enregistrer" : "Ajouter à la Pool")}
+                                Annuler
                               </button>
-                              {editingFountainId !== null && (
-                                <button
-                                  type="button"
-                                  onClick={cancelEditFountainChallenge}
-                                  style={{
-                                    backgroundColor: "#27272a",
-                                    border: "1px solid var(--border-color)",
-                                    color: "var(--text-primary)",
-                                    borderRadius: "var(--border-radius-sm)",
-                                    padding: "8px 12px",
-                                    fontSize: "12px",
-                                    fontWeight: "700",
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontFamily: "var(--font-sans)",
-                                    height: "38px",
-                                    boxSizing: "border-box"
-                                  }}
-                                >
-                                  Annuler
-                                </button>
-                              )}
-                            </div>
+                            )}
                           </div>
                         </div>
                       </form>
                     </div>
-
-                    {/* Liste des Défis Fontaine */}
-                    <h3 style={{ marginTop: 20, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
-                      Pool Fontaine ({activeRulesSubtab === "actions" ? "Actions" : "Vérités"})
+                                     {/* Liste des Défis Fontaine */}
+                    <h3 style={{ marginTop: 24, marginBottom: 12, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
+                      {activeRulesSubtab === "actions" ? "ACTIONS" : "VERITES"}
                     </h3>
                     <div className="actions-list-container" style={{ maxHeight: "400px" }}>
                       {["facile", "moyen", "difficile"].map((diff) => {
@@ -1177,84 +1174,94 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                               </div>
                             ) : (
                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                {items.map((item) => (
-                                  <div
-                                    key={item.id}
-                                    style={{
-                                      position: "relative",
-                                      overflow: "hidden",
-                                      borderRadius: "var(--border-radius-sm)",
-                                      flexShrink: 0,
-                                      width: "100%"
-                                    }}
-                                  >
-                                    {/* Bouton de suppression rouge caché en arrière-plan */}
-                                    <div 
-                                      style={{
-                                        position: "absolute",
-                                        top: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        width: "80px",
-                                        backgroundColor: "rgba(255, 51, 102, 0.15)",
-                                        border: "1px solid rgba(255, 51, 102, 0.3)",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        zIndex: 1,
-                                        borderRadius: "var(--border-radius-sm)"
-                                      }}
-                                    >
-                                      <div style={{
-                                        textTransform: "uppercase",
-                                        fontWeight: "900",
-                                        fontSize: "10px",
-                                        letterSpacing: "0.05em",
-                                        color: "var(--neon-red)",
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        alignItems: "center",
-                                        gap: "4px"
-                                      }}>
-                                        <Trash2 size={14} />
-                                        <span>Supprimer</span>
-                                      </div>
-                                    </div>
-
-                                    {/* Composant glissable de premier plan */}
-                                    <motion.div
-                                      drag="x"
-                                      dragConstraints={{ left: -80, right: 0 }}
-                                      dragElastic={{ left: 0.1, right: 0 }}
-                                      onDragEnd={(event, info) => {
-                                        if (info.offset.x < -45) {
-                                          setDeletingFountainId(item.id);
-                                        }
-                                      }}
-                                      className={`action-item-mini ${editingFountainId === item.id ? "editing-highlight" : ""}`}
-                                      onClick={() => startEditFountainChallenge(item)}
+                                {items.map((item) => {
+                                  const isSelected = editingFountainId === item.id;
+                                  return (
+                                    <div
+                                      key={item.id}
                                       style={{
                                         position: "relative",
-                                        zIndex: 2,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        gap: "2px",
-                                        cursor: "grab",
-                                        x: 0,
-                                        background: "rgba(20, 20, 25, 0.95)",
+                                        overflow: "hidden",
+                                        borderRadius: "var(--border-radius-sm)",
+                                        flexShrink: 0,
                                         width: "100%"
                                       }}
                                     >
-                                      <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                                        <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--text-primary)", lineHeight: "1.4" }}>{item.title || item.description}</span>
-                                        <span className="action-mini-rewards" style={{ color: "var(--neon-blue)", flexShrink: 0 }}>+0.5 ❤️ HP</span>
+                                      {/* Bouton de suppression rouge caché en arrière-plan */}
+                                      <div 
+                                        style={{
+                                          position: "absolute",
+                                          top: 0,
+                                          right: 0,
+                                          bottom: 0,
+                                          width: "80px",
+                                          backgroundColor: "rgba(255, 51, 102, 0.15)",
+                                          border: "1px solid rgba(255, 51, 102, 0.3)",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          zIndex: 1,
+                                          borderRadius: "var(--border-radius-sm)"
+                                        }}
+                                      >
+                                        <div style={{
+                                          textTransform: "uppercase",
+                                          fontWeight: "900",
+                                          fontSize: "10px",
+                                          letterSpacing: "0.05em",
+                                          color: "var(--neon-red)",
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          alignItems: "center",
+                                          gap: "4px"
+                                        }}>
+                                          <Trash2 size={14} />
+                                          <span>Supprimer</span>
+                                        </div>
                                       </div>
-                                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
-                                        <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
-                                      </div>
-                                    </motion.div>
-                                  </div>
-                                ))}
+
+                                      {/* Composant glissable de premier plan */}
+                                      <motion.div
+                                        drag="x"
+                                        dragConstraints={{ left: -80, right: 0 }}
+                                        dragElastic={{ left: 0.1, right: 0 }}
+                                        onDragEnd={(event, info) => {
+                                          if (info.offset.x < -45) {
+                                            setDeletingFountainId(item.id);
+                                          }
+                                        }}
+                                        className={`action-item-mini ${isSelected ? "editing-highlight" : ""}`}
+                                        onClick={() => startEditFountainChallenge(item)}
+                                        style={{
+                                          position: "relative",
+                                          zIndex: 2,
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          gap: "2px",
+                                          cursor: "grab",
+                                          x: 0,
+                                          background: isSelected 
+                                            ? "rgba(139, 92, 246, 0.22)" 
+                                            : "rgba(20, 20, 25, 0.95)",
+                                          border: isSelected 
+                                            ? "1.5px solid var(--neon-purple)" 
+                                            : "1px solid transparent",
+                                          boxShadow: isSelected ? "0 0 10px rgba(139, 92, 246, 0.25)" : "none",
+                                          borderRadius: "var(--border-radius-sm)",
+                                          width: "100%",
+                                          transition: "all 0.2s ease"
+                                        }}
+                                      >
+                                        <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                                          <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--text-primary)", lineHeight: "1.4" }}>{item.title || item.description}</span>
+                                        </div>
+                                        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
+                                          <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
+                                        </div>
+                                      </motion.div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>

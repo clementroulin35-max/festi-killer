@@ -230,9 +230,9 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
 
       {/* 2. HUD Header V2 */}
-      <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }}>
+      <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }} style={{ overflow: "visible" }}>
         {/* Ligne 1: Avatar à gauche, Pseudo + Cœurs au milieu, ECG brut à droite */}
-        <div className="hud-top-row-v2">
+        <div className="hud-top-row-v2" style={{ position: "relative", zIndex: activeTooltip === "ecg" ? 20 : 1 }}>
           <div className="hud-profile-left-v2">
             <div className="hud-avatar-wrapper-v2">
               <div className={isZombie ? "zombie-avatar-crt" : ""}>
@@ -298,7 +298,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         </div>
 
         {/* Ligne 2: Rang à gauche, Score / Points à droite */}
-        <div className="hud-middle-row-v2">
+        <div className="hud-middle-row-v2" style={{ position: "relative", zIndex: (activeTooltip === "rank" || activeTooltip === "score") ? 20 : 1 }}>
           <div 
             className="hud-rank-wrapper-v2"
             onClick={(e) => {

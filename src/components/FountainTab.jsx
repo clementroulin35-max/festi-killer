@@ -16,8 +16,16 @@ export default function FountainTab({ playerName }) {
   const [loadingAction, setLoadingAction] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState(null);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const player = gameState.players.find((p) => p.name === playerName);
+
+  React.useEffect(() => {
+    if (player?.fountainActiveType) {
+      setSelectedType(player.fountainActiveType);
+    }
+  }, [player?.fountainActiveType]);
+
   if (!player) return null;
 
   // Calcul du palier
@@ -92,6 +100,10 @@ export default function FountainTab({ playerName }) {
     try {
       await confirmFountainChallenge(playerName);
       setIsRevealed(false); // Masquer à nouveau après validation
+      setShowSuccessModal(true);
+      setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 3000);
     } catch (err) {
       setErrorMsg(err.message || "Erreur lors de la validation.");
     } finally {
@@ -100,7 +112,7 @@ export default function FountainTab({ playerName }) {
   };
 
   return (
-    <div className="fountain-screen-layout" style={{ height: "100%" }}>
+    <div className="glass-card-blue animate-fade-in" style={{ height: "100%" }}>
       <div className="view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column", paddingBottom: "10px", justifyContent: "space-between" }}>
         
         {/* 1. Titre de l'écran en premier */}
@@ -108,9 +120,6 @@ export default function FountainTab({ playerName }) {
           <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-blue)", textTransform: "uppercase", margin: 0 }}>
             Fontaine de Vie
           </h2>
-          <span style={{ fontSize: "10px", color: tierColor, fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-            {tierLabel} (Défi {difficulty})
-          </span>
         </div>
 
         {/* 2. Courte description de l'écran */}
@@ -162,36 +171,24 @@ export default function FountainTab({ playerName }) {
           </div>
         )}
 
-        {/* 3. Switch stylisé Action/Vérité sur deux lignes avec gain joint */}
-        <div style={{
-          display: "flex",
-          flexDirection: "column",
-          backgroundColor: "rgba(10, 10, 14, 0.6)",
-          backdropFilter: "blur(8px)",
-          borderRadius: "var(--border-radius-sm)",
-          border: "1px solid rgba(59, 130, 246, 0.3)",
-          overflow: "hidden",
-          width: "100%",
-          maxWidth: "240px",
-          margin: "0 auto 14px auto",
-          flexShrink: 0
-        }}>
-          {/* Ligne 1 : Boutons */}
-          <div style={{ display: "flex", padding: "2px" }}>
+        {/* 3. Switch sous forme de boutons-poussoirs individuels */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "14px" }}>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center", width: "100%" }}>
             <button
               onClick={() => setSelectedType("action")}
               disabled={isFountainDisabled || hasActiveChallenge}
               style={{
                 flex: 1,
-                backgroundColor: selectedType === "action" ? "rgba(59, 130, 246, 0.25)" : "transparent",
+                backgroundColor: selectedType === "action" ? "rgba(59, 130, 246, 0.25)" : "rgba(255, 255, 255, 0.02)",
+                border: selectedType === "action" ? "1.5px solid var(--neon-blue)" : "1px solid var(--border-color)",
                 color: selectedType === "action" ? "#ffffff" : "var(--text-muted)",
-                border: "none",
-                borderRadius: "4px 0 0 4px",
-                padding: "6px 4px",
+                borderRadius: "var(--border-radius-sm)",
+                padding: "8px 12px",
                 fontSize: "11px",
                 fontWeight: "900",
                 textTransform: "uppercase",
                 cursor: (isFountainDisabled || hasActiveChallenge) ? "default" : "pointer",
+                boxShadow: selectedType === "action" ? "0 0 10px rgba(59, 130, 246, 0.3)" : "none",
                 transition: "all 0.2s"
               }}
             >
@@ -202,15 +199,16 @@ export default function FountainTab({ playerName }) {
               disabled={isFountainDisabled || hasActiveChallenge}
               style={{
                 flex: 1,
-                backgroundColor: selectedType === "verite" ? "rgba(59, 130, 246, 0.25)" : "transparent",
+                backgroundColor: selectedType === "verite" ? "rgba(59, 130, 246, 0.25)" : "rgba(255, 255, 255, 0.02)",
+                border: selectedType === "verite" ? "1.5px solid var(--neon-blue)" : "1px solid var(--border-color)",
                 color: selectedType === "verite" ? "#ffffff" : "var(--text-muted)",
-                border: "none",
-                borderRadius: "0 4px 4px 0",
-                padding: "6px 4px",
+                borderRadius: "var(--border-radius-sm)",
+                padding: "8px 12px",
                 fontSize: "11px",
                 fontWeight: "900",
                 textTransform: "uppercase",
                 cursor: (isFountainDisabled || hasActiveChallenge) ? "default" : "pointer",
+                boxShadow: selectedType === "verite" ? "0 0 10px rgba(59, 130, 246, 0.3)" : "none",
                 transition: "all 0.2s"
               }}
             >
@@ -219,19 +217,17 @@ export default function FountainTab({ playerName }) {
           </div>
           {/* Ligne 2 : Gain joint */}
           <div style={{
-            backgroundColor: "rgba(59, 130, 246, 0.1)",
-            borderTop: "1px solid rgba(59, 130, 246, 0.2)",
-            padding: "4px 8px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: "6px",
             fontSize: "11px",
             fontWeight: "800",
-            color: "var(--neon-green)"
+            color: "var(--text-secondary)",
+            marginTop: "2px"
           }}>
-            <span>Gain : +0.5</span>
-            <Heart size={12} fill="currentColor" style={{ display: "inline-block" }} />
+            <span>Le Gain : +0.5</span>
+            <Heart size={12} fill="var(--neon-red)" style={{ color: "var(--neon-red)", display: "inline-block" }} />
           </div>
         </div>
 
@@ -332,7 +328,7 @@ export default function FountainTab({ playerName }) {
             </div>
           </div>
 
-          {/* Prop Fontaine */}
+          {/* Prop Fontaine avec Tier au-dessus */}
           <div
             onClick={handleFountainClick}
             style={{
@@ -343,6 +339,9 @@ export default function FountainTab({ playerName }) {
               justifyContent: "center"
             }}
           >
+            <span style={{ fontSize: "10px", color: tierColor, fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px" }}>
+              {tierLabel} (Défi {difficulty})
+            </span>
             <motion.img
               src={fountainImg}
               alt="Fontaine de Vie"
@@ -378,43 +377,38 @@ export default function FountainTab({ playerName }) {
           </div>
         </div>
 
-        {/* 5. Cadre de défi sous la fontaine */}
-        <div style={{ width: "100%", flexShrink: 0, marginTop: "10px" }}>
+        {/* 5. Espace interactif sous la fontaine */}
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "60px", marginTop: "10px" }}>
           <AnimatePresence mode="wait">
-            {!hasActiveChallenge || !isRevealed ? (
+            {!isRevealed || !hasActiveChallenge ? (
               <motion.div
-                key="no-challenge"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
+                key="reveal-prompt"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
+                onClick={handleFountainClick}
                 style={{
-                  width: "100%",
-                  maxWidth: "300px",
-                  margin: "0 auto",
-                  background: "rgba(10, 10, 15, 0.4)",
-                  border: "1px dashed rgba(59, 130, 246, 0.25)",
-                  borderRadius: "var(--border-radius-sm)",
-                  padding: "14px",
-                  textAlign: "center",
-                  color: "var(--text-muted)",
-                  fontSize: "12px",
-                  fontWeight: "800",
+                  fontStyle: "italic",
                   textTransform: "uppercase",
-                  letterSpacing: "0.05em"
+                  color: "var(--text-muted)",
+                  fontSize: "13px",
+                  fontWeight: "800",
+                  letterSpacing: "0.08em",
+                  cursor: isFountainActive ? "pointer" : "default",
+                  textAlign: "center"
                 }}
               >
-                Boire la source pour réveler
+                BOIRE LA SOURCE POUR RÉVÉLER
               </motion.div>
             ) : (
               <motion.div
-                key="challenge"
+                key="challenge-card"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 style={{
                   width: "100%",
                   maxWidth: "300px",
-                  margin: "0 auto",
                   background: "linear-gradient(135deg, rgba(20, 20, 28, 0.95) 0%, rgba(10, 10, 15, 0.98) 100%)",
                   border: "1px solid rgba(59, 130, 246, 0.45)",
                   boxShadow: "0 0 15px rgba(59, 130, 246, 0.25)",
@@ -426,8 +420,8 @@ export default function FountainTab({ playerName }) {
                   textAlign: "center"
                 }}
               >
-                <div style={{ display: "flex", flexDirection: "column", padding: "10px 0" }}>
-                  <h3 style={{ fontSize: "17px", fontWeight: "900", color: "#ffffff", margin: 0, lineHeight: "1.4" }}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <h3 style={{ fontSize: "15px", fontWeight: "900", color: "#ffffff", margin: 0, lineHeight: "1.4" }}>
                     « {player.fountainActiveTitle || player.fountainActiveDescription} »
                   </h3>
                 </div>
@@ -482,7 +476,7 @@ export default function FountainTab({ playerName }) {
                     }}
                   >
                     <Check size={12} />
-                    Valider
+                    Accepter
                   </button>
                 </div>
               </motion.div>
@@ -510,6 +504,39 @@ export default function FountainTab({ playerName }) {
         )}
 
       </div>
+
+      {/* Success Modal popup */}
+      <AnimatePresence>
+        {showSuccessModal && (
+          <motion.div
+            className="confirm-modal-backdrop-v2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 12000 }}
+          >
+            <motion.div
+              className="confirm-modal-v2"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              style={{ borderColor: "rgba(16, 185, 129, 0.4)", boxShadow: "0 0 20px rgba(16, 185, 129, 0.25)" }}
+            >
+              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-green)" }}>Soin Reçu ! 💖</h3>
+              <p className="confirm-modal-body-v2">
+                Félicitations ! Vous venez de récupérer <strong style={{ color: "var(--neon-red)" }}>+0.5 cœur</strong>.
+              </p>
+              <button
+                className="confirm-btn-primary-v2"
+                style={{ backgroundColor: "var(--neon-green)", color: "#121214", width: "100%", marginTop: "10px" }}
+                onClick={() => setShowSuccessModal(false)}
+              >
+                OK
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
