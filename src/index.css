@@ -3415,6 +3415,27 @@ select option {
   z-index: 10;
 }
 
+.hud-header-v2.alive-hud-crt {
+  position: relative;
+}
+
+.hud-header-v2.alive-hud-crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: crtFlicker 0.25s infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
 /* === TACTICAL ACTION BAR === */
 .tactical-bar {
   display: flex;
@@ -3784,7 +3805,7 @@ select option {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(139, 92, 246, 0.15);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  border-radius: var(--border-radius-lg);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -3986,20 +4007,21 @@ select option {
   border-radius: var(--border-radius-lg);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #2e2e38; /* Gris anthracite constant */
   background: rgba(20, 20, 26, 0.75);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
-  height: 100%;
-  flex: 1;
+  max-height: 100%;
+  flex: 0 1 auto;
   justify-content: space-between;
 }
 
-.tarot-card-v2.rarity-micro { border-color: rgba(16, 185, 129, 0.3); }
-.tarot-card-v2.rarity-standard { border-color: rgba(59, 130, 246, 0.3); }
-.tarot-card-v2.rarity-majeur { border-color: rgba(139, 92, 246, 0.4); }
-.tarot-card-v2.rarity-legendaire { border-color: rgba(245, 158, 11, 0.45); }
+/* Les bordures ne changent pas de couleur selon la rareté */
+/* .tarot-card-v2.rarity-micro { border-color: rgba(16, 185, 129, 0.3); } */
+/* .tarot-card-v2.rarity-standard { border-color: rgba(59, 130, 246, 0.3); } */
+/* .tarot-card-v2.rarity-majeur { border-color: rgba(139, 92, 246, 0.4); } */
+/* .tarot-card-v2.rarity-legendaire { border-color: rgba(245, 158, 11, 0.45); } */
 
 /* Swipe action visual indicators */
 .tarot-indicator-left, .tarot-indicator-right {
@@ -4712,7 +4734,7 @@ select option {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(139, 92, 246, 0.15);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+  border-radius: var(--border-radius-lg);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -4880,7 +4902,7 @@ select option {
   height: 4px; /* Fin et épuré */
   background: rgba(255, 255, 255, 0.08);
   border: none;
-  border-radius: 0;
+  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
   overflow: hidden;
   box-shadow: none;
   background-image: none;
@@ -5279,6 +5301,7 @@ select option {
 .tarot-card-container-v2 {
   display: flex;
   justify-content: center;
+  align-items: center;
   flex: 1;
   min-height: 0;
   width: 100%;
@@ -5290,8 +5313,8 @@ select option {
   align-items: center;
   width: 100%;
   max-width: 420px;
-  height: 100%;
-  flex: 1;
+  max-height: 100%;
+  flex: 0 1 auto;
 }
 
 /* Écrans Dénoncer / Idées en hauteur flexible */

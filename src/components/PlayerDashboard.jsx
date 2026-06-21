@@ -225,8 +225,8 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-       {/* 2. HUD Header V2 */}
-      <motion.div className={`hud-header-v2 ${isZombie ? "zombie-hud-crt" : ""}`} layout transition={{ duration: 0.3 }} style={{ overflow: "visible" }}>
+      {/* 2. HUD Header V2 */}
+      <motion.div className={`hud-header-v2 ${isZombie ? "zombie-hud-crt" : "alive-hud-crt"}`} layout transition={{ duration: 0.3 }} style={{ overflow: "visible" }}>
         {/* Ligne 1: Avatar à gauche, Pseudo + Cœurs au milieu, ECG brut à droite */}
         <div className="hud-top-row-v2" style={{ position: "relative", zIndex: activeTooltip === "ecg" ? 20 : 1 }}>
           <div className="hud-profile-left-v2">

@@ -57,6 +57,9 @@ export default function FountainTab({ playerName }) {
   // Fontaine active si non zombie, non full lives et utilisations restantes (peu importe si défi en cours ou non)
   const isFountainActive = !player.isZombie && !isFullHealth && usesLeft > 0;
 
+  // Soin grisé si le joueur a toute sa vie
+  const isUsesActive = usesLeft > 0 && !player.isZombie && !isFullHealth;
+
   const handleSwitchType = async (type) => {
     if (isFountainDisabled || loadingAction) return;
     setSelectedType(type);
@@ -300,20 +303,20 @@ export default function FountainTab({ playerName }) {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "4px",
-                background: (usesLeft > 0 && !player.isZombie) ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.02)",
-                border: (usesLeft > 0 && !player.isZombie) ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
-                opacity: (usesLeft > 0 && !player.isZombie) ? 1 : 0.4,
+                background: isUsesActive ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.02)",
+                border: isUsesActive ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
+                opacity: isUsesActive ? 1 : 0.4,
                 borderRadius: "var(--border-radius-sm)",
                 width: "36px",
                 height: "36px",
                 cursor: "pointer",
                 position: "relative",
-                boxShadow: (usesLeft > 0 && !player.isZombie) ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
+                boxShadow: isUsesActive ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
                 boxSizing: "border-box"
               }}
             >
-              <Heart size={13} fill={(usesLeft > 0 && !player.isZombie) ? "var(--neon-gold)" : "var(--text-muted)"} style={{ color: (usesLeft > 0 && !player.isZombie) ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: (usesLeft > 0 && !player.isZombie) ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{usesLeft}</span>
+              <Heart size={13} fill={isUsesActive ? "var(--neon-gold)" : "var(--text-muted)"} style={{ color: isUsesActive ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
+              <span style={{ fontSize: "11px", fontWeight: "900", color: isUsesActive ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{usesLeft}</span>
               <AnimatePresence>
                 {activeTooltip === "uses" && (
                   <HelperTooltip
@@ -540,16 +543,9 @@ export default function FountainTab({ playerName }) {
               style={{ borderColor: "rgba(16, 185, 129, 0.4)", boxShadow: "0 0 20px rgba(16, 185, 129, 0.25)" }}
             >
               <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-green)" }}>Soin Reçu ! 💖</h3>
-              <p className="confirm-modal-body-v2">
+              <p className="confirm-modal-body-v2" style={{ marginBottom: 0 }}>
                 Félicitations ! Vous venez de récupérer <strong style={{ color: "var(--neon-red)" }}>+0.5 cœur</strong>.
               </p>
-              <button
-                className="confirm-btn-primary-v2"
-                style={{ backgroundColor: "var(--neon-green)", color: "#121214", width: "100%", marginTop: "10px" }}
-                onClick={() => setShowSuccessModal(false)}
-              >
-                OK
-              </button>
             </motion.div>
           </motion.div>
         )}
