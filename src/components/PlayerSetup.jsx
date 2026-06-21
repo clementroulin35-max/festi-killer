@@ -2,13 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { useGame } from "../context/GameContext";
 import { 
   Camera, Upload, RotateCcw, Check, AlertCircle, RefreshCw,
-  Skull, Target, Shuffle, ShieldAlert, Zap, ChevronRight, ChevronLeft
+  Skull, Target, Shuffle, ShieldAlert, Zap, ChevronRight, ChevronLeft, Droplet
 } from "lucide-react";
 
 export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }) {
   const { savePlayerPhoto } = useGame();
   
-  // Carousel state: 0 to 4 are tutorial slides, 5 is the final photo configuration step
+  // Carousel state: 0 to 5 are tutorial slides, 6 is the final photo configuration step
   const [currentSlide, setCurrentSlide] = useState(initialSlide);
   
   const [stream, setStream] = useState(null);
@@ -27,9 +27,9 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // Start/Stop camera only when the user is on the final photo setup slide (slide 5)
+  // Start/Stop camera only when the user is on the final photo setup slide (slide 6)
   useEffect(() => {
-    if (currentSlide === 5) {
+    if (currentSlide === 6) {
       startCamera();
     } else {
       stopCamera();
@@ -146,13 +146,13 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
     if (onComplete) onComplete();
   };
 
-  // Skip tutorial entirely and jump to photo setup (Slide 5)
+  // Skip tutorial entirely and jump to photo setup (Slide 6)
   const handleSkipTutorial = () => {
-    setCurrentSlide(5);
+    setCurrentSlide(6);
   };
 
   const nextSlide = () => {
-    setCurrentSlide(prev => Math.min(5, prev + 1));
+    setCurrentSlide(prev => Math.min(6, prev + 1));
   };
 
   const prevSlide = () => {
@@ -208,7 +208,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
             </p>
             <div className="slide-points">
               <div className="point-item">🎲 <strong>Reroll Action (Skip)</strong> : Coûte 1 skip (change de défi, garde la cible).</div>
-              <div className="point-item">🏳️ <strong>Reroll Cible (Abandon)</strong> : Pénalité d'un cœur de vie ou 150 points (change de cible).</div>
+              <div className="point-item">🏳️ <strong>Reroll Cible (Abandon)</strong> : Pénalité de 0.5 cœur de vie ou 50 points (change de cible).</div>
               <div className="point-item">🔋 <strong>Gagne des Skips</strong> : +1 skip chaque matin et +1 skip par hit validé.</div>
             </div>
           </div>
@@ -243,7 +243,24 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
             <div className="slide-points">
               <div className="point-item">💀 <strong>Insaisissable</strong> : Les vivants ne peuvent plus te cibler.</div>
               <div className="point-item">🪙 <strong>Score pénalisé</strong> : Tes hits validés ne rapportent plus que la moitié des points.</div>
-              <div className="point-item">🧟 <strong>Pas de résurrection</strong> : Tu restes Zombie, mais tu continues à engranger des points.</div>
+              <div className="point-item">🧟 <strong>Pas de résurrection automatique</strong> : Ressuscite avec la Fontaine ou par le GM.</div>
+            </div>
+          </div>
+        );
+      case 5:
+        return (
+          <div className="tutorial-slide animate-fade-in">
+            <div className="slide-icon-container" style={{ borderColor: "var(--neon-blue)", boxShadow: "0 0 10px rgba(59, 130, 246, 0.2)" }}>
+              <Droplet size={36} style={{ color: "var(--neon-blue)" }} />
+            </div>
+            <h3>La Fontaine de Vie</h3>
+            <p className="slide-intro">
+              Besoin de regagner de l'énergie ? Va boire à la Fontaine de Vie pour soigner tes blessures !
+            </p>
+            <div className="slide-points">
+              <div className="point-item">⛲ <strong>Soin (+0.5 ❤️)</strong> : Réalise un défi Action ou Vérité (max 2 soins validés par jour).</div>
+              <div className="point-item">🔄 <strong>Relances</strong> : Tu as 3 refreshes par jour pour changer de défi de fontaine.</div>
+              <div className="point-item">🧬 <strong>Résurrection Zombie</strong> : Valider un soin te redonne 0.5 cœur et te réintègre en vie.</div>
             </div>
           </div>
         );
@@ -436,7 +453,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
 
           {/* Dots Indicator */}
           <div className="carousel-dots" style={{ display: "flex", gap: "8px" }}>
-            {[0, 1, 2, 3, 4, 5].map((idx) => (
+            {[0, 1, 2, 3, 4, 5, 6].map((idx) => (
               <div 
                 key={idx}
                 className={`dot ${currentSlide === idx ? "active" : ""}`}
@@ -449,7 +466,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
                   cursor: idx <= currentSlide ? "pointer" : "not-allowed"
                 }}
                 onClick={() => {
-                  if (idx <= currentSlide || idx === 5) {
+                  if (idx <= currentSlide || idx === 6) {
                     setCurrentSlide(idx);
                   }
                 }}
@@ -458,7 +475,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
           </div>
 
           {/* Right Arrow / Action Button */}
-          {currentSlide < 5 ? (
+          {currentSlide < 6 ? (
             <button 
               onClick={nextSlide}
               className="carousel-nav-arrow"

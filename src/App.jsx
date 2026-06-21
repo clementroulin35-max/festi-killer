@@ -7,10 +7,11 @@ import Leaderboard from "./components/Leaderboard";
 import PlayerSetup from "./components/PlayerSetup";
 import CounterAttackTab from "./components/CounterAttackTab";
 import SuggestActionTab from "./components/SuggestActionTab";
+import FountainTab from "./components/FountainTab";
 import PinPad from "./components/PinPad";
 import {
   Skull, Users, Shield, Trophy, User,
-  ShieldAlert, Lightbulb, Award, QrCode, LogOut, Loader2
+  ShieldAlert, Lightbulb, Award, QrCode, LogOut, Loader2, Droplet
 } from "lucide-react";
 import heroImage from "./assets/hero-removebg.png";
 
@@ -240,6 +241,8 @@ function MainAppContent() {
         return <CounterAttackTab playerName={currentUser} logo={heroImage} />;
       case "suggest":
         return <SuggestActionTab playerName={currentUser} />;
+      case "fountain":
+        return <FountainTab playerName={currentUser} />;
       case "arbitrage":
         return <GMDashboard gmTab="arbitrage" />;
       case "gm_mode":
@@ -270,7 +273,7 @@ function MainAppContent() {
 
         // If player has no photo set or is actively editing it, force/redirect to onboarding
         if (currentPlayer && ((!currentPlayer.photo && currentPlayer.photo !== "skipped") || editPhotoActive)) {
-          return <PlayerSetup playerName={currentUser} initialSlide={editPhotoActive ? 5 : 0} onComplete={() => setEditPhotoActive(false)} />;
+          return <PlayerSetup playerName={currentUser} initialSlide={editPhotoActive ? 6 : 0} onComplete={() => setEditPhotoActive(false)} />;
         }
 
         return <PlayerDashboard playerName={currentUser} onEditPhoto={() => setEditPhotoActive(true)} />;
@@ -678,17 +681,11 @@ function MainAppContent() {
         {currentUser === "GM" && (
           <>
             <button
-              onClick={() => setActiveTab("arbitrage")}
-              className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
-              style={{ position: "relative" }}
+              onClick={() => setActiveTab("leaderboard")}
+              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
             >
-              <Shield size={20} />
-              <span>Actions</span>
-              {pendingEvents.length > 0 && (
-                <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
-                  {pendingEvents.length}
-                </span>
-              )}
+              <Trophy size={20} />
+              <span>Classement</span>
             </button>
 
             <button
@@ -708,11 +705,17 @@ function MainAppContent() {
             </button>
 
             <button
-              onClick={() => setActiveTab("leaderboard")}
-              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
+              onClick={() => setActiveTab("arbitrage")}
+              className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
+              style={{ position: "relative" }}
             >
-              <Trophy size={20} />
-              <span>Classement</span>
+              <Shield size={20} />
+              <span>Actions</span>
+              {pendingEvents.length > 0 && (
+                <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
+                  {pendingEvents.length}
+                </span>
+              )}
             </button>
 
             <button
@@ -721,6 +724,14 @@ function MainAppContent() {
             >
               <Award size={20} />
               <span>Défis</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("fountain_gm")}
+              className={`nav-item ${activeTab === "fountain_gm" ? "active" : ""}`}
+            >
+              <Droplet size={20} />
+              <span>Fontaine</span>
             </button>
           </>
         )}
@@ -742,6 +753,14 @@ function MainAppContent() {
             >
               <Skull size={20} />
               <span>Mission</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("fountain")}
+              className={`nav-item ${activeTab === "fountain" ? "active" : ""}`}
+            >
+              <Droplet size={20} />
+              <span>Fontaine</span>
             </button>
 
             <button

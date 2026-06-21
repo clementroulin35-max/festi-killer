@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGame } from "../context/GameContext";
+import { supabase } from "../services/supabaseClient";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { parseMessageToJSX } from "../utils/parseLogMessage";
 import { 
@@ -63,6 +64,76 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
   // Suggestion custom edits map (stores { points, damage } for each pending suggestion)
   const [suggestionEdits, setSuggestionEdits] = useState({});
+
+  // --- FONTAINE DE VIE GM STATE & HANDLERS ---
+  const [fountainPool, setFountainPool] = useState([]);
+  const [fountainTitle, setFountainTitle] = useState("");
+  const [fountainDesc, setFountainDesc] = useState("");
+  const [fountainType, setFountainType] = useState("action");
+  const [fountainDiff, setFountainDiff] = useState("facile");
+  const [loadingFountain, setLoadingFountain] = useState(false);
+  const [deletingFountainId, setDeletingFountainId] = useState(null);
+
+  const fetchFountainPool = async () => {
+    if (!gameCode) return;
+    const { data, error } = await supabase
+      .from("fountain_pool")
+      .select("*")
+      .eq("game_code", gameCode)
+      .order("created_at", { ascending: false });
+    if (!error && data) {
+      setFountainPool(data);
+    }
+  };
+
+  useEffect(() => {
+    if (gmTab === "fountain" && gameCode) {
+      fetchFountainPool();
+    }
+  }, [gmTab, gameCode]);
+
+  const handleAddFountainChallenge = async (e) => {
+    e.preventDefault();
+    if (!fountainTitle.trim() || !fountainDesc.trim()) return;
+    setLoadingFountain(true);
+    try {
+      const { error } = await supabase
+        .from("fountain_pool")
+        .insert({
+          game_code: gameCode,
+          type: fountainType,
+          title: fountainTitle.trim(),
+          description: fountainDesc.trim(),
+          difficulty: fountainDiff
+        });
+
+      if (error) throw error;
+      showToast("Défi Fontaine ajouté !", "success");
+      setFountainTitle("");
+      setFountainDesc("");
+      await fetchFountainPool();
+    } catch (err) {
+      showToast(err.message || "Erreur d'ajout", "error");
+    } finally {
+      setLoadingFountain(false);
+    }
+  };
+
+  const handleDeleteFountainChallenge = async (id) => {
+    try {
+      const { error } = await supabase
+        .from("fountain_pool")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+      showToast("Défi Fontaine supprimé !", "success");
+      await fetchFountainPool();
+    } catch (err) {
+      showToast(err.message || "Erreur de suppression", "error");
+    } finally {
+      setDeletingFountainId(null);
+    }
+  };
 
   // Filters
   const pendingEvents = gameState.history.filter((h) => h.status === "pending");
@@ -476,22 +547,14 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                             <div 
                               key={p.name} 
                               onClick={() => startEditPlayer(p)}
-                              className={`judge-player-horizontal-card ${p.isZombie ? "zombie-player" : ""} ${!p.target ? "player-inactive-card" : ""} ${isSelected ? "selected-card" : ""}`}
+                              className={`judge-player-horizontal-card ${isSelected ? "selected-card" : ""}`}
                               style={{
                                 width: "100%",
                                 background: isSelected 
                                   ? "rgba(139, 92, 246, 0.22)" 
-                                  : p.isZombie
-                                  ? "rgba(16, 185, 129, 0.08)"
-                                  : !p.target
-                                  ? "rgba(59, 130, 246, 0.06)"
                                   : "rgba(24, 24, 31, 0.65)",
                                 border: isSelected 
                                   ? "1.5px solid var(--neon-purple)" 
-                                  : p.isZombie
-                                  ? "1px solid rgba(16, 185, 129, 0.4)"
-                                  : !p.target
-                                  ? "1px solid rgba(59, 130, 246, 0.3)"
                                   : "1px solid rgba(255, 255, 255, 0.08)",
                                 borderRadius: "var(--border-radius-sm)",
                                 padding: "10px 12px",
@@ -513,7 +576,33 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                     <img src={defaultAvatar} alt={p.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
                                   )}
                                   <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                                    <strong style={{ fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>{p.name}</strong>
+                                    <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                      <strong style={{ fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>{p.name}</strong>
+                                      {p.isZombie && (
+                                        <span style={{
+                                          fontSize: "8.5px",
+                                          fontWeight: "900",
+                                          backgroundColor: "rgba(239, 68, 68, 0.15)",
+                                          color: "var(--neon-red)",
+                                          border: "1px solid rgba(239, 68, 68, 0.4)",
+                                          borderRadius: "4px",
+                                          padding: "1px 4px",
+                                          textTransform: "uppercase"
+                                        }}>Zombie</span>
+                                      )}
+                                      {!p.target && (
+                                        <span style={{
+                                          fontSize: "8.5px",
+                                          fontWeight: "900",
+                                          backgroundColor: "rgba(59, 130, 246, 0.15)",
+                                          color: "var(--neon-blue)",
+                                          border: "1px solid rgba(59, 130, 246, 0.4)",
+                                          borderRadius: "4px",
+                                          padding: "1px 4px",
+                                          textTransform: "uppercase"
+                                        }}>Gelé</span>
+                                      )}
+                                    </div>
                                     <span style={{ fontSize: "10px", color: "var(--text-muted)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                                       Cible : <strong style={{ color: "var(--neon-red)" }}>{p.target || "Aucune"}</strong>
                                     </span>
@@ -915,8 +1004,223 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
             </div>
           </div>
         )}
+        {/* --- 6. FOUNTAIN TAB --- */}
+        {gmTab === "fountain" && (
+          <div className="auth-screen-layout">
+            <div className="view-scroll-content">
+              {/* Formulaire d'ajout */}
+              <div className="glass-card" style={{ width: "100%", marginBottom: "16px" }}>
+                <h2 style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", marginBottom: "12px", textAlign: "center" }}>
+                  Ajouter un Défi Fontaine
+                </h2>
+                <form onSubmit={handleAddFountainChallenge} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                    Titre du défi :
+                    <input
+                      type="text"
+                      value={fountainTitle}
+                      onChange={(e) => setFountainTitle(e.target.value)}
+                      required
+                      placeholder="Ex: Confesser ton plus grand secret"
+                      className="neon-input-premium"
+                      style={{ textAlign: "left" }}
+                    />
+                  </label>
+
+                  <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                    Description :
+                    <textarea
+                      value={fountainDesc}
+                      onChange={(e) => setFountainDesc(e.target.value)}
+                      required
+                      placeholder="Décrire ce que le joueur doit faire ou dire..."
+                      className="neon-input-premium"
+                      rows={3}
+                      style={{ textAlign: "left", height: "60px", resize: "none", paddingTop: "8px" }}
+                    />
+                  </label>
+
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                      Type :
+                      <select
+                        value={fountainType}
+                        onChange={(e) => setFountainType(e.target.value)}
+                        className="neon-input-premium"
+                        style={{ textAlign: "left" }}
+                      >
+                        <option value="action">Action</option>
+                        <option value="verite">Vérité</option>
+                      </select>
+                    </label>
+
+                    <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                      Difficulté :
+                      <select
+                        value={fountainDiff}
+                        onChange={(e) => setFountainDiff(e.target.value)}
+                        className="neon-input-premium"
+                        style={{ textAlign: "left" }}
+                      >
+                        <option value="facile">Facile (Tier 1)</option>
+                        <option value="moyen">Moyen (Tier 2)</option>
+                        <option value="difficile">Difficile (Tier 3)</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loadingFountain}
+                    className="ca-submit-btn"
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      fontSize: "12px",
+                      fontWeight: "900",
+                      backgroundColor: "var(--neon-blue)",
+                      border: "none",
+                      borderRadius: "var(--border-radius-sm)",
+                      cursor: "pointer",
+                      marginTop: "4px"
+                    }}
+                  >
+                    {loadingFountain ? "Ajout..." : "AJOUTER AU POOL"}
+                  </button>
+                </form>
+              </div>
+
+              {/* Liste des défis classés par difficulté */}
+              <div className="glass-card" style={{ width: "100%" }}>
+                <h2 style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", marginBottom: "12px", textAlign: "center" }}>
+                  Pool de la Fontaine ({fountainPool.length})
+                </h2>
+
+                {["facile", "moyen", "difficile"].map((diff) => {
+                  const items = fountainPool.filter(c => c.difficulty === diff);
+                  return (
+                    <div key={diff} style={{ marginBottom: "16px" }}>
+                      <h3 style={{
+                        fontSize: "12px",
+                        fontWeight: "900",
+                        textTransform: "uppercase",
+                        color: diff === "facile" ? "var(--neon-green)" : diff === "moyen" ? "var(--neon-blue)" : "var(--neon-gold)",
+                        borderBottom: "1px solid rgba(255,255,255,0.08)",
+                        paddingBottom: "4px",
+                        marginBottom: "8px"
+                      }}>
+                        {diff === "facile" ? "🟢 Facile" : diff === "moyen" ? "🔵 Moyen" : "🔥 Difficile"} ({items.length})
+                      </h3>
+
+                      {items.length === 0 ? (
+                        <div style={{ fontSize: "11px", color: "var(--text-muted)", padding: "4px 8px" }}>
+                          Aucun défi de cette difficulté.
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                          {items.map((item) => (
+                            <div
+                              key={item.id}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                background: "rgba(24, 24, 31, 0.65)",
+                                border: "1px solid rgba(255,255,255,0.05)",
+                                borderRadius: "var(--border-radius-sm)",
+                                padding: "8px 10px",
+                                gap: "8px"
+                              }}
+                            >
+                              <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1, textAlign: "left" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                  <span style={{
+                                    fontSize: "8px",
+                                    fontWeight: "900",
+                                    textTransform: "uppercase",
+                                    backgroundColor: item.type === "action" ? "rgba(59, 130, 246, 0.15)" : "rgba(139, 92, 246, 0.15)",
+                                    color: item.type === "action" ? "var(--neon-blue)" : "var(--neon-purple)",
+                                    borderRadius: "3px",
+                                    padding: "1px 4px"
+                                  }}>{item.type}</span>
+                                  <strong style={{ fontSize: "12px", color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.title}</strong>
+                                </div>
+                                <span style={{ fontSize: "10.5px", color: "var(--text-secondary)", marginTop: "2px", lineHeight: "1.3" }}>
+                                  {item.description}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => setDeletingFountainId(item.id)}
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "var(--neon-red)",
+                                  cursor: "pointer",
+                                  padding: "4px",
+                                  flexShrink: 0
+                                }}
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
+
+      {/* Pop-up de confirmation de suppression Fontaine pour le GM */}
+      <AnimatePresence>
+        {deletingFountainId && (
+          <motion.div
+            className="confirm-modal-backdrop-v2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 11000 }}
+          >
+            <motion.div
+              className="confirm-modal-v2 type-red"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            >
+              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)", textTransform: "uppercase" }}>Supprimer le défi Fontaine ?</h3>
+              <p className="confirm-modal-body-v2">
+                Es-tu sûr de vouloir supprimer définitivement ce défi du pool de la fontaine ?
+              </p>
+
+              <div className="confirm-action-btns-v2">
+                <button
+                  className="confirm-btn-primary-v2"
+                  style={{ backgroundColor: "var(--neon-red)", color: "#fff" }}
+                  onClick={() => {
+                    handleDeleteFountainChallenge(deletingFountainId);
+                  }}
+                >
+                  Supprimer
+                </button>
+                <button 
+                  className="confirm-btn-cancel-v2" 
+                  onClick={() => {
+                    setDeletingFountainId(null);
+                  }}
+                >
+                  Annuler
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Double confirmation modal for game reset */}
       {showResetConfirmStep > 0 && (

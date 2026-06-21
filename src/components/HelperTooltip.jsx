@@ -1,7 +1,20 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export default function HelperTooltip({ text, position = "top", onClose }) {
+export default function HelperTooltip({ text, position = "top", align = "center", onClose }) {
+  // Styles dynamiques de positionnement horizontal
+  const alignStyle = align === "left" 
+    ? { left: 0, transform: "none" } 
+    : align === "right" 
+    ? { right: 0, left: "auto", transform: "none" } 
+    : { left: "50%", transform: "translateX(-50%)" };
+
+  const arrowStyle = align === "left"
+    ? { left: "20px", transform: "none" }
+    : align === "right"
+    ? { right: "20px", left: "auto", transform: "none" }
+    : { left: "50%", transform: "translateX(-50%)" };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9, y: position === "top" ? 8 : -8 }}
@@ -11,12 +24,11 @@ export default function HelperTooltip({ text, position = "top", onClose }) {
         e.stopPropagation();
         onClose();
       }}
-      className={`absolute-helper-tooltip position-${position}`}
+      className={`absolute-helper-tooltip position-${position} align-${align}`}
       style={{
         position: "absolute",
         [position === "top" ? "bottom" : "top"]: "calc(100% + 8px)",
-        left: "50%",
-        transform: "translateX(-50%)",
+        ...alignStyle,
         backgroundColor: "rgba(18, 18, 22, 0.98)",
         border: "1px solid var(--neon-gold)",
         boxShadow: "0 0 10px rgba(245, 158, 11, 0.3)",
@@ -39,8 +51,7 @@ export default function HelperTooltip({ text, position = "top", onClose }) {
         className="tooltip-arrow" 
         style={{
           position: "absolute",
-          left: "50%",
-          transform: "translateX(-50%)",
+          ...arrowStyle,
           width: 0,
           height: 0,
           borderStyle: "solid",

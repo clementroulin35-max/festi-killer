@@ -79,7 +79,7 @@ function AnimatedScore({ score }) {
         )}
       </AnimatePresence>
       <span className="score-val">{display}</span>
-      <span className="score-lbl">points</span>
+      <span className="score-lbl" style={{ display: "inline-flex", alignItems: "center", gap: "2px" }}>🪙 points</span>
     </div>
   );
 }
@@ -289,6 +289,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 <HelperTooltip
                   text="ECG de combat. Indique vos constantes vitales. Si vos cœurs tombent à 0, vous devenez un Zombie."
                   position="bottom"
+                  align="right"
                   onClose={() => setActiveTooltip(null)}
                 />
               )}
@@ -313,6 +314,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 <HelperTooltip
                   text="Votre rang évolue selon vos points. Devenez une Légende ou le Prédateur Alpha !"
                   position="bottom"
+                  align="left"
                   onClose={() => setActiveTooltip(null)}
                 />
               )}
@@ -333,6 +335,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 <HelperTooltip
                   text="Vos points accumulés. Réussir un défi vous rapporte des points, mourir ou paranoïer vous en fait perdre."
                   position="bottom"
+                  align="right"
                   onClose={() => setActiveTooltip(null)}
                 />
               )}

@@ -91,52 +91,31 @@ export default function CounterAttackTab({ playerName, logo }) {
               background: "transparent"
             }}>
               <tbody>
-                {/* Ligne 1: Logos */}
+                {/* Ligne 1: Libellés */}
                 <tr>
                   <td style={{ 
-                    padding: "8px", 
-                    width: "50%", 
-                    backgroundColor: "rgba(51, 255, 102, 0.04)", 
-                    border: "1px solid rgba(51, 255, 102, 0.2)", 
-                    borderRadius: "var(--border-radius-sm) var(--border-radius-sm) 0 0",
-                    borderBottom: "none"
-                  }}>
-                    <span style={{ fontSize: "18px" }}>🟢</span>
-                  </td>
-                  <td style={{ 
-                    padding: "8px", 
-                    width: "50%",
-                    backgroundColor: "rgba(255, 51, 102, 0.04)", 
-                    border: "1px solid rgba(255, 51, 102, 0.2)", 
-                    borderRadius: "var(--border-radius-sm) var(--border-radius-sm) 0 0",
-                    borderBottom: "none"
-                  }}>
-                    <span style={{ fontSize: "18px" }}>🔴</span>
-                  </td>
-                </tr>
-                {/* Ligne 2: Libellés */}
-                <tr>
-                  <td style={{ 
-                    padding: "2px 6px", 
+                    padding: "8px 6px 2px 6px", 
                     fontWeight: "900", 
                     color: "var(--neon-green)", 
                     textTransform: "uppercase", 
                     fontSize: "11px",
                     backgroundColor: "rgba(51, 255, 102, 0.04)", 
-                    borderLeft: "1px solid rgba(51, 255, 102, 0.2)",
-                    borderRight: "1px solid rgba(51, 255, 102, 0.2)"
+                    border: "1px solid rgba(51, 255, 102, 0.2)",
+                    borderBottom: "none",
+                    borderRadius: "var(--border-radius-sm) var(--border-radius-sm) 0 0"
                   }}>
                     Correct
                   </td>
                   <td style={{ 
-                    padding: "2px 6px", 
+                    padding: "8px 6px 2px 6px", 
                     fontWeight: "900", 
                     color: "var(--neon-red)", 
                     textTransform: "uppercase", 
                     fontSize: "11px",
                     backgroundColor: "rgba(255, 51, 102, 0.04)", 
-                    borderLeft: "1px solid rgba(255, 51, 102, 0.2)",
-                    borderRight: "1px solid rgba(255, 51, 102, 0.2)"
+                    border: "1px solid rgba(255, 51, 102, 0.2)",
+                    borderBottom: "none",
+                    borderRadius: "var(--border-radius-sm) var(--border-radius-sm) 0 0"
                   }}>
                     Incorrect
                   </td>

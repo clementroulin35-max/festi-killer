@@ -103,7 +103,13 @@ export const GameProvider = ({ children }) => {
         target: p.target,
         actionId: p.action_id,
         actionEphemeral: p.action_ephemeral,
-        photo: p.photo
+        photo: p.photo,
+        fountainUsesToday: p.fountain_uses_today || 0,
+        fountainRefreshesToday: p.fountain_refreshes_today || 0,
+        fountainTotalUses: p.fountain_total_uses || 0,
+        fountainActiveType: p.fountain_active_type,
+        fountainActiveTitle: p.fountain_active_title,
+        fountainActiveDescription: p.fountain_active_description,
       }));
 
       // Format action pool
@@ -1098,6 +1104,199 @@ export const GameProvider = ({ children }) => {
     }
   };
 
+  // --- FONTAINE DE VIE SYSTEM ---
+
+  const drawFountainChallenge = async (playerName, type) => {
+    const player = gameState.players.find(p => p.name === playerName);
+    if (!player) return;
+
+    setLoading(true);
+    try {
+      const totalUses = player.fountainTotalUses || 0;
+      let difficulty = "facile";
+      if (totalUses >= 3 && totalUses <= 4) {
+        difficulty = "moyen";
+      } else if (totalUses >= 5) {
+        difficulty = "difficile";
+      }
+
+      let { data: challenges, error } = await supabase
+        .from("fountain_pool")
+        .select("*")
+        .eq("game_code", gameCode)
+        .eq("type", type)
+        .eq("difficulty", difficulty);
+
+      if (error) throw error;
+
+      let chosenChallenge = null;
+      if (challenges && challenges.length > 0) {
+        const randIndex = Math.floor(Math.random() * challenges.length);
+        chosenChallenge = challenges[randIndex];
+      } else {
+        if (type === "action") {
+          chosenChallenge = {
+            title: `Action ${difficulty.toUpperCase()}`,
+            description: `Faire une action amusante/absurde liée au festival de niveau ${difficulty}. (Ex: trinquer avec 3 inconnus en même temps)`
+          };
+        } else {
+          chosenChallenge = {
+            title: `Vérité ${difficulty.toUpperCase()}`,
+            description: `Révéler une vérité croustillante/honnête de niveau ${difficulty} à ton groupe de jeu.`
+          };
+        }
+      }
+
+      await supabase
+        .from("players")
+        .update({
+          fountain_active_type: type,
+          fountain_active_title: chosenChallenge.title,
+          fountain_active_description: chosenChallenge.description
+        })
+        .eq("game_code", gameCode)
+        .eq("name", playerName);
+
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error("Erreur drawFountainChallenge :", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const skipFountainChallenge = async (playerName) => {
+    const player = gameState.players.find(p => p.name === playerName);
+    if (!player) return;
+
+    if ((player.fountainRefreshesToday || 0) >= 3) {
+      throw new Error("Vous avez atteint la limite quotidienne de 3 relances.");
+    }
+
+    setLoading(true);
+    try {
+      const type = player.fountainActiveType || "action";
+      const totalUses = player.fountainTotalUses || 0;
+      let difficulty = "facile";
+      if (totalUses >= 3 && totalUses <= 4) {
+        difficulty = "moyen";
+      } else if (totalUses >= 5) {
+        difficulty = "difficile";
+      }
+
+      let { data: challenges, error } = await supabase
+        .from("fountain_pool")
+        .select("*")
+        .eq("game_code", gameCode)
+        .eq("type", type)
+        .eq("difficulty", difficulty);
+
+      if (error) throw error;
+
+      let chosenChallenge = null;
+      if (challenges && challenges.length > 0) {
+        const filtered = challenges.filter(c => c.title !== player.fountainActiveTitle);
+        const list = filtered.length > 0 ? filtered : challenges;
+        const randIndex = Math.floor(Math.random() * list.length);
+        chosenChallenge = list[randIndex];
+      } else {
+        if (type === "action") {
+          chosenChallenge = {
+            title: `Action ${difficulty.toUpperCase()}`,
+            description: `Faire une action amusante/absurde liée au festival de niveau ${difficulty}. (Ex: trinquer avec 3 inconnus en même temps)`
+          };
+        } else {
+          chosenChallenge = {
+            title: `Vérité ${difficulty.toUpperCase()}`,
+            description: `Révéler une vérité croustillante/honnête de niveau ${difficulty} à ton groupe de jeu.`
+          };
+        }
+      }
+
+      await supabase
+        .from("players")
+        .update({
+          fountain_refreshes_today: (player.fountainRefreshesToday || 0) + 1,
+          fountain_active_title: chosenChallenge.title,
+          fountain_active_description: chosenChallenge.description
+        })
+        .eq("game_code", gameCode)
+        .eq("name", playerName);
+
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error("Erreur skipFountainChallenge :", err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const confirmFountainChallenge = async (playerName) => {
+    const player = gameState.players.find(p => p.name === playerName);
+    if (!player) return;
+
+    if ((player.fountainUsesToday || 0) >= 2) {
+      throw new Error("Vous avez atteint la limite quotidienne de 2 utilisations de la Fontaine.");
+    }
+
+    setLoading(true);
+    try {
+      const currentLives = player.lives || 0;
+      const newLives = Math.min(7.0, currentLives + 0.5);
+      const wasZombie = player.isZombie;
+      const isResurrecting = wasZombie && newLives > 0;
+
+      let playersToUpdate = [];
+
+      if (isResurrecting && gameState.players.length > 2) {
+        const otherKiller = gameState.players.find(p => p.name !== playerName && p.target === player.target);
+        if (otherKiller) {
+          playersToUpdate.push({ name: otherKiller.name, target: playerName });
+        }
+      }
+
+      await supabase
+        .from("players")
+        .update({
+          lives: newLives,
+          is_zombie: isResurrecting ? false : player.isZombie,
+          fountain_uses_today: (player.fountainUsesToday || 0) + 1,
+          fountain_total_uses: (player.fountainTotalUses || 0) + 1,
+          fountain_active_type: null,
+          fountain_active_title: null,
+          fountain_active_description: null
+        })
+        .eq("game_code", gameCode)
+        .eq("name", playerName);
+
+      for (const p of playersToUpdate) {
+        await supabase
+          .from("players")
+          .update({ target: p.target })
+          .eq("game_code", gameCode)
+          .eq("name", p.name);
+      }
+
+      let logMsg = `Soin Fontaine : ${playerName} a validé un défi de fontaine (+0.5 cœur, total: ${newLives} ❤️).`;
+      if (isResurrecting) {
+        logMsg += ` ${playerName} ressuscite et réintègre la boucle de cibles !`;
+      }
+
+      await logEvent("fountain_heal", {
+        status: "approved",
+        message: logMsg
+      });
+
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error("Erreur confirmFountainChallenge :", err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // 12. Morning Skips
   const triggerMorningSkips = async () => {
     if (!gameCode) return;
@@ -1509,7 +1708,10 @@ export const GameProvider = ({ children }) => {
       deleteAction,
       editAction,
       savePlayerPhoto,
-      togglePlayerActiveStatus
+      togglePlayerActiveStatus,
+      drawFountainChallenge,
+      skipFountainChallenge,
+      confirmFountainChallenge
     }}>
       {children}
     </GameContext.Provider>

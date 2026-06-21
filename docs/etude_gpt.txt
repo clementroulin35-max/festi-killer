@@ -1,0 +1,331 @@
+Je voudrais améliorer l'expérience utilisateur du joueur (notamment son écran de mission) avec ses stats et actions possible pour le rendre comparable à un jeu vidéo dans l'univers du festival, avec des images, animations. Rendre l'interface dynamique et vivante pour donner envie au joueur de revenir jouer. Lis le RG.md pour connaitre les détails du projet de l'application et me faire des propositions d'amélioration.
+
+Après lecture du règlement, le potentiel est énorme. Aujourd'hui ton jeu possède déjà les mécaniques d'un social deduction game + assassin game + RPG léger, mais l'interface semble pouvoir devenir beaucoup plus immersive en transformant le joueur en véritable chasseur de festival.
+
+Je partirais sur un objectif simple :
+
+Faire ressentir au joueur qu'il est dans une mission secrète permanente, même lorsqu'il ouvre l'application seulement 20 secondes entre deux concerts.
+
+Le règlement contient déjà beaucoup d'éléments narratifs exploitables : PV, cible secrète, assassin potentiel, hits, zombies, classement, bonus éphémères, dénonciations, etc.
+
+🎮 Refonte de l'écran principal : "Mission Active"
+
+Au lieu d'un écran fonctionnel classique :
+
+Ma cible
+Mon défi
+Mes PV
+Mon score
+
+Créer un véritable écran de mission.
+
+Header immersif
+État du joueur
+
+❤️❤️❤️❤️❤️❤️🤍
+
+AGENT : COOKIE_KILLER_17
+
+Niveau : Prédateur confirmé
+
+Score : 1 245 pts
+
+Position : #8 / 42
+
+Animation :
+
+battement léger des cœurs
+particules lumineuses
+vibration discrète lorsqu'un cœur est perdu
+effet de sang numérique lors d'un hit reçu
+🎯 Bloc Mission Active
+
+Le cœur de l'écran.
+
+Carte pleine largeur.
+
+CIBLE ACTUELLE
+
+👤 Silhouette mystérieuse
+
+CONTRAT #027
+
+Nom :
+
+Mathis
+
+Statut :
+
+🟢 Vivant
+
+Distance :
+
+📍 Quelque part sur le festival
+
+Défi actuel
+
+⚡ LE DANSEUR ÉTOILE
+
+Faire danser au moins 30 secondes de Bachata à la cible
+
+Récompense :
+
++150 pts
+
+Dégâts :
+
+❤️❤️
+
+Visuellement :
+
+illustration du défi
+fond animé différent selon la rareté
+
+Micro défi → vert
+
+Standard → bleu
+
+Majeur → violet
+
+Légendaire → or animé
+
+⭐ Système de rareté façon RPG
+
+Aujourd'hui les défis ont déjà des niveaux.
+
+Je les transformerais en loot.
+
+Micro
+
+Cadre vert
+
+Standard
+
+Cadre bleu
+
+Majeur
+
+Cadre violet animé
+
+Légendaire
+
+Cadre doré avec particules
+
+Quand le joueur pioche un nouveau défi :
+
+Animation de coffre.
+
+NOUVEAU CONTRAT OBTENU
+
+Carte qui apparaît avec effet holographique.
+
+C'est extrêmement satisfaisant psychologiquement.
+
+🧠 Écran "Renseignement"
+
+Donner au joueur l'impression d'être un espion.
+
+Journal de mission
+14h32
+Tu as obtenu une nouvelle cible
+
+15h10
+Skip utilisé
+
+17h45
+Hit validé
+
+17h48
+Nouvelle mission reçue
+Historique des victimes
+
+Carte façon dossier secret :
+
+✔ Lucas
+✔ Camille
+✔ Thomas
+
+Chaque victime devient grisée.
+
+🔥 Écran Progression
+
+Aujourd'hui le score existe déjà.
+
+Transformer cela en progression RPG.
+
+Rangs
+
+0 pts → Civil
+
+250 pts → Chasseur
+
+750 pts → Prédateur
+
+1500 pts → Tueur Fantôme
+
+3000 pts → Légende du Festival
+
+5000 pts → Alpha
+
+Barre de progression animée :
+
+███████░░░
+82%
+
+À chaque hit :
+
+XP qui monte
+son de récompense
+chiffres qui s'incrémentent
+🏆 Succès / Achievements
+
+Très important pour la rétention.
+
+Exemples :
+
+🥇 Premier sang
+
+🥷 3 hits sans skip
+
+🎭 Maître du bluff
+
+⚡ Bonus éphémère réussi
+
+🧟 Premier hit zombie
+
+👑 Prédateur Alpha
+
+🌀 Roi du Skip
+
+Inspiré directement des règles.
+
+📱 Notifications ultra immersives
+
+Au lieu de :
+
+Nouvelle cible attribuée
+
+Afficher :
+
+📡 TRANSMISSION REÇUE
+
+Votre précédente cible a été neutralisée.
+
+Un nouveau contrat est disponible.
+
+Quand un hit est validé :
+
+☠️ ÉLIMINATION CONFIRMÉE
+
++150 pts
++1 Skip
+
+Nouvelle mission disponible
+
+Quand le joueur est attaqué :
+
+⚠️ ACTIVITÉ SUSPECTE
+
+Quelqu'un semble s'intéresser à vous...
+
+Sans révéler d'information.
+
+Cela renforce la paranoïa du jeu.
+
+🧟 Mode Zombie spectaculaire
+
+Le règlement prévoit un mode zombie.
+
+Quand le joueur passe zombie :
+
+Animation cinématique.
+
+Écran qui devient :
+
+noir/violet
+glitch
+fumée
+cœurs brisés
+
+Message :
+
+VOUS ÊTES TOMBÉ
+
+Mais la chasse continue...
+
+Toute l'UI change :
+
+icônes corrompues
+effets glitch
+score x0.5 affiché
+
+Le joueur se sent dans un nouveau mode de jeu.
+
+🗺️ Carte du Festival (sans localisation réelle)
+
+Une carte illustrée du festival.
+
+Montrer :
+
+scènes
+camping
+chill zone
+fête foraine
+forêt
+
+Permet d'associer les défis à des lieux :
+
+🎳 Strike du Festival → fête foraine
+
+🌲 Rando Nocturne → forêt
+
+💃 Bachata → scène chill
+
+Cela aide les joueurs à imaginer des opportunités.
+
+🎨 Direction artistique recommandée
+
+Vu le ton du règlement :
+
+humour
+assassinat secret
+festival
+paranoïa
+
+Je partirais sur un mélange :
+
+Style
+néon violet
+cyan
+rose festival
+cartes holographiques
+fond sombre
+
+Référence d'ambiance :
+
+Among Us pour la paranoïa
+Hitman pour les contrats
+Cyberpunk 2077 pour les interfaces futuristes
+Fortnite pour la progression et les récompenses
+La fonctionnalité qui apporterait le plus de rétention
+
+Si je devais n'en choisir qu'une :
+
+Le "Centre de Commandement"
+
+Écran principal unique contenant :
+
+Mission active
+Progression de rang
+Historique récent
+Succès débloqués
+Bouton Hit
+Bouton Skip
+
+Avec :
+
+animations à chaque événement
+récompenses visuelles permanentes
+sensation d'être un agent secret en mission
+
+C'est probablement ce qui ferait passer l'application d'un outil de gestion du jeu à un véritable jeu vidéo compagnon du festival, donnant envie aux joueurs de l'ouvrir plusieurs fois par heure même lorsqu'ils ne réalisent pas immédiatement un défi.

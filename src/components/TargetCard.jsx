@@ -5,6 +5,7 @@ import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { ShieldAlert, Eye, EyeOff, Loader2 } from "lucide-react";
 import HelperTooltip from "./HelperTooltip";
 import defaultAvatar from "../assets/default_avatar.png";
+import tokenImage from "../assets/token_neon.png";
 
 const RARITY_CONFIG = {
   micro:      { label: "Micro-défi",   icon: "🟢", contractColor: "var(--neon-green)" },
@@ -358,13 +359,14 @@ export default function TargetCard({
             }}
             style={{ cursor: "pointer", position: "relative" }}
           >
-            <span className="skips-icon-v2">🪙</span>
+            <img src={tokenImage} alt="token" className="skips-token-img" style={{ width: "16px", height: "16px", marginRight: "4px", objectFit: "contain" }} />
             <span className="skips-val-v2">{playerSkips}</span>
             <AnimatePresence>
               {activeTooltip === "skips" && (
                 <HelperTooltip
                   text={`Jetons de Relance : Vous disposez de ${playerSkips} relance(s). Glissez le défi du bas vers le côté pour en utiliser une.`}
                   position="top"
+                  align="right"
                   onClose={() => setActiveTooltip(null)}
                 />
               )}

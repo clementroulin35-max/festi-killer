@@ -1,0 +1,204 @@
+# 🎮 Design System & Évolutions "Game Feel" – Cooki'llers
+
+**Version : 1.0**  
+**Objectif :** Transformer l’application en une véritable **expérience de jeu vidéo portable** (HUD immersif, dopamine, feedback constant, identité cyber-neon festival assassin).  
+**Priorité :** Écran principal du joueur (`PlayerDashboard` + `TargetCard`).
+
+---
+
+## 1. Design System Global (à appliquer partout)
+
+### Tokens & Variables CSS (ajouter / mettre à jour dans `index.css`)
+
+```css
+:root {
+  --neon-purple: #a855f7;
+  --neon-red: #f43f5e;
+  --neon-green: #22c55e;
+  --neon-gold: #fbbf24;
+  --glow-purple: 0 0 20px rgba(168, 85, 247, 0.6);
+  --glow-red: 0 0 25px rgba(244, 63, 94, 0.7);
+  --glow-green: 0 0 20px rgba(34, 197, 94, 0.6);
+  
+  --hud-bg: rgba(10, 10, 12, 0.95);
+  --card-glow: 0 0 25px;
+}
+
+/* Animations globales "Game Feel" */
+@keyframes targetPulse {
+  0%, 100% { box-shadow: var(--glow-red); }
+  50% { box-shadow: 0 0 45px rgba(244, 63, 94, 0.95); }
+}
+
+@keyframes scorePop {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-70px); opacity: 0; }
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.neon-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  box-shadow: var(--card-glow) var(--neon-purple);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neon-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-glow) var(--neon-red);
+}
+
+.game-hud {
+  background: radial-gradient(circle at 50% 30%, rgba(139, 92, 246, 0.12), transparent 70%);
+}
+
+/* Boutons game-style */
+.btn-hit {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.6);
+  transition: all 0.2s;
+}
+
+.btn-hit:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.9);
+}
+
+2. PlayerDashboard – Version "Jeu Vidéo" (Écran Principal)
+Structure recommandée (PlayerDashboard.jsx)
+
+export default function PlayerDashboard({ playerName, onEditPhoto }) {
+  // ... logique existante ...
+
+  return (
+    <div className="player-game-hud game-hud animate-fade-in">
+      
+      {/* === 1. TOP HUD BAR === */}
+      <div className="hud-header neon-card" style={{ padding: "12px 16px", marginBottom: "16px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          
+          {/* Avatar + Pseudo */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            {player.photo ? (
+              <div className="avatar-glow" onClick={onEditPhoto}>
+                <img src={player.photo} alt={player.name} style={{ width: 52, height: 52, borderRadius: "50%", border: "3px solid var(--neon-purple)" }} />
+              </div>
+            ) : (
+              <div className="avatar-placeholder" onClick={onEditPhoto}>👤</div>
+            )}
+            <div>
+              <h2 className="p-nickname">{player.name}</h2>
+              {player.isZombie && <span className="zombie-badge-title">🧟 ZOMBIE MODE</span>}
+            </div>
+          </div>
+
+          {/* Score + Skips */}
+          <div style={{ textAlign: "right" }}>
+            <ScoreCounter score={player.score} />
+            <SkipTokens skips={player.skips} />
+          </div>
+        </div>
+
+        {/* Cœurs Zelda animés */}
+        <div className="hearts-block" style={{ marginTop: "12px" }}>
+          <ZeldaHearts lives={player.lives} animated />
+        </div>
+      </div>
+
+      {/* === 2. TARGET CARD HERO (Centre de l'écran) === */}
+      {player.target ? (
+        <TargetCardGameStyle
+          targetName={player.target}
+          actionId={player.actionId}
+          onDeclareHit={handleDeclareHit}
+          isZombie={player.isZombie}
+          hasPendingHit={hasPendingHit}
+        />
+      ) : (
+        /* Placeholder attente */
+        <div className="waiting-mission neon-card">En attente de mission...</div>
+      )}
+
+      {/* === 3. Tactical Quick Bar === */}
+      <TacticalActionBar
+        skips={player.skips}
+        score={player.score}
+        onSkip={handleSkip}
+        onAbandon={() => setShowAbandonConfirm(true)}
+        disabled={hasPendingHit}
+      />
+
+    </div>
+  );
+}
+
+3. TargetCardGameStyle (nouvelle variante ou mise à jour de TargetCard.jsx)
+
+export default function TargetCardGameStyle({ targetName, actionId, onDeclareHit, isZombie, hasPendingHit }) {
+  // ... logique existante (action, targetPlayer) ...
+
+  return (
+    <div className="target-card neon-card game-target animate-neon" style={{ position: "relative", overflow: "hidden" }}>
+      
+      {/* Overlay scan / hologram */}
+      <div className="hologram-overlay" />
+
+      <div className="target-label">🎯 CIBLE VERROUILLÉE</div>
+      
+      <div className="avatar-outer">
+        {targetPlayer?.photo ? (
+          <img src={targetPlayer.photo} className="avatar-img" />
+        ) : (
+          <div className="avatar-inner game-avatar">{getInitials(targetName)}</div>
+        )}
+      </div>
+
+      <h2 className="target-name">{targetName}</h2>
+
+      <div className="mission-box game-mission">
+        <div className="mission-label">MISSION SECRÈTE</div>
+        <div className="mission-desc">« {action.description} »</div>
+      </div>
+
+      <div className="mission-stats">
+        <div>+{action.points} pts</div>
+        <div>-{action.damage} ❤️</div>
+      </div>
+
+      <button 
+        className="btn-hit" 
+        disabled={hasPendingHit}
+        onClick={onDeclareHit}
+      >
+        {hasPendingHit ? "⏳ EN ATTENTE GM..." : "HIT RÉUSSI ! 🔥"}
+      </button>
+    </div>
+  );
+}
+
+4. Composants Réutilisables
+ScoreCounter (avec animation count-up) :
+
+function ScoreCounter({ score }) {
+  const [displayScore, setDisplayScore] = useState(score);
+  // Utiliser useEffect + animation pour +points flottants
+  return <div className="score-val game-score">{displayScore}</div>;
+}
+
+TacticalActionBar :
+
+Boutons Skip (token doré) et Abandon (drapeau) avec icônes grandes et labels clairs.
+
+
+5. Animations & Polish (à ajouter dans index.css)
+
+.game-target → animation: targetPulse 2.8s infinite
+Cœurs → animation: heartBeat 0.8s sur changement
+Score pop → animation scorePop avec texte "+150" qui monte en vert
+Bouton HIT → scale + glow intense sur hover/tap
+Entrée écran → stagger fade-in des éléments (via framer-motion ou CSS delay)
