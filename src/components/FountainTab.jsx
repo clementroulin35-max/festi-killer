@@ -48,7 +48,7 @@ export default function FountainTab({ playerName }) {
   }
 
   const usesLeft = Math.max(0, 2 - (player.fountainUsesToday || 0));
-  const refreshesLeft = Math.max(0, 3 - (player.fountainRefreshesToday || 0));
+  const refreshesLeft = Math.max(0, player.fountainRefreshesToday || 0);
   const hasActiveChallenge = !!player.fountainActiveTitle;
   
   const isFullHealth = player.lives >= 7.0;
@@ -129,10 +129,10 @@ export default function FountainTab({ playerName }) {
 
   return (
     <div className="fountain-screen-layout">
-      <div className="glass-card-blue animate-fade-in view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column", paddingBottom: "10px", justifyContent: "space-between" }}>
+      <div className="glass-card-blue animate-fade-in view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column", padding: "16px 16px 10px 16px", justifyContent: "space-between", boxSizing: "border-box" }}>
         
         {/* 1. Titre de l'écran en premier */}
-        <div style={{ textAlign: "center", marginBottom: "14px", flexShrink: 0 }}>
+        <div style={{ textAlign: "center", marginTop: "8px", marginBottom: "14px", flexShrink: 0 }}>
           <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-blue)", textTransform: "uppercase", margin: 0 }}>
             Fontaine de Vie
           </h2>
@@ -206,7 +206,7 @@ export default function FountainTab({ playerName }) {
         )}
 
         {/* 3. Switch sous forme de boutons-poussoirs individuels */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "24px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "24px", padding: "0 16px", boxSizing: "border-box" }}>
           <div style={{ display: "flex", gap: "10px", justifyContent: "center", width: "100%" }}>
             <button
               onClick={() => handleSwitchType("action")}
@@ -300,20 +300,20 @@ export default function FountainTab({ playerName }) {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "4px",
-                background: usesLeft > 0 ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.02)",
-                border: usesLeft > 0 ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
-                opacity: usesLeft > 0 ? 1 : 0.4,
+                background: (usesLeft > 0 && !player.isZombie) ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.02)",
+                border: (usesLeft > 0 && !player.isZombie) ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
+                opacity: (usesLeft > 0 && !player.isZombie) ? 1 : 0.4,
                 borderRadius: "var(--border-radius-sm)",
                 width: "36px",
                 height: "36px",
                 cursor: "pointer",
                 position: "relative",
-                boxShadow: usesLeft > 0 ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
+                boxShadow: (usesLeft > 0 && !player.isZombie) ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
                 boxSizing: "border-box"
               }}
             >
-              <Heart size={13} fill={usesLeft > 0 ? "var(--neon-gold)" : "var(--text-muted)"} style={{ color: usesLeft > 0 ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: usesLeft > 0 ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{usesLeft}</span>
+              <Heart size={13} fill={(usesLeft > 0 && !player.isZombie) ? "var(--neon-gold)" : "var(--text-muted)"} style={{ color: (usesLeft > 0 && !player.isZombie) ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
+              <span style={{ fontSize: "11px", fontWeight: "900", color: (usesLeft > 0 && !player.isZombie) ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{usesLeft}</span>
               <AnimatePresence>
                 {activeTooltip === "uses" && (
                   <HelperTooltip
@@ -338,20 +338,20 @@ export default function FountainTab({ playerName }) {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "4px",
-                background: refreshesLeft > 0 ? "rgba(245, 158, 11, 0.08)" : "rgba(255, 255, 255, 0.02)",
-                border: refreshesLeft > 0 ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
-                opacity: refreshesLeft > 0 ? 1 : 0.4,
+                background: (refreshesLeft > 0 && !player.isZombie) ? "rgba(245, 158, 11, 0.08)" : "rgba(255, 255, 255, 0.02)",
+                border: (refreshesLeft > 0 && !player.isZombie) ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
+                opacity: (refreshesLeft > 0 && !player.isZombie) ? 1 : 0.4,
                 borderRadius: "var(--border-radius-sm)",
                 width: "36px",
                 height: "36px",
                 cursor: "pointer",
                 position: "relative",
-                boxShadow: refreshesLeft > 0 ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
+                boxShadow: (refreshesLeft > 0 && !player.isZombie) ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
                 boxSizing: "border-box"
               }}
             >
-              <RefreshCw size={13} style={{ color: refreshesLeft > 0 ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: refreshesLeft > 0 ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{refreshesLeft}</span>
+              <RefreshCw size={13} style={{ color: (refreshesLeft > 0 && !player.isZombie) ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
+              <span style={{ fontSize: "11px", fontWeight: "900", color: (refreshesLeft > 0 && !player.isZombie) ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{refreshesLeft}</span>
               <AnimatePresence>
                 {activeTooltip === "refreshes" && (
                   <HelperTooltip

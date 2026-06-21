@@ -8,6 +8,7 @@ export default function SwipeToDeleteItem({
   onClick, 
   isSelected, 
   revealOnSelect = false,
+  isConfirming = false,
   className = "" 
 }) {
   const x = useMotionValue(0);
@@ -26,6 +27,15 @@ export default function SwipeToDeleteItem({
       }
     }
   }, [isSelected, revealOnSelect, x]);
+
+  // Remise à 0 si confirmation annulée
+  const lastConfirming = React.useRef(false);
+  React.useEffect(() => {
+    if (lastConfirming.current && !isConfirming) {
+      x.set(0);
+    }
+    lastConfirming.current = !!isConfirming;
+  }, [isConfirming, x]);
 
   return (
     <div style={{ position: "relative", overflow: "hidden", width: "100%", borderRadius: "var(--border-radius-sm)" }}>

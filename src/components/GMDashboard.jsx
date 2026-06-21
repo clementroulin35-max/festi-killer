@@ -980,6 +980,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                   onClick={() => startEditAction(act)}
                                   isSelected={editingActionId === act.id}
                                   revealOnSelect={false}
+                                  isConfirming={deletingActionId === act.id}
                                 >
                                   <div 
                                     className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
@@ -1143,6 +1144,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                       onClick={() => startEditFountainChallenge(item)}
                                       isSelected={isSelected}
                                       revealOnSelect={false}
+                                      isConfirming={deletingFountainId === item.id}
                                     >
                                       <div
                                         className={`action-item-mini ${isSelected ? "editing-highlight" : ""}`}

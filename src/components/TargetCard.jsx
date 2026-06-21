@@ -285,7 +285,7 @@ export default function TargetCard({
             </div>
           )}
 
-          <div className={isTargetZombie ? "zombie-avatar-crt" : ""}>
+          <div>
             {targetPlayer?.photo && targetPlayer.photo !== "skipped" ? (
               <img
                 src={targetPlayer.photo}

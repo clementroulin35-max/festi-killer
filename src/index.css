@@ -3391,9 +3391,28 @@ select option {
   );
 }
 
-.zombie-hud-tint .hud-header {
-  background: linear-gradient(135deg, rgba(255, 51, 102, 0.06), rgba(10, 10, 12, 0.95));
-  border-color: rgba(255, 51, 102, 0.25);
+.hud-header-v2.zombie-hud-crt {
+  background: linear-gradient(135deg, rgba(255, 51, 102, 0.1), rgba(10, 10, 12, 0.95));
+  border-color: rgba(255, 51, 102, 0.35);
+  box-shadow: 0 0 15px rgba(255, 51, 102, 0.15), 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.hud-header-v2.zombie-hud-crt::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 51, 102, 0.05) 0px,
+    rgba(255, 51, 102, 0.05) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  animation: crtFlicker 0.25s infinite;
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* === TACTICAL ACTION BAR === */
@@ -3765,7 +3784,7 @@ select option {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(139, 92, 246, 0.15);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -4693,7 +4712,7 @@ select option {
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(139, 92, 246, 0.15);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -4861,7 +4880,7 @@ select option {
   height: 4px; /* Fin et épuré */
   background: rgba(255, 255, 255, 0.08);
   border: none;
-  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); /* Épouse les coins arrondis inférieurs */
+  border-radius: 0;
   overflow: hidden;
   box-shadow: none;
   background-image: none;

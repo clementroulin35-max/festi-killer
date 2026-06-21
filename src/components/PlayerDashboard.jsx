@@ -225,18 +225,13 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
-      {/* Zombie scanline overlay */}
-      {isZombie && <div className="zombie-overlay" />}
-
-
-
-      {/* 2. HUD Header V2 */}
-      <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }} style={{ overflow: "visible" }}>
+       {/* 2. HUD Header V2 */}
+      <motion.div className={`hud-header-v2 ${isZombie ? "zombie-hud-crt" : ""}`} layout transition={{ duration: 0.3 }} style={{ overflow: "visible" }}>
         {/* Ligne 1: Avatar à gauche, Pseudo + Cœurs au milieu, ECG brut à droite */}
         <div className="hud-top-row-v2" style={{ position: "relative", zIndex: activeTooltip === "ecg" ? 20 : 1 }}>
           <div className="hud-profile-left-v2">
             <div className="hud-avatar-wrapper-v2">
-              <div className={isZombie ? "zombie-avatar-crt" : ""}>
+              <div>
                 {player.photo && player.photo !== "skipped" ? (
                   <img
                     src={player.photo}
@@ -293,6 +288,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   align="right"
                   onClose={() => setActiveTooltip(null)}
                   isZombie={player.isZombie}
+                  noHalo={true}
                 />
               )}
             </AnimatePresence>
@@ -361,7 +357,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
 
       {/* 3. Target card V2 (Tarot layout) */}
       {player.target ? (
-        <div className={`tarot-card-container-v2 ${isZombie ? "zombie-mode-active" : ""}`}>
+        <div className="tarot-card-container-v2">
           <TargetCard
             targetName={player.target}
             actionId={player.actionId}

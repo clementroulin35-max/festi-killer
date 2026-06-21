@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export default function HelperTooltip({ text, position = "top", align = "center", onClose, isZombie = false }) {
+export default function HelperTooltip({ text, position = "top", align = "center", onClose, isZombie = false, noHalo = false }) {
   const neonColor = isZombie ? "var(--neon-red)" : "var(--neon-gold)";
   const glowColor = isZombie ? "rgba(255, 51, 102, 0.35)" : "rgba(245, 158, 11, 0.3)";
 
@@ -34,7 +34,7 @@ export default function HelperTooltip({ text, position = "top", align = "center"
         ...alignStyle,
         backgroundColor: "rgba(18, 18, 22, 0.98)",
         border: `2px solid ${neonColor}`,
-        boxShadow: `0 0 10px ${glowColor}`,
+        boxShadow: noHalo ? "none" : `0 0 10px ${glowColor}`,
         borderRadius: "var(--border-radius-sm)",
         padding: "8px 12px",
         zIndex: 1000000,
