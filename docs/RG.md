@@ -71,7 +71,7 @@ Quand les cœurs d'un joueur tombent à **0 cœurs** :
 * **Règles Spéciales Zombie :**
   1. Lorsqu'un Zombie réussit un Hit, **les points du défi qu'il gagne sont divisés par 2** (arrondis à l'inférieur).
   2. Un Hit réussi par un Zombie inflige **0 dégât** (sa cible ne perd aucun cœur, subissant seulement la honte).
-  3. **Pas de résurrection automatique** : Le Zombie reste dans cet état jusqu'à la fin du festival (sauf réintégration ou modification manuelle exceptionnelle par le GameMaster).
+  3. **Pas de résurrection** : Le Zombie reste dans cet état jusqu'à la fin du festival (sauf modification manuelle exceptionnelle par le GameMaster). La Fontaine de Vie ne lui est pas accessible.
 
 ---
 
@@ -86,7 +86,7 @@ Pour regagner des cœurs durant le festival, vous pouvez vous rendre à la **Fon
   * **0 à 2 utilisations** : Difficulté **Facile** (Tier I - Source Timide)
   * **3 à 4 utilisations** : Difficulté **Moyen** (Tier II - Source Éveillée)
   * **>= 5 utilisations** : Difficulté **Difficile** (Tier III - Source Sacrée)
-* **Résurrection de Zombie :** Si un Zombie utilise la fontaine et valide un défi, il récupère +0.5 cœur, sort du statut de Zombie et est automatiquement réintégré dans la boucle active des cibles par l'algorithme.
+* **Exclusion des Zombies :** Les cœurs des Zombies restent bloqués à 0. Un Zombie ne peut pas se soigner à la fontaine ni redevenir humain par ce biais.
 
 ---
 

@@ -260,7 +260,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
             <div className="slide-points">
               <div className="point-item">⛲ <strong>Soin (+0.5 ❤️)</strong> : Réalise un défi Action ou Vérité (max 2 soins validés par jour).</div>
               <div className="point-item">🔄 <strong>Relances</strong> : Tu as 3 refreshes par jour pour changer de défi de fontaine.</div>
-              <div className="point-item">🧬 <strong>Résurrection Zombie</strong> : Valider un soin te redonne 0.5 cœur et te réintègre en vie.</div>
+              <div className="point-item">❌ <strong>Zombies exclus</strong> : Si ton énergie tombe à 0 cœurs, la fontaine se tarit. Soin impossible.</div>
             </div>
           </div>
         );

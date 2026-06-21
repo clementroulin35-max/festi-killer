@@ -1110,6 +1110,10 @@ export const GameProvider = ({ children }) => {
     const player = gameState.players.find(p => p.name === playerName);
     if (!player) return;
 
+    if (player.isZombie) {
+      throw new Error("Les zombies ne peuvent pas utiliser la Fontaine.");
+    }
+
     setLoading(true);
     try {
       const totalUses = player.fountainTotalUses || 0;
@@ -1236,6 +1240,10 @@ export const GameProvider = ({ children }) => {
     const player = gameState.players.find(p => p.name === playerName);
     if (!player) return;
 
+    if (player.isZombie) {
+      throw new Error("Les zombies ne peuvent pas utiliser la Fontaine.");
+    }
+
     if ((player.fountainUsesToday || 0) >= 2) {
       throw new Error("Vous avez atteint la limite quotidienne de 2 utilisations de la Fontaine.");
     }
@@ -1244,23 +1252,11 @@ export const GameProvider = ({ children }) => {
     try {
       const currentLives = player.lives || 0;
       const newLives = Math.min(7.0, currentLives + 0.5);
-      const wasZombie = player.isZombie;
-      const isResurrecting = wasZombie && newLives > 0;
-
-      let playersToUpdate = [];
-
-      if (isResurrecting && gameState.players.length > 2) {
-        const otherKiller = gameState.players.find(p => p.name !== playerName && p.target === player.target);
-        if (otherKiller) {
-          playersToUpdate.push({ name: otherKiller.name, target: playerName });
-        }
-      }
 
       await supabase
         .from("players")
         .update({
           lives: newLives,
-          is_zombie: isResurrecting ? false : player.isZombie,
           fountain_uses_today: (player.fountainUsesToday || 0) + 1,
           fountain_total_uses: (player.fountainTotalUses || 0) + 1,
           fountain_active_type: null,
@@ -1270,18 +1266,7 @@ export const GameProvider = ({ children }) => {
         .eq("game_code", gameCode)
         .eq("name", playerName);
 
-      for (const p of playersToUpdate) {
-        await supabase
-          .from("players")
-          .update({ target: p.target })
-          .eq("game_code", gameCode)
-          .eq("name", p.name);
-      }
-
       let logMsg = `Soin Fontaine : ${playerName} a validé un défi de fontaine (+0.5 cœur, total: ${newLives} ❤️).`;
-      if (isResurrecting) {
-        logMsg += ` ${playerName} ressuscite et réintègre la boucle de cibles !`;
-      }
 
       await logEvent("fountain_heal", {
         status: "approved",
