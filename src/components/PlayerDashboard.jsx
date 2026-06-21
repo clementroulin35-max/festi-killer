@@ -10,6 +10,7 @@ import {
 import heartImage from "../assets/heart_neon.png";
 import tokenImage from "../assets/token_neon.png";
 import suicidePreventImage from "../assets/suicide_prevent.png";
+import defaultAvatar from "../assets/default_avatar.png";
 
 /* ============================================
    RANK SYSTEM (computed from score, exposed everywhere)
@@ -244,9 +245,13 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                     title="Modifier ma photo"
                   />
                 ) : (
-                  <div onClick={onEditPhoto} className="hud-avatar-v2 placeholder" title="Modifier ma photo">
-                    <User size={20} style={{ color: "var(--text-muted)" }} />
-                  </div>
+                  <img
+                    src={defaultAvatar}
+                    alt={player.name}
+                    onClick={onEditPhoto}
+                    className="hud-avatar-v2"
+                    title="Modifier ma photo"
+                  />
                 )}
               </div>
             </div>
@@ -345,13 +350,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         </div>
       </motion.div>
 
-      {/* Bandeau de validation GM externe */}
-      {hasPendingHit && (
-        <div className="tarot-pending-banner-outside">
-          <Loader2 size={14} className="animate-spin" style={{ marginRight: 8 }} />
-          <span>Validation GM en cours...</span>
-        </div>
-      )}
+
 
       {/* 3. Target card V2 (Tarot layout) */}
       {player.target ? (

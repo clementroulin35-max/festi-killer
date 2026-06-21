@@ -678,11 +678,17 @@ function MainAppContent() {
         {currentUser === "GM" && (
           <>
             <button
-              onClick={() => setActiveTab("leaderboard")}
-              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
+              onClick={() => setActiveTab("arbitrage")}
+              className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
+              style={{ position: "relative" }}
             >
-              <Trophy size={20} />
-              <span>Classement</span>
+              <Shield size={20} />
+              <span>Actions</span>
+              {pendingEvents.length > 0 && (
+                <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
+                  {pendingEvents.length}
+                </span>
+              )}
             </button>
 
             <button
@@ -702,17 +708,11 @@ function MainAppContent() {
             </button>
 
             <button
-              onClick={() => setActiveTab("arbitrage")}
-              className={`nav-item ${activeTab === "arbitrage" ? "active" : ""}`}
-              style={{ position: "relative" }}
+              onClick={() => setActiveTab("leaderboard")}
+              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
             >
-              <Shield size={20} />
-              <span>Actions</span>
-              {pendingEvents.length > 0 && (
-                <span className="pending-badge-count" style={{ top: "4px", right: "20px" }}>
-                  {pendingEvents.length}
-                </span>
-              )}
+              <Trophy size={20} />
+              <span>Classement</span>
             </button>
 
             <button

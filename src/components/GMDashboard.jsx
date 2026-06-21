@@ -7,6 +7,7 @@ import {
   Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff, Trash2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import defaultAvatar from "../assets/default_avatar.png";
 
 export default function GMDashboard({ gmTab = "arbitrage" }) {
   const {
@@ -341,14 +342,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                   <h2 style={{ margin: 0, fontSize: "18px", color: "var(--neon-purple)", fontWeight: "900", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                     {gameState.started ? `GESTION DES JOUEURS (${gameState.players.length})` : `JOUEURS CONNECTÉS (${gameState.players.length})`}
                   </h2>
-                  <button
-                    onClick={() => setPlayersMasked(!playersMasked)}
-                    className="panic-toggle-inline-btn"
-                    style={{ position: "static", border: "1px solid var(--border-color)", padding: "6px 10px", height: "auto" }}
-                    title={playersMasked ? "Révéler les infos" : "Masquer les infos"}
-                  >
-                    {playersMasked ? <Eye size={16} /> : <EyeOff size={16} />}
-                  </button>
                 </div>
 
                 {!gameState.started ? (
@@ -368,7 +361,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         {gameState.players.map((p) => (
                           <div 
                             key={p.name} 
-                            className={`judge-player-horizontal-card ${playersMasked ? "card-blurred" : ""}`}
+                            className="judge-player-horizontal-card"
                             style={{
                               width: "100%",
                               background: "rgba(24, 24, 31, 0.65)",
@@ -382,9 +375,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                             }}
                           >
                             <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
-                              <div className="row-avatar" style={{ width: "28px", height: "28px", fontSize: "11px", minWidth: "28px", minHeight: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                {p.name.slice(0, 2).toUpperCase()}
-                              </div>
+                              <img src={defaultAvatar} alt={p.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
                               <strong style={{ fontSize: "13px", color: "var(--text-primary)" }}>{p.name}</strong>
                             </div>
                             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -485,14 +476,22 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                             <div 
                               key={p.name} 
                               onClick={() => startEditPlayer(p)}
-                              className={`judge-player-horizontal-card ${p.isZombie ? "zombie-player" : ""} ${!p.target ? "player-inactive-card" : ""} ${playersMasked ? "card-blurred" : ""} ${isSelected ? "selected-card" : ""}`}
+                              className={`judge-player-horizontal-card ${p.isZombie ? "zombie-player" : ""} ${!p.target ? "player-inactive-card" : ""} ${isSelected ? "selected-card" : ""}`}
                               style={{
                                 width: "100%",
                                 background: isSelected 
-                                  ? "rgba(139, 92, 246, 0.18)" 
+                                  ? "rgba(139, 92, 246, 0.22)" 
+                                  : p.isZombie
+                                  ? "rgba(16, 185, 129, 0.08)"
+                                  : !p.target
+                                  ? "rgba(59, 130, 246, 0.06)"
                                   : "rgba(24, 24, 31, 0.65)",
                                 border: isSelected 
                                   ? "1.5px solid var(--neon-purple)" 
+                                  : p.isZombie
+                                  ? "1px solid rgba(16, 185, 129, 0.4)"
+                                  : !p.target
+                                  ? "1px solid rgba(59, 130, 246, 0.3)"
                                   : "1px solid rgba(255, 255, 255, 0.08)",
                                 borderRadius: "var(--border-radius-sm)",
                                 padding: "10px 12px",
@@ -508,12 +507,10 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                                 {/* Left side: Avatar + Name + Target */}
                                 <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0, flex: 1 }}>
-                                  {p.photo ? (
+                                  {p.photo && p.photo !== "skipped" ? (
                                     <img src={p.photo} alt={p.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
                                   ) : (
-                                    <div className="row-avatar" style={{ width: "28px", height: "28px", fontSize: "11px", minWidth: "28px", minHeight: "28px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                      {p.name.slice(0, 2).toUpperCase()}
-                                    </div>
+                                    <img src={defaultAvatar} alt={p.name} style={{ width: "28px", height: "28px", borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.1)" }} />
                                   )}
                                   <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                                     <strong style={{ fontSize: "13px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-primary)" }}>{p.name}</strong>
@@ -639,6 +636,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                             value={actPoints}
                             onChange={(e) => setActPoints(Number(e.target.value))}
                             className="neon-input-premium"
+                            style={{ textAlign: "left" }}
                             required
                           />
                         </label>
@@ -652,6 +650,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                             value={actDamage}
                             onChange={(e) => setActDamage(Number(e.target.value))}
                             className="neon-input-premium"
+                            style={{ textAlign: "left" }}
                             required
                           />
                         </label>
@@ -888,13 +887,13 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
         {/* --- 5. QR CODE TAB --- */}
         {gmTab === "qrcode" && (
-          <div className="auth-screen-layout">
-            <div className="view-scroll-content">
-              <div className="glass-card" style={{ width: "100%" }}>
+          <div className="auth-screen-layout" style={{ height: "100%" }}>
+            <div className="view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+              <div className="glass-card" style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, padding: "20px" }}>
                 <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-purple)", textAlign: "center", marginBottom: "14px", textTransform: "uppercase" }}>
                   REJOINDRE LE SALON
                 </h2>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 16, padding: "8px 0", width: "100%" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 16, padding: "8px 0", width: "100%", flex: 1, justifyContent: "center" }}>
                   <p className="admin-subtitle" style={{ margin: 0, fontSize: "13px", color: "var(--text-secondary)" }}>
                     Faites scanner ce QR Code aux joueurs sur leur téléphone pour qu'ils s'enregistrent
                   </p>

@@ -4,6 +4,7 @@ import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { ShieldAlert, Eye, EyeOff, Loader2 } from "lucide-react";
 import HelperTooltip from "./HelperTooltip";
+import defaultAvatar from "../assets/default_avatar.png";
 
 const RARITY_CONFIG = {
   micro:      { label: "Micro-défi",   icon: "🟢", contractColor: "var(--neon-green)" },
@@ -283,16 +284,18 @@ export default function TargetCard({
           )}
 
           <div className={isTargetZombie ? "zombie-avatar-crt" : ""}>
-            {targetPlayer?.photo ? (
+            {targetPlayer?.photo && targetPlayer.photo !== "skipped" ? (
               <img
                 src={targetPlayer.photo}
                 alt={targetName}
                 className={`tarot-target-avatar ${isShatteredAnimated ? "hit-animation-active" : isShatteredStatic ? "hit-static-active" : ""}`}
               />
             ) : (
-              <div className={`tarot-target-initials ${isShatteredAnimated ? "hit-animation-active" : isShatteredStatic ? "hit-static-active" : ""}`}>
-                {getInitials(targetName)}
-              </div>
+              <img
+                src={defaultAvatar}
+                alt={targetName}
+                className={`tarot-target-avatar ${isShatteredAnimated ? "hit-animation-active" : isShatteredStatic ? "hit-static-active" : ""}`}
+              />
             )}
           </div>
         </div>
