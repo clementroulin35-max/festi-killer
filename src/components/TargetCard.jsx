@@ -3,6 +3,7 @@ import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { ShieldAlert, Eye, EyeOff, Loader2 } from "lucide-react";
+import HelperTooltip from "./HelperTooltip";
 
 const RARITY_CONFIG = {
   micro:      { label: "Micro-défi",   icon: "🟢", contractColor: "var(--neon-green)" },
@@ -25,7 +26,8 @@ export default function TargetCard({
   onSkipSwipe,
   playerSkips = 0,
   playerScore = 0,
-  onTriggerTooltip
+  activeTooltip,
+  setActiveTooltip
 }) {
   const { gameState } = useGame();
   const [isMasked, setIsMasked] = useState(false);
@@ -211,11 +213,23 @@ export default function TargetCard({
       {/* Header MISSION de la carte */}
       <div 
         className="tarot-card-header-v2"
-        onClick={() => onTriggerTooltip && onTriggerTooltip("Cadre de Mission : Glissez la cible vers la gauche/droite pour l'abandonner (pénalité de score ou de cœur), ou glissez le défi pour le relancer (consomme 1 jeton).")}
-        style={{ cursor: "pointer" }}
+        onClick={(e) => {
+          e.stopPropagation();
+          setActiveTooltip(activeTooltip === "mission" ? null : "mission");
+        }}
+        style={{ cursor: "pointer", position: "relative" }}
         title="Cliquez pour obtenir des explications"
       >
         <span>MISSION</span>
+        <AnimatePresence>
+          {activeTooltip === "mission" && (
+            <HelperTooltip
+              text="Cadre de Mission : Glissez la cible vers la gauche/droite pour l'abandonner (pénalité de score ou de cœur), ou glissez le défi pour le relancer (consomme 1 jeton)."
+              position="bottom"
+              onClose={() => setActiveTooltip(null)}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ============================================================ */}
@@ -337,12 +351,21 @@ export default function TargetCard({
             title={`${playerSkips} relances disponibles`}
             onClick={(e) => {
               e.stopPropagation();
-              onTriggerTooltip && onTriggerTooltip(`Jetons de Relance : Vous disposez de ${playerSkips} relance(s). Glissez le défi du bas vers le côté pour en utiliser une.`);
+              setActiveTooltip(activeTooltip === "skips" ? null : "skips");
             }}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", position: "relative" }}
           >
             <span className="skips-icon-v2">🪙</span>
             <span className="skips-val-v2">{playerSkips}</span>
+            <AnimatePresence>
+              {activeTooltip === "skips" && (
+                <HelperTooltip
+                  text={`Jetons de Relance : Vous disposez de ${playerSkips} relance(s). Glissez le défi du bas vers le côté pour en utiliser une.`}
+                  position="top"
+                  onClose={() => setActiveTooltip(null)}
+                />
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </motion.div>

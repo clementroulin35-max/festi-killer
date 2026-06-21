@@ -4,8 +4,9 @@ import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { parseMessageToJSX } from "../utils/parseLogMessage";
 import { 
   Check, X, ShieldAlert, Heart, Trophy, RefreshCw,
-  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff
+  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff, Trash2
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GMDashboard({ gmTab = "arbitrage" }) {
   const {
@@ -49,6 +50,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   const [actPoints, setActPoints] = useState(30);
   const [actDamage, setActDamage] = useState(1.0);
   const [editingActionId, setEditingActionId] = useState(null);
+  const [deletingActionId, setDeletingActionId] = useState(null);
   const [toast, setToast] = useState(null);
 
   const showToast = (message, type = "success") => {
@@ -655,40 +657,8 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         </label>
                       </div>
 
-                      <div style={{ display: "flex", gap: 8, justifyContent: "space-between", marginTop: 12, width: "100%", alignItems: "center", flexWrap: "wrap" }}>
-                        {editingActionId !== null ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              deleteAction(editingActionId);
-                              cancelEditAction();
-                              showToast("Défi supprimé avec succès !", "danger");
-                            }}
-                            style={{
-                              backgroundColor: "rgba(255, 51, 102, 0.1)",
-                              border: "1px solid var(--neon-red)",
-                              color: "var(--neon-red)",
-                              padding: "8px 12px",
-                              borderRadius: "var(--border-radius-sm)",
-                              fontSize: "12px",
-                              fontWeight: "700",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: 6,
-                              fontFamily: "var(--font-sans)",
-                              height: "38px",
-                              boxSizing: "border-box"
-                            }}
-                          >
-                            <Trash size={14} /> Supprimer
-                          </button>
-                        ) : (
-                          <div />
-                        )}
-                        
-                        <div style={{ display: "flex", gap: 8, marginLeft: "auto" }}>
+                      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 12, width: "100%", alignItems: "center", flexWrap: "wrap" }}>
+                        <div style={{ display: "flex", gap: 8 }}>
                           <button 
                             type="submit" 
                             style={{
@@ -758,15 +728,80 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                           {list.map((act) => (
                             <div 
                               key={act.id} 
-                              className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
-                              onClick={() => startEditAction(act)}
-                              title="Cliquer pour modifier ou supprimer cette action"
+                              style={{ 
+                                position: "relative", 
+                                overflow: "hidden", 
+                                borderRadius: "var(--border-radius-sm)",
+                                flexShrink: 0,
+                                width: "100%"
+                              }}
                             >
-                              <div className="action-mini-header">
-                                <span className="action-mini-title">{act.title}</span>
-                                <span className="action-mini-rewards">+{act.points} pts / -{act.damage} HP</span>
+                              {/* Bouton de suppression rouge caché en arrière-plan */}
+                              <div 
+                                style={{
+                                  position: "absolute",
+                                  top: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  width: "80px",
+                                  backgroundColor: "rgba(255, 51, 102, 0.15)",
+                                  border: "1px solid rgba(255, 51, 102, 0.3)",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  zIndex: 1,
+                                  borderRadius: "var(--border-radius-sm)"
+                                }}
+                              >
+                                <div style={{
+                                  textTransform: "uppercase",
+                                  fontWeight: "900",
+                                  fontSize: "10px",
+                                  letterSpacing: "0.05em",
+                                  color: "var(--neon-red)",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  gap: "4px"
+                                }}>
+                                  <Trash2 size={14} />
+                                  <span>Supprimer</span>
+                                </div>
                               </div>
-                              <p className="action-mini-desc">{act.description}</p>
+
+                              {/* Composant glissable de premier plan */}
+                              <motion.div
+                                drag="x"
+                                dragConstraints={{ left: -80, right: 0 }}
+                                dragElastic={{ left: 0.1, right: 0 }}
+                                onDragEnd={(event, info) => {
+                                  if (info.offset.x < -45) {
+                                    setDeletingActionId(act.id);
+                                  }
+                                }}
+                                className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
+                                onClick={() => startEditAction(act)}
+                                style={{
+                                  position: "relative",
+                                  zIndex: 2,
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "2px",
+                                  cursor: "grab",
+                                  x: 0,
+                                  background: "rgba(20, 20, 25, 0.95)",
+                                  width: "100%"
+                                }}
+                              >
+                                <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                  <span className="action-mini-title" style={{ fontWeight: "700" }}>{act.title}</span>
+                                  <span className="action-mini-rewards">+{act.points} pts / -{act.damage} HP</span>
+                                </div>
+                                <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>{act.description}</p>
+                                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2px" }}>
+                                  <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
+                                </div>
+                              </motion.div>
                             </div>
                           ))}
                         </div>
@@ -776,6 +811,53 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                 </div>
               </div>
             </div>
+            {/* Pop-up de confirmation de suppression pour le GM */}
+            <AnimatePresence>
+              {deletingActionId && (
+                <motion.div
+                  className="confirm-modal-backdrop-v2"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{ zIndex: 11000 }}
+                >
+                  <motion.div
+                    className="confirm-modal-v2 type-red"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                  >
+                    <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)", textTransform: "uppercase" }}>Supprimer le défi ?</h3>
+                    <p className="confirm-modal-body-v2">
+                      Es-tu sûr de vouloir supprimer définitivement ce défi de la pool active ?
+                    </p>
+
+                    <div className="confirm-action-btns-v2">
+                      <button
+                        className="confirm-btn-primary-v2"
+                        style={{ backgroundColor: "var(--neon-red)", color: "#fff" }}
+                        onClick={() => {
+                          deleteAction(deletingActionId);
+                          setDeletingActionId(null);
+                          showToast("Défi supprimé avec succès !", "danger");
+                        }}
+                      >
+                        Supprimer
+                      </button>
+                      <button 
+                        className="confirm-btn-cancel-v2" 
+                        onClick={() => {
+                          setDeletingActionId(null);
+                        }}
+                      >
+                        Annuler
+                      </button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 

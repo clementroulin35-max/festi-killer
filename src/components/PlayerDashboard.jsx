@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useGame } from "../context/GameContext";
 import ZeldaHearts from "./ZeldaHearts";
 import TargetCard from "./TargetCard";
+import HelperTooltip from "./HelperTooltip";
 import {
   AlertCircle, Loader2, HeartCrack, Coins, User, Flag, ShieldAlert
 } from "lucide-react";
@@ -225,37 +226,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
       {/* Zombie scanline overlay */}
       {isZombie && <div className="zombie-overlay" />}
 
-      {/* Floating help tooltip */}
-      <AnimatePresence>
-        {activeTooltip && (
-          <motion.div
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            style={{
-              position: "absolute",
-              top: "10px",
-              left: "10px",
-              right: "10px",
-              backgroundColor: "rgba(18, 18, 22, 0.95)",
-              border: "1px solid var(--neon-gold)",
-              boxShadow: "0 0 15px rgba(245, 158, 11, 0.4)",
-              borderRadius: "var(--border-radius-sm)",
-              padding: "10px 14px",
-              zIndex: 1000,
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              cursor: "pointer"
-            }}
-            onClick={() => setActiveTooltip(null)}
-          >
-            <span style={{ fontSize: "16px", flexShrink: 0 }}>💡</span>
-            <span style={{ fontSize: "12px", color: "#fff", lineHeight: "1.4", fontWeight: "600" }}>{activeTooltip}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* 2. HUD Header V2 */}
       <motion.div className="hud-header-v2" layout transition={{ duration: 0.3 }}>
@@ -290,8 +261,11 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           {/* Moniteur vital (ECG) brut déporté à droite */}
           <div 
             className={`hud-vital-monitor-raw-v2 ${isZombie ? "zombie" : "alive"}`}
-            onClick={() => setActiveTooltip("ECG de combat. Indique vos constantes vitales. Si vos cœurs tombent à 0, vous devenez un Zombie.")}
-            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveTooltip(activeTooltip === "ecg" ? null : "ecg");
+            }}
+            style={{ cursor: "pointer", position: "relative" }}
             title="Cliquez pour obtenir des explications"
           >
             <svg viewBox="0 0 100 30" className="ecg-svg">
@@ -305,6 +279,15 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                 strokeLinejoin="round"
               />
             </svg>
+            <AnimatePresence>
+              {activeTooltip === "ecg" && (
+                <HelperTooltip
+                  text="ECG de combat. Indique vos constantes vitales. Si vos cœurs tombent à 0, vous devenez un Zombie."
+                  position="bottom"
+                  onClose={() => setActiveTooltip(null)}
+                />
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -312,19 +295,43 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
         <div className="hud-middle-row-v2">
           <div 
             className="hud-rank-wrapper-v2"
-            onClick={() => setActiveTooltip("Votre rang évolue selon vos points. Devenez une Légende ou le Prédateur Alpha !")}
-            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveTooltip(activeTooltip === "rank" ? null : "rank");
+            }}
+            style={{ cursor: "pointer", position: "relative" }}
             title="Cliquez pour obtenir des explications"
           >
             <span className="hud-rank-label-v2">{rank.icon} {rank.label}</span>
+            <AnimatePresence>
+              {activeTooltip === "rank" && (
+                <HelperTooltip
+                  text="Votre rang évolue selon vos points. Devenez une Légende ou le Prédateur Alpha !"
+                  position="bottom"
+                  onClose={() => setActiveTooltip(null)}
+                />
+              )}
+            </AnimatePresence>
           </div>
           <div 
             className="hud-score-wrapper-v2"
-            onClick={() => setActiveTooltip("Vos points accumulés. Réussir un défi vous rapporte des points, mourir ou paranoïer vous en fait perdre.")}
-            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveTooltip(activeTooltip === "score" ? null : "score");
+            }}
+            style={{ cursor: "pointer", position: "relative" }}
             title="Cliquez pour obtenir des explications"
           >
             <AnimatedScore score={player.score} />
+            <AnimatePresence>
+              {activeTooltip === "score" && (
+                <HelperTooltip
+                  text="Vos points accumulés. Réussir un défi vous rapporte des points, mourir ou paranoïer vous en fait perdre."
+                  position="bottom"
+                  onClose={() => setActiveTooltip(null)}
+                />
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
@@ -359,7 +366,8 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
             onSkipSwipe={handleSkipTrigger}
             playerSkips={player.skips}
             playerScore={player.score}
-            onTriggerTooltip={(text) => setActiveTooltip(text)}
+            activeTooltip={activeTooltip}
+            setActiveTooltip={setActiveTooltip}
           />
         </div>
       ) : (

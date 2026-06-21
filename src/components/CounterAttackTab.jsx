@@ -83,40 +83,91 @@ export default function CounterAttackTab({ playerName, logo }) {
 
             <table style={{
               width: "100%",
-              borderCollapse: "collapse",
-              border: "1px solid rgba(255, 51, 102, 0.2)",
-              borderRadius: "var(--border-radius-sm)",
-              backgroundColor: "rgba(255, 51, 102, 0.03)",
+              borderCollapse: "separate",
+              borderSpacing: "8px 0px",
               marginBottom: "14px",
               fontSize: "12px",
-              textAlign: "center"
+              textAlign: "center",
+              background: "transparent"
             }}>
               <tbody>
                 {/* Ligne 1: Logos */}
                 <tr>
-                  <td style={{ padding: "6px", width: "50%", borderRight: "1px solid rgba(255, 51, 102, 0.2)" }}>
+                  <td style={{ 
+                    padding: "8px", 
+                    width: "50%", 
+                    backgroundColor: "rgba(51, 255, 102, 0.04)", 
+                    border: "1px solid rgba(51, 255, 102, 0.2)", 
+                    borderRadius: "var(--border-radius-sm) var(--border-radius-sm) 0 0",
+                    borderBottom: "none"
+                  }}>
                     <span style={{ fontSize: "18px" }}>🟢</span>
                   </td>
-                  <td style={{ padding: "6px", width: "50%" }}>
+                  <td style={{ 
+                    padding: "8px", 
+                    width: "50%",
+                    backgroundColor: "rgba(255, 51, 102, 0.04)", 
+                    border: "1px solid rgba(255, 51, 102, 0.2)", 
+                    borderRadius: "var(--border-radius-sm) var(--border-radius-sm) 0 0",
+                    borderBottom: "none"
+                  }}>
                     <span style={{ fontSize: "18px" }}>🔴</span>
                   </td>
                 </tr>
                 {/* Ligne 2: Libellés */}
                 <tr>
-                  <td style={{ padding: "2px 6px", fontWeight: "900", color: "var(--neon-green)", textTransform: "uppercase", borderRight: "1px solid rgba(255, 51, 102, 0.2)", fontSize: "11px" }}>
+                  <td style={{ 
+                    padding: "2px 6px", 
+                    fontWeight: "900", 
+                    color: "var(--neon-green)", 
+                    textTransform: "uppercase", 
+                    fontSize: "11px",
+                    backgroundColor: "rgba(51, 255, 102, 0.04)", 
+                    borderLeft: "1px solid rgba(51, 255, 102, 0.2)",
+                    borderRight: "1px solid rgba(51, 255, 102, 0.2)"
+                  }}>
                     Correct
                   </td>
-                  <td style={{ padding: "2px 6px", fontWeight: "900", color: "var(--neon-red)", textTransform: "uppercase", fontSize: "11px" }}>
+                  <td style={{ 
+                    padding: "2px 6px", 
+                    fontWeight: "900", 
+                    color: "var(--neon-red)", 
+                    textTransform: "uppercase", 
+                    fontSize: "11px",
+                    backgroundColor: "rgba(255, 51, 102, 0.04)", 
+                    borderLeft: "1px solid rgba(255, 51, 102, 0.2)",
+                    borderRight: "1px solid rgba(255, 51, 102, 0.2)"
+                  }}>
                     Incorrect
                   </td>
                 </tr>
                 {/* Ligne 3: Descriptions */}
                 <tr>
-                  <td style={{ padding: "6px 8px 10px 8px", color: "#ffffff", borderRight: "1px solid rgba(255, 51, 102, 0.2)", verticalAlign: "top", fontSize: "10.5px", lineHeight: "1.4" }}>
-                    Son action est brûlée, il perd <strong>25 pts</strong>.
+                  <td style={{ 
+                    padding: "6px 8px 10px 8px", 
+                    color: "#ffffff", 
+                    verticalAlign: "top", 
+                    fontSize: "10.5px", 
+                    lineHeight: "1.4",
+                    backgroundColor: "rgba(51, 255, 102, 0.04)", 
+                    border: "1px solid rgba(51, 255, 102, 0.2)",
+                    borderTop: "none",
+                    borderRadius: "0 0 var(--border-radius-sm) var(--border-radius-sm)"
+                  }}>
+                    Son action est brûlée, il perd <strong>25 pts 🪙</strong>.
                   </td>
-                  <td style={{ padding: "6px 8px 10px 8px", color: "#ffffff", verticalAlign: "top", fontSize: "10.5px", lineHeight: "1.4" }}>
-                    Tu perds <strong>0.5 cœur</strong> pour paranoïa.
+                  <td style={{ 
+                    padding: "6px 8px 10px 8px", 
+                    color: "#ffffff", 
+                    verticalAlign: "top", 
+                    fontSize: "10.5px", 
+                    lineHeight: "1.4",
+                    backgroundColor: "rgba(255, 51, 102, 0.04)", 
+                    border: "1px solid rgba(255, 51, 102, 0.2)",
+                    borderTop: "none",
+                    borderRadius: "0 0 var(--border-radius-sm) var(--border-radius-sm)"
+                  }}>
+                    Tu perds <strong>0.5 cœur ❤️</strong> pour paranoïa.
                   </td>
                 </tr>
               </tbody>
