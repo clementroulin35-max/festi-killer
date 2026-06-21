@@ -4,10 +4,10 @@ import { motion } from "framer-motion";
 export default function HelperTooltip({ text, position = "top", align = "center", onClose }) {
   // Styles dynamiques de positionnement horizontal
   const alignStyle = align === "left" 
-    ? { left: 0, transform: "none" } 
+    ? { left: 0 } 
     : align === "right" 
-    ? { right: 0, left: "auto", transform: "none" } 
-    : { left: "50%", transform: "translateX(-50%)" };
+    ? { right: 0, left: "auto" } 
+    : { left: "50%" };
 
   const arrowStyle = align === "left"
     ? { left: "20px", transform: "none" }
@@ -17,9 +17,9 @@ export default function HelperTooltip({ text, position = "top", align = "center"
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9, y: position === "top" ? 8 : -8 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.9, y: position === "top" ? 8 : -8, x: align === "center" ? "-50%" : 0 }}
+      animate={{ opacity: 1, scale: 1, y: 0, x: align === "center" ? "-50%" : 0 }}
+      exit={{ opacity: 0, scale: 0.9, x: align === "center" ? "-50%" : 0 }}
       onClick={(e) => {
         e.stopPropagation();
         onClose();

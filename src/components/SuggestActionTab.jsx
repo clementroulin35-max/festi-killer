@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { Lightbulb, Loader2, X, PlusCircle, AlignJustify, Trash2, History, Check, Target, Droplet, HelpCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import SwipeToDeleteItem from "./SwipeToDeleteItem";
 
 export default function SuggestActionTab({ playerName }) {
   const { gameState, suggestAction, deleteSuggestedAction } = useGame();
@@ -379,82 +380,35 @@ export default function SuggestActionTab({ playerName }) {
                     }
 
                     return (
-                      <div 
-                        key={sug.id} 
-                        style={{ 
-                          position: "relative", 
-                          overflow: "hidden", 
-                          borderRadius: "var(--border-radius-sm)",
-                          flexShrink: 0,
-                          width: "100%"
-                        }}
+                      <SwipeToDeleteItem
+                        key={sug.id}
+                        onDelete={() => setDeletingActionId(sug.id)}
+                        onClick={() => {}}
+                        isSelected={false}
+                        revealOnSelect={false}
                       >
-                        {/* Bouton de suppression rouge caché en arrière-plan */}
-                        <div 
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            bottom: 0,
-                            width: "80px",
-                            backgroundColor: "rgba(255, 51, 102, 0.15)",
-                            border: "1px solid rgba(255, 51, 102, 0.3)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            zIndex: 1,
-                            borderRadius: "var(--border-radius-sm)"
-                          }}
-                        >
-                          <div style={{
-                            textTransform: "uppercase",
-                            fontWeight: "900",
-                            fontSize: "10px",
-                            letterSpacing: "0.05em",
-                            color: "var(--neon-red)",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            gap: "4px"
-                          }}>
-                            <Trash2 size={14} />
-                            <span>Supprimer</span>
-                          </div>
-                        </div>
-
-                        {/* Composant glissable de premier plan */}
-                        <motion.div
-                          drag="x"
-                          dragConstraints={{ left: -80, right: 0 }}
-                          dragElastic={{ left: 0.1, right: 0 }}
-                          onDragEnd={(event, info) => {
-                            if (info.offset.x < -45) {
-                              setDeletingActionId(sug.id);
-                            }
-                          }}
+                        <div
                           className="action-item-mini"
                           style={{
-                            position: "relative",
-                            zIndex: 2,
                             borderLeftColor: statusColor,
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
                             gap: "10px",
                             cursor: "grab",
-                            x: 0,
-                            background: "rgba(20, 20, 25, 0.95)"
+                            background: "rgba(20, 20, 25, 0.95)",
+                            width: "100%"
                           }}
                         >
                           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
-                          <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
-                            <span className="action-mini-rewards">
-                              {sug.metadata?.category === "action_fountain" ? "⛲ Action Fontaine" : 
-                               sug.metadata?.category === "verite_fountain" ? "⛲ Vérité Fontaine" : 
-                               `+${pts} pts / -${dmg} HP`}
-                            </span>
-                          </div>
+                            <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
+                              <span className="action-mini-rewards">
+                                {sug.metadata?.category === "action_fountain" ? "⛲ Action Fontaine" : 
+                                 sug.metadata?.category === "verite_fountain" ? "⛲ Vérité Fontaine" : 
+                                 `+${pts} pts / -${dmg} HP`}
+                              </span>
+                            </div>
                             {desc && (
                               <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "normal" }}>
                                 {desc}
@@ -467,8 +421,8 @@ export default function SuggestActionTab({ playerName }) {
                               <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
                             </div>
                           </div>
-                        </motion.div>
-                      </div>
+                        </div>
+                      </SwipeToDeleteItem>
                     );
                   })
                 )}

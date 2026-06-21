@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Droplet, RefreshCw, Check, Sparkles, AlertCircle, Skull, Heart } from "lucide-react";
+import { Droplet, RefreshCw, Check, Sparkles, AlertCircle, Skull, Heart, GlassWater } from "lucide-react";
 import HelperTooltip from "./HelperTooltip";
 import fountainTier1 from "../assets/fountain_tier1.png";
 import fountainTier2 from "../assets/fountain_tier2.png";
@@ -31,18 +31,18 @@ export default function FountainTab({ playerName }) {
   // Calcul du palier
   const totalUses = player.fountainTotalUses || 0;
   let fountainImg = fountainTier1;
-  let tierLabel = "Tier I - Source Timide";
+  let tierLabel = "Niveau I : Tranquille";
   let difficulty = "Facile";
   let tierColor = "var(--neon-green)";
 
   if (totalUses >= 3 && totalUses <= 4) {
     fountainImg = fountainTier2;
-    tierLabel = "Tier II - Source Éveillée";
+    tierLabel = "Niveau II : Agité";
     difficulty = "Moyen";
     tierColor = "var(--neon-blue)";
   } else if (totalUses >= 5) {
     fountainImg = fountainTier3;
-    tierLabel = "Tier III - Source Sacrée";
+    tierLabel = "Niveau III : Crazy";
     difficulty = "Difficile";
     tierColor = "var(--neon-gold)";
   }
@@ -56,6 +56,22 @@ export default function FountainTab({ playerName }) {
   
   // Fontaine active si non zombie, non full lives et utilisations restantes (peu importe si défi en cours ou non)
   const isFountainActive = !player.isZombie && !isFullHealth && usesLeft > 0;
+
+  const handleSwitchType = async (type) => {
+    if (isFountainDisabled || loadingAction) return;
+    setSelectedType(type);
+    if (hasActiveChallenge) {
+      setLoadingAction(true);
+      setErrorMsg("");
+      try {
+        await drawFountainChallenge(playerName, type);
+      } catch (err) {
+        setErrorMsg(err.message || "Erreur lors du changement de catégorie.");
+      } finally {
+        setLoadingAction(false);
+      }
+    }
+  };
 
   const handleDraw = async () => {
     if (isFountainDisabled) return;
@@ -112,8 +128,8 @@ export default function FountainTab({ playerName }) {
   };
 
   return (
-    <div className="glass-card-blue animate-fade-in" style={{ height: "100%" }}>
-      <div className="view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column", paddingBottom: "10px", justifyContent: "space-between" }}>
+    <div className="fountain-screen-layout">
+      <div className="glass-card-blue animate-fade-in view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column", paddingBottom: "10px", justifyContent: "space-between" }}>
         
         {/* 1. Titre de l'écran en premier */}
         <div style={{ textAlign: "center", marginBottom: "4px", flexShrink: 0 }}>
@@ -175,8 +191,8 @@ export default function FountainTab({ playerName }) {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "14px" }}>
           <div style={{ display: "flex", gap: "10px", justifyContent: "center", width: "100%" }}>
             <button
-              onClick={() => setSelectedType("action")}
-              disabled={isFountainDisabled || hasActiveChallenge}
+              onClick={() => handleSwitchType("action")}
+              disabled={isFountainDisabled}
               style={{
                 flex: 1,
                 backgroundColor: selectedType === "action" ? "rgba(59, 130, 246, 0.25)" : "rgba(255, 255, 255, 0.02)",
@@ -194,9 +210,9 @@ export default function FountainTab({ playerName }) {
             >
               Action
             </button>
-            <button
-              onClick={() => setSelectedType("verite")}
-              disabled={isFountainDisabled || hasActiveChallenge}
+             <button
+              onClick={() => handleSwitchType("verite")}
+              disabled={isFountainDisabled}
               style={{
                 flex: 1,
                 backgroundColor: selectedType === "verite" ? "rgba(59, 130, 246, 0.25)" : "rgba(255, 255, 255, 0.02)",
@@ -207,7 +223,7 @@ export default function FountainTab({ playerName }) {
                 fontSize: "11px",
                 fontWeight: "900",
                 textTransform: "uppercase",
-                cursor: (isFountainDisabled || hasActiveChallenge) ? "default" : "pointer",
+                cursor: isFountainDisabled ? "default" : "pointer",
                 boxShadow: selectedType === "verite" ? "0 0 10px rgba(59, 130, 246, 0.3)" : "none",
                 transition: "all 0.2s"
               }}
@@ -234,7 +250,7 @@ export default function FountainTab({ playerName }) {
         {/* 4. Fontaine et Compteurs à gauche */}
         <div style={{
           display: "flex",
-          alignItems: "flex-start",
+          alignItems: "center",
           justifyContent: "center",
           position: "relative",
           width: "100%",
@@ -249,8 +265,9 @@ export default function FountainTab({ playerName }) {
             flexDirection: "column",
             gap: "12px",
             position: "absolute",
-            left: "10px",
-            top: "10px",
+            left: "0px",
+            top: "50%",
+            transform: "translateY(-50%)",
             zIndex: 10
           }}>
             {/* Soins restants */}
@@ -339,8 +356,8 @@ export default function FountainTab({ playerName }) {
               justifyContent: "center"
             }}
           >
-            <span style={{ fontSize: "10px", color: tierColor, fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "6px" }}>
-              {tierLabel} (Défi {difficulty})
+            <span style={{ fontSize: "11px", color: "var(--neon-blue)", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "16px" }}>
+              {tierLabel}
             </span>
             <motion.img
               src={fountainImg}
@@ -374,33 +391,40 @@ export default function FountainTab({ playerName }) {
                 transition: "filter 0.5s ease"
               }}
             />
+
+            {/* Légende sous le prop de la fontaine */}
+            <AnimatePresence>
+              {(!isRevealed || !hasActiveChallenge) && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "6px",
+                    fontSize: "11px",
+                    fontStyle: "italic",
+                    color: "var(--text-muted)",
+                    marginTop: "12px",
+                    textTransform: "lowercase",
+                    userSelect: "none"
+                  }}
+                >
+                  <GlassWater size={12} style={{ color: "var(--neon-blue)" }} />
+                  <span>boire la source pour révéler</span>
+                  <span style={{ marginLeft: "2px" }}>👆</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
         {/* 5. Espace interactif sous la fontaine */}
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "60px", marginTop: "10px" }}>
           <AnimatePresence mode="wait">
-            {!isRevealed || !hasActiveChallenge ? (
-              <motion.div
-                key="reveal-prompt"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={handleFountainClick}
-                style={{
-                  fontStyle: "italic",
-                  textTransform: "uppercase",
-                  color: "var(--text-muted)",
-                  fontSize: "13px",
-                  fontWeight: "800",
-                  letterSpacing: "0.08em",
-                  cursor: isFountainActive ? "pointer" : "default",
-                  textAlign: "center"
-                }}
-              >
-                BOIRE LA SOURCE POUR RÉVÉLER
-              </motion.div>
-            ) : (
+            {isRevealed && hasActiveChallenge && (
               <motion.div
                 key="challenge-card"
                 initial={{ opacity: 0, y: 10 }}

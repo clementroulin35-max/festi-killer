@@ -217,13 +217,14 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
   ].filter(Boolean).join(" ");
 
   return (
-    <motion.div
-      className={containerClass}
-      style={{ display: "flex", flexDirection: "column", gap: 16, position: "relative" }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-    >
+    <div className="mission-screen-layout">
+      <motion.div
+        className={`${containerClass} view-scroll-content`}
+        style={{ display: "flex", flexDirection: "column", gap: 16, position: "relative" }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
       {/* Zombie scanline overlay */}
       {isZombie && <div className="zombie-overlay" />}
 
@@ -544,6 +545,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }

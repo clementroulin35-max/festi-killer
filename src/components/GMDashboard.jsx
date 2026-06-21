@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import defaultAvatar from "../assets/default_avatar.png";
+import SwipeToDeleteItem from "./SwipeToDeleteItem";
 
 export default function GMDashboard({ gmTab = "arbitrage" }) {
   const {
@@ -466,7 +467,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
         {/* --- 2. GM MODE TAB (PLAYERS & GOD MODE) --- */}
         {gmTab === "players" && (
-          <div className="auth-screen-layout">
+          <div className="players-gm-screen-layout">
             <div className="view-scroll-content">
               <div className="glass-card" style={{ width: "100%" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -737,7 +738,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
         {/* --- 3. RULES POOL TAB (FUSION DÉFIS & FONTAINE GM) --- */}
         {gmTab === "actions" && (
-          <div className="suggest-screen-layout">
+          <div className="rules-gm-screen-layout">
             <div className="view-scroll-content">
               <div className="glass-card-gold" style={{ width: "100%" }}>
                 <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-gold)", textAlign: "center", marginBottom: "14px", textTransform: "uppercase" }}>
@@ -960,7 +961,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                     </div>
 
                     {/* Liste des Défis Classiques */}
-                    <h3 style={{ marginTop: 20, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
+                    <h3 style={{ marginTop: 20, marginBottom: 0, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
                       Défis Actifs ({gameState.actionPool?.length || 0})
                     </h3>
                     <div className="actions-list-container" style={{ maxHeight: "400px" }}>
@@ -973,69 +974,20 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                             </h4>
                             <div className="actions-scroll-list" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                               {list.map((act) => (
-                                <div 
-                                  key={act.id} 
-                                  style={{ 
-                                    position: "relative", 
-                                    overflow: "hidden", 
-                                    borderRadius: "var(--border-radius-sm)",
-                                    flexShrink: 0,
-                                    width: "100%"
-                                  }}
+                                <SwipeToDeleteItem
+                                  key={act.id}
+                                  onDelete={() => setDeletingActionId(act.id)}
+                                  onClick={() => startEditAction(act)}
+                                  isSelected={false}
+                                  revealOnSelect={false}
                                 >
-                                  {/* Bouton de suppression rouge caché en arrière-plan */}
                                   <div 
+                                    className="action-item-mini"
                                     style={{
-                                      position: "absolute",
-                                      top: 0,
-                                      right: 0,
-                                      bottom: 0,
-                                      width: "80px",
-                                      backgroundColor: "rgba(255, 51, 102, 0.15)",
-                                      border: "1px solid rgba(255, 51, 102, 0.3)",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      zIndex: 1,
-                                      borderRadius: "var(--border-radius-sm)"
-                                    }}
-                                  >
-                                    <div style={{
-                                      textTransform: "uppercase",
-                                      fontWeight: "900",
-                                      fontSize: "10px",
-                                      letterSpacing: "0.05em",
-                                      color: "var(--neon-red)",
-                                      display: "flex",
-                                      flexDirection: "column",
-                                      alignItems: "center",
-                                      gap: "4px"
-                                    }}>
-                                      <Trash2 size={14} />
-                                      <span>Supprimer</span>
-                                    </div>
-                                  </div>
-
-                                  {/* Composant glissable de premier plan */}
-                                  <motion.div
-                                    drag="x"
-                                    dragConstraints={{ left: -80, right: 0 }}
-                                    dragElastic={{ left: 0.1, right: 0 }}
-                                    onDragEnd={(event, info) => {
-                                      if (info.offset.x < -45) {
-                                        setDeletingActionId(act.id);
-                                      }
-                                    }}
-                                    className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
-                                    onClick={() => startEditAction(act)}
-                                    style={{
-                                      position: "relative",
-                                      zIndex: 2,
                                       display: "flex",
                                       flexDirection: "column",
                                       gap: "2px",
                                       cursor: "grab",
-                                      x: 0,
                                       background: "rgba(20, 20, 25, 0.95)",
                                       width: "100%"
                                     }}
@@ -1048,8 +1000,8 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2px" }}>
                                       <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
                                     </div>
-                                  </motion.div>
-                                </div>
+                                  </div>
+                                </SwipeToDeleteItem>
                               ))}
                             </div>
                           </div>
@@ -1177,69 +1129,20 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                 {items.map((item) => {
                                   const isSelected = editingFountainId === item.id;
                                   return (
-                                    <div
+                                    <SwipeToDeleteItem
                                       key={item.id}
-                                      style={{
-                                        position: "relative",
-                                        overflow: "hidden",
-                                        borderRadius: "var(--border-radius-sm)",
-                                        flexShrink: 0,
-                                        width: "100%"
-                                      }}
+                                      onDelete={() => setDeletingFountainId(item.id)}
+                                      onClick={() => startEditFountainChallenge(item)}
+                                      isSelected={isSelected}
+                                      revealOnSelect={true}
                                     >
-                                      {/* Bouton de suppression rouge caché en arrière-plan */}
-                                      <div 
-                                        style={{
-                                          position: "absolute",
-                                          top: 0,
-                                          right: 0,
-                                          bottom: 0,
-                                          width: "80px",
-                                          backgroundColor: "rgba(255, 51, 102, 0.15)",
-                                          border: "1px solid rgba(255, 51, 102, 0.3)",
-                                          display: "flex",
-                                          alignItems: "center",
-                                          justifyContent: "center",
-                                          zIndex: 1,
-                                          borderRadius: "var(--border-radius-sm)"
-                                        }}
-                                      >
-                                        <div style={{
-                                          textTransform: "uppercase",
-                                          fontWeight: "900",
-                                          fontSize: "10px",
-                                          letterSpacing: "0.05em",
-                                          color: "var(--neon-red)",
-                                          display: "flex",
-                                          flexDirection: "column",
-                                          alignItems: "center",
-                                          gap: "4px"
-                                        }}>
-                                          <Trash2 size={14} />
-                                          <span>Supprimer</span>
-                                        </div>
-                                      </div>
-
-                                      {/* Composant glissable de premier plan */}
-                                      <motion.div
-                                        drag="x"
-                                        dragConstraints={{ left: -80, right: 0 }}
-                                        dragElastic={{ left: 0.1, right: 0 }}
-                                        onDragEnd={(event, info) => {
-                                          if (info.offset.x < -45) {
-                                            setDeletingFountainId(item.id);
-                                          }
-                                        }}
+                                      <div
                                         className={`action-item-mini ${isSelected ? "editing-highlight" : ""}`}
-                                        onClick={() => startEditFountainChallenge(item)}
                                         style={{
-                                          position: "relative",
-                                          zIndex: 2,
                                           display: "flex",
                                           flexDirection: "column",
                                           gap: "2px",
                                           cursor: "grab",
-                                          x: 0,
                                           background: isSelected 
                                             ? "rgba(139, 92, 246, 0.22)" 
                                             : "rgba(20, 20, 25, 0.95)",
@@ -1258,8 +1161,8 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
                                           <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
                                         </div>
-                                      </motion.div>
-                                    </div>
+                                      </div>
+                                    </SwipeToDeleteItem>
                                   );
                                 })}
                               </div>
@@ -1359,7 +1262,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
         {/* --- 5. QR CODE TAB --- */}
         {gmTab === "qrcode" && (
-          <div className="auth-screen-layout" style={{ height: "100%" }}>
+          <div className="qrcode-screen-layout" style={{ height: "100%" }}>
             <div className="view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column" }}>
               <div className="glass-card" style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, padding: "20px" }}>
                 <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-purple)", textAlign: "center", marginBottom: "14px", textTransform: "uppercase" }}>

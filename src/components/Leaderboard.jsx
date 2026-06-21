@@ -184,7 +184,7 @@ export default function Leaderboard({ players, history }) {
                       <div className="row-right" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", justifyContent: "center", gap: "2px", flexShrink: 0 }}>
                         <span className="row-score" style={{ color: "var(--text-primary)", fontWeight: "800", fontSize: "14px" }}>{player.score} pts</span>
                         <span className="row-lives" style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
-                          {player.isZombie ? "💀 ZOMBIE" : `${player.lives} ❤️`}
+                          {player.isZombie ? "💀" : `${player.lives} ❤️`}
                         </span>
                       </div>
                     </div>
@@ -219,19 +219,16 @@ export default function Leaderboard({ players, history }) {
                     <Trophy className="trophy-gold" size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800" }}>🏆 Prédateur Alpha</h4>
-                    <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Le plus haut score en points. L'assassin ultime.</p>
+                    <h4 style={{ color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800" }}>Prédateur Alpha</h4>
+                    <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>Le plus haut score en points. L'assassin ultime.</p>
                   </div>
                 </div>
                 <div style={{
                   marginTop: "8px",
                   paddingTop: "8px",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center"
+                  textAlign: "center"
                 }}>
-                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Détenteur(s) :</span>
                   <strong style={{ fontSize: "14px", color: "var(--text-primary)" }}>
                     {predators.join(", ") || "Aucun pour l'instant"}
                   </strong>
@@ -259,19 +256,16 @@ export default function Leaderboard({ players, history }) {
                     <Shield className="trophy-red" fill="#ef4444" color="#ef4444" size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ color: "var(--neon-red)", fontSize: "14px", fontWeight: "800" }}>🛡️ Survivant Ultime</h4>
-                    <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Celui à qui il reste le plus de cœurs d'énergie Zelda.</p>
+                    <h4 style={{ color: "var(--neon-red)", fontSize: "14px", fontWeight: "800" }}>Survivant Ultime</h4>
+                    <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>Celui à qui il reste le plus de cœurs d'énergie Zelda.</p>
                   </div>
                 </div>
                 <div style={{
                   marginTop: "8px",
                   paddingTop: "8px",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center"
+                  textAlign: "center"
                 }}>
-                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Détenteur(s) :</span>
                   <strong style={{ fontSize: "14px", color: "var(--text-primary)" }}>
                     {survivors.join(", ") || "Aucun pour l'instant"}
                   </strong>
@@ -299,19 +293,16 @@ export default function Leaderboard({ players, history }) {
                     <Shuffle className="trophy-purple" size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ color: "var(--neon-purple)", fontSize: "14px", fontWeight: "800" }}>🎲 Joueur Fou</h4>
-                    <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>Celui qui a cumulé le plus d'actions tactiques (Skips + Abandons).</p>
+                    <h4 style={{ color: "var(--neon-purple)", fontSize: "14px", fontWeight: "800" }}>Joueur Fou</h4>
+                    <p style={{ fontSize: "13px", color: "var(--text-muted)" }}>Celui qui a cumulé le plus d'actions tactiques (Skips + Abandons).</p>
                   </div>
                 </div>
                 <div style={{
                   marginTop: "8px",
                   paddingTop: "8px",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center"
+                  textAlign: "center"
                 }}>
-                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Détenteur(s) :</span>
                   <strong style={{ fontSize: "14px", color: "var(--text-primary)" }}>
                     {crazyPlayers.length > 0 ? `${crazyPlayers.join(", ")} (${maxSkipsCount} actions)` : "Aucun pour l'instant"}
                   </strong>
