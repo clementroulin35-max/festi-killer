@@ -305,10 +305,10 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
             renderTutorialSlide()
           ) : (
             /* Slide 5: Photo Profil setup (Original Form) */
-            <div className="photo-setup-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%" }}>
-              <div className="setup-header" style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <h2>Bonjour {playerName} !</h2>
-                <p className="setup-subtitle" style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.4 }}>
+            <div className="photo-setup-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "6px", width: "100%", marginTop: "-10px" }}>
+              <div className="setup-header" style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <h2 style={{ fontSize: "20px", lineHeight: 1.2 }}>Bonjour {playerName} !</h2>
+                <p className="setup-subtitle" style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.3 }}>
                   Prends ou importe une photo en direct pour t'identifier dans la partie.
                 </p>
               </div>

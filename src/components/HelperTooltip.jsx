@@ -1,7 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 
-export default function HelperTooltip({ text, position = "top", align = "center", onClose }) {
+export default function HelperTooltip({ text, position = "top", align = "center", onClose, isZombie = false }) {
+  const neonColor = isZombie ? "var(--neon-red)" : "var(--neon-gold)";
+  const glowColor = isZombie ? "rgba(255, 51, 102, 0.35)" : "rgba(245, 158, 11, 0.3)";
+
   // Styles dynamiques de positionnement horizontal
   const alignStyle = align === "left" 
     ? { left: 0 } 
@@ -30,8 +33,8 @@ export default function HelperTooltip({ text, position = "top", align = "center"
         [position === "top" ? "bottom" : "top"]: "calc(100% + 8px)",
         ...alignStyle,
         backgroundColor: "rgba(18, 18, 22, 0.98)",
-        border: "2px solid var(--neon-gold)",
-        boxShadow: "0 0 10px rgba(245, 158, 11, 0.3)",
+        border: `2px solid ${neonColor}`,
+        boxShadow: `0 0 10px ${glowColor}`,
         borderRadius: "var(--border-radius-sm)",
         padding: "8px 12px",
         zIndex: 1000000,
@@ -59,10 +62,11 @@ export default function HelperTooltip({ text, position = "top", align = "center"
           [position === "top" ? "top" : "bottom"]: "100%",
           borderWidth: position === "top" ? "6px 6px 0 6px" : "0 6px 6px 6px",
           borderColor: position === "top" 
-            ? "var(--neon-gold) transparent transparent transparent" 
-            : "transparent transparent var(--neon-gold) transparent"
+            ? `${neonColor} transparent transparent transparent` 
+            : `transparent transparent ${neonColor}`
         }}
       />
     </motion.div>
   );
 }
+

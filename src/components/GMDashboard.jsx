@@ -961,7 +961,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                     </div>
 
                     {/* Liste des Défis Classiques */}
-                    <h3 style={{ marginTop: 20, marginBottom: 0, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
+                    <h3 style={{ marginTop: 20, marginBottom: "12px", color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
                       Défis Actifs ({gameState.actionPool?.length || 0})
                     </h3>
                     <div className="actions-list-container" style={{ maxHeight: "400px" }}>
@@ -978,18 +978,26 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                   key={act.id}
                                   onDelete={() => setDeletingActionId(act.id)}
                                   onClick={() => startEditAction(act)}
-                                  isSelected={false}
+                                  isSelected={editingActionId === act.id}
                                   revealOnSelect={false}
                                 >
                                   <div 
-                                    className="action-item-mini"
+                                    className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
                                     style={{
                                       display: "flex",
                                       flexDirection: "column",
                                       gap: "2px",
                                       cursor: "grab",
-                                      background: "rgba(20, 20, 25, 0.95)",
-                                      width: "100%"
+                                      background: editingActionId === act.id
+                                        ? "rgba(139, 92, 246, 0.22)"
+                                        : "rgba(20, 20, 25, 0.95)",
+                                      border: editingActionId === act.id
+                                        ? "1.5px solid var(--neon-purple)"
+                                        : "1px solid transparent",
+                                      boxShadow: editingActionId === act.id ? "0 0 10px rgba(139, 92, 246, 0.25)" : "none",
+                                      borderRadius: "var(--border-radius-sm)",
+                                      width: "100%",
+                                      transition: "all 0.2s ease"
                                     }}
                                   >
                                     <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1134,7 +1142,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                       onDelete={() => setDeletingFountainId(item.id)}
                                       onClick={() => startEditFountainChallenge(item)}
                                       isSelected={isSelected}
-                                      revealOnSelect={true}
+                                      revealOnSelect={false}
                                     >
                                       <div
                                         className={`action-item-mini ${isSelected ? "editing-highlight" : ""}`}

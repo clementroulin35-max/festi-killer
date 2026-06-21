@@ -80,8 +80,8 @@ Quand les cœurs d'un joueur tombent à **0 cœurs** :
 Pour regagner des cœurs durant le festival, vous pouvez vous rendre à la **Fontaine de Vie**.
 
 * **Mécanique de Soin :** La fontaine propose des défis de type **Action** ou **Vérité**. Réussir un défi de fontaine vous rapporte immédiatement **+0.5 cœur** ❤️ (limité à un capital maximum de **7 cœurs**).
-* **Utilisation Quotidienne :** Vous disposez de **2 utilisations de fontaine par jour** (`Soins : X/2`).
-* **Les Relances (Refreshes) :** Si un défi ne vous convient pas, vous pouvez le passer. Vous disposez de **3 relances par jour** (`Relances : Y/3`). Passer un défi consomme une relance et pioche un nouveau défi de même type.
+* **Utilisation Quotidienne (Non cumulable) :** Vous disposez de **2 utilisations de la fontaine par jour** maximum. Chaque matin, votre nombre d'utilisations disponibles est réinitialisé à **2** (les utilisations restantes ne se cumulent pas).
+* **Les Relances (Cumulables) :** Si un défi ne vous convient pas, vous pouvez le passer. Vous recevez **+3 relances par jour** chaque matin, et elles sont **entièrement cumulables** de jour en jour si vous ne les utilisez pas.
 * **Évolution & Paliers de Difficulté :** La fontaine évolue en fonction de votre total d'utilisations historique (`fountain_total_uses`) :
   * **0 à 2 utilisations** : Difficulté **Facile** (Tier I - Source Timide)
   * **3 à 4 utilisations** : Difficulté **Moyen** (Tier II - Source Éveillée)

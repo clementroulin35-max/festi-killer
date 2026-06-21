@@ -229,6 +229,7 @@ export default function TargetCard({
               text="Cadre de Mission : Glissez la cible vers la gauche/droite pour l'abandonner (pénalité de score ou de cœur), ou glissez le défi pour le relancer (consomme 1 jeton)."
               position="bottom"
               onClose={() => setActiveTooltip(null)}
+              isZombie={isZombie}
             />
           )}
         </AnimatePresence>
@@ -368,6 +369,7 @@ export default function TargetCard({
                   position="top"
                   align="right"
                   onClose={() => setActiveTooltip(null)}
+                  isZombie={isZombie}
                 />
               )}
             </AnimatePresence>

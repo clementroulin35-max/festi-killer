@@ -106,7 +106,7 @@ export const GameProvider = ({ children }) => {
         actionEphemeral: p.action_ephemeral,
         photo: p.photo,
         fountainUsesToday: p.fountain_uses_today || 0,
-        fountainRefreshesToday: p.fountain_refreshes_today || 0,
+        fountainRefreshesToday: p.fountain_refreshes_today === null ? 3 : p.fountain_refreshes_today,
         fountainTotalUses: p.fountain_total_uses || 0,
         fountainActiveType: p.fountain_active_type,
         fountainActiveTitle: p.fountain_active_title,
@@ -1189,8 +1189,8 @@ export const GameProvider = ({ children }) => {
     const player = gameState.players.find(p => p.name === playerName);
     if (!player) return;
 
-    if ((player.fountainRefreshesToday || 0) >= 3) {
-      throw new Error("Vous avez atteint la limite quotidienne de 3 relances.");
+    if (player.fountainRefreshesToday <= 0) {
+      throw new Error("Vous n'avez plus de relances disponibles.");
     }
 
     setLoading(true);
@@ -1236,7 +1236,7 @@ export const GameProvider = ({ children }) => {
       await supabase
         .from("players")
         .update({
-          fountain_refreshes_today: (player.fountainRefreshesToday || 0) + 1,
+          fountain_refreshes_today: Math.max(0, player.fountainRefreshesToday - 1),
           fountain_active_title: chosenChallenge.title,
           fountain_active_description: chosenChallenge.description
         })
@@ -1304,12 +1304,17 @@ export const GameProvider = ({ children }) => {
     setLoading(true);
     try {
       // Fetch all players for the room
-      const { data: dbPlayers } = await supabase.from("players").select("name, skips").eq("game_code", gameCode);
+      const { data: dbPlayers } = await supabase.from("players").select("name, skips, fountain_refreshes_today").eq("game_code", gameCode);
       if (dbPlayers) {
         for (const p of dbPlayers) {
+          const currentRefreshes = p.fountain_refreshes_today === null ? 3 : p.fountain_refreshes_today;
           await supabase
             .from("players")
-            .update({ skips: p.skips + 1 })
+            .update({ 
+              skips: p.skips + 1,
+              fountain_uses_today: 0,
+              fountain_refreshes_today: currentRefreshes + 3
+            })
             .eq("game_code", gameCode)
             .eq("name", p.name);
         }

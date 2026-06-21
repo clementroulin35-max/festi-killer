@@ -292,6 +292,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   position="bottom"
                   align="right"
                   onClose={() => setActiveTooltip(null)}
+                  isZombie={player.isZombie}
                 />
               )}
             </AnimatePresence>
@@ -317,6 +318,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   position="bottom"
                   align="left"
                   onClose={() => setActiveTooltip(null)}
+                  isZombie={player.isZombie}
                 />
               )}
             </AnimatePresence>
@@ -338,6 +340,7 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
                   position="bottom"
                   align="right"
                   onClose={() => setActiveTooltip(null)}
+                  isZombie={player.isZombie}
                 />
               )}
             </AnimatePresence>

@@ -132,7 +132,7 @@ export default function FountainTab({ playerName }) {
       <div className="glass-card-blue animate-fade-in view-scroll-content" style={{ height: "100%", display: "flex", flexDirection: "column", paddingBottom: "10px", justifyContent: "space-between" }}>
         
         {/* 1. Titre de l'écran en premier */}
-        <div style={{ textAlign: "center", marginBottom: "4px", flexShrink: 0 }}>
+        <div style={{ textAlign: "center", marginBottom: "14px", flexShrink: 0 }}>
           <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-blue)", textTransform: "uppercase", margin: 0 }}>
             Fontaine de Vie
           </h2>
@@ -143,7 +143,7 @@ export default function FountainTab({ playerName }) {
           fontSize: "12px",
           color: "var(--text-secondary)",
           textAlign: "center",
-          margin: "0 auto 12px auto",
+          margin: "0 auto 16px auto",
           maxWidth: "320px",
           lineHeight: "1.4",
           flexShrink: 0
@@ -187,8 +187,26 @@ export default function FountainTab({ playerName }) {
           </div>
         )}
 
+        {!player.isZombie && !isFullHealth && usesLeft <= 0 && (
+          <div style={{
+            background: "rgba(245, 158, 11, 0.15)",
+            border: "1px solid var(--neon-gold)",
+            borderRadius: "var(--border-radius-sm)",
+            padding: "8px 12px",
+            color: "var(--neon-gold)",
+            fontSize: "12px",
+            fontWeight: "bold",
+            textAlign: "center",
+            margin: "0 auto 12px auto",
+            maxWidth: "300px",
+            flexShrink: 0
+          }}>
+            🪹 SOURCE ÉPUISÉE : Vous n'avez plus d'utilisation disponible aujourd'hui.
+          </div>
+        )}
+
         {/* 3. Switch sous forme de boutons-poussoirs individuels */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "14px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "24px" }}>
           <div style={{ display: "flex", gap: "10px", justifyContent: "center", width: "100%" }}>
             <button
               onClick={() => handleSwitchType("action")}
@@ -255,7 +273,7 @@ export default function FountainTab({ playerName }) {
           position: "relative",
           width: "100%",
           maxWidth: "280px",
-          margin: "0 auto",
+          margin: "12px auto 0 auto",
           flex: 1,
           minHeight: 0
         }}>
@@ -282,19 +300,20 @@ export default function FountainTab({ playerName }) {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "4px",
-                background: "rgba(16, 185, 129, 0.08)",
-                border: "2px solid var(--neon-gold)",
+                background: usesLeft > 0 ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.02)",
+                border: usesLeft > 0 ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
+                opacity: usesLeft > 0 ? 1 : 0.4,
                 borderRadius: "var(--border-radius-sm)",
                 width: "36px",
                 height: "36px",
                 cursor: "pointer",
                 position: "relative",
-                boxShadow: "0 0 5px rgba(245, 158, 11, 0.2)",
+                boxShadow: usesLeft > 0 ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
                 boxSizing: "border-box"
               }}
             >
-              <Heart size={13} fill="var(--neon-gold)" style={{ color: "var(--neon-gold)", display: "block" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: "#ffffff", lineHeight: 1 }}>{usesLeft}</span>
+              <Heart size={13} fill={usesLeft > 0 ? "var(--neon-gold)" : "var(--text-muted)"} style={{ color: usesLeft > 0 ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
+              <span style={{ fontSize: "11px", fontWeight: "900", color: usesLeft > 0 ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{usesLeft}</span>
               <AnimatePresence>
                 {activeTooltip === "uses" && (
                   <HelperTooltip
@@ -319,19 +338,20 @@ export default function FountainTab({ playerName }) {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "4px",
-                background: "rgba(245, 158, 11, 0.08)",
-                border: "2px solid var(--neon-gold)",
+                background: refreshesLeft > 0 ? "rgba(245, 158, 11, 0.08)" : "rgba(255, 255, 255, 0.02)",
+                border: refreshesLeft > 0 ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
+                opacity: refreshesLeft > 0 ? 1 : 0.4,
                 borderRadius: "var(--border-radius-sm)",
                 width: "36px",
                 height: "36px",
                 cursor: "pointer",
                 position: "relative",
-                boxShadow: "0 0 5px rgba(245, 158, 11, 0.2)",
+                boxShadow: refreshesLeft > 0 ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
                 boxSizing: "border-box"
               }}
             >
-              <RefreshCw size={13} style={{ color: "var(--neon-gold)", display: "block" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: "#ffffff", lineHeight: 1 }}>{refreshesLeft}</span>
+              <RefreshCw size={13} style={{ color: refreshesLeft > 0 ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
+              <span style={{ fontSize: "11px", fontWeight: "900", color: refreshesLeft > 0 ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{refreshesLeft}</span>
               <AnimatePresence>
                 {activeTooltip === "refreshes" && (
                   <HelperTooltip
@@ -356,7 +376,7 @@ export default function FountainTab({ playerName }) {
               justifyContent: "center"
             }}
           >
-            <span style={{ fontSize: "11px", color: "var(--neon-blue)", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "16px" }}>
+            <span style={{ fontSize: "11px", color: "var(--neon-blue)", fontWeight: "900", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: "20px" }}>
               {tierLabel}
             </span>
             <motion.img
@@ -391,33 +411,6 @@ export default function FountainTab({ playerName }) {
                 transition: "filter 0.5s ease"
               }}
             />
-
-            {/* Légende sous le prop de la fontaine */}
-            <AnimatePresence>
-              {(!isRevealed || !hasActiveChallenge) && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "6px",
-                    fontSize: "11px",
-                    fontStyle: "italic",
-                    color: "var(--text-muted)",
-                    marginTop: "12px",
-                    textTransform: "lowercase",
-                    userSelect: "none"
-                  }}
-                >
-                  <GlassWater size={12} style={{ color: "var(--neon-blue)" }} />
-                  <span>boire la source pour révéler</span>
-                  <span style={{ marginLeft: "2px" }}>👆</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </div>
 
