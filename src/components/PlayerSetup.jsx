@@ -243,7 +243,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
             <div className="slide-points">
               <div className="point-item">💀 <strong>Insaisissable</strong> : Les vivants ne peuvent plus te cibler.</div>
               <div className="point-item">🪙 <strong>Score pénalisé</strong> : Tes hits validés ne rapportent plus que la moitié des points.</div>
-              <div className="point-item">🧟 <strong>Pas de résurrection automatique</strong> : Ressuscite avec la Fontaine ou par le GM.</div>
+              <div className="point-item">🧟 <strong>Pas de résurrection</strong> : Tu restes zombie. La fontaine t'est inaccessible.</div>
             </div>
           </div>
         );

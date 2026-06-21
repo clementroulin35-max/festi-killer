@@ -5,7 +5,7 @@ import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { parseMessageToJSX } from "../utils/parseLogMessage";
 import { 
   Check, X, ShieldAlert, Heart, Trophy, RefreshCw,
-  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff, Trash2
+  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff, Trash2, Droplet, HelpCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import defaultAvatar from "../assets/default_avatar.png";
@@ -74,6 +74,9 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   const [loadingFountain, setLoadingFountain] = useState(false);
   const [deletingFountainId, setDeletingFountainId] = useState(null);
 
+  const [activeRulesSubtab, setActiveRulesSubtab] = useState("defis"); // 'defis', 'actions', 'verites'
+  const [editingFountainId, setEditingFountainId] = useState(null);
+
   const fetchFountainPool = async () => {
     if (!gameCode) return;
     const { data, error } = await supabase
@@ -87,36 +90,70 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   };
 
   useEffect(() => {
-    if (gmTab === "fountain" && gameCode) {
+    if ((gmTab === "actions" || gmTab === "fountain") && gameCode) {
       fetchFountainPool();
     }
   }, [gmTab, gameCode]);
 
-  const handleAddFountainChallenge = async (e) => {
+  const handleAddOrEditFountainChallenge = async (e) => {
     e.preventDefault();
     if (!fountainTitle.trim() || !fountainDesc.trim()) return;
     setLoadingFountain(true);
     try {
-      const { error } = await supabase
-        .from("fountain_pool")
-        .insert({
-          game_code: gameCode,
-          type: fountainType,
-          title: fountainTitle.trim(),
-          description: fountainDesc.trim(),
-          difficulty: fountainDiff
-        });
+      const currentType = activeRulesSubtab === "actions" ? "action" : "verite";
+      if (editingFountainId !== null) {
+        const { error } = await supabase
+          .from("fountain_pool")
+          .update({
+            title: fountainTitle.trim(),
+            description: fountainDesc.trim(),
+            difficulty: fountainDiff
+          })
+          .eq("id", editingFountainId);
 
-      if (error) throw error;
-      showToast("Défi Fontaine ajouté !", "success");
+        if (error) throw error;
+        showToast("Défi Fontaine mis à jour !", "success");
+        setEditingFountainId(null);
+      } else {
+        const { error } = await supabase
+          .from("fountain_pool")
+          .insert({
+            game_code: gameCode,
+            type: currentType,
+            title: fountainTitle.trim(),
+            description: fountainDesc.trim(),
+            difficulty: fountainDiff
+          });
+
+        if (error) throw error;
+        showToast("Défi Fontaine ajouté !", "success");
+      }
       setFountainTitle("");
       setFountainDesc("");
       await fetchFountainPool();
     } catch (err) {
-      showToast(err.message || "Erreur d'ajout", "error");
+      showToast(err.message || "Erreur d'enregistrement", "error");
     } finally {
       setLoadingFountain(false);
     }
+  };
+
+  const startEditFountainChallenge = (item) => {
+    setEditingFountainId(item.id);
+    setFountainTitle(item.title);
+    setFountainDesc(item.description);
+    setFountainDiff(item.difficulty);
+    // Smooth scroll support
+    setTimeout(() => {
+      document.querySelector(".fountain-form-card")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
+
+  const cancelEditFountainChallenge = () => {
+    setEditingFountainId(null);
+    setFountainTitle("");
+    setFountainDesc("");
+    setFountainDiff("facile");
   };
 
   const handleDeleteFountainChallenge = async (id) => {
@@ -329,46 +366,69 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                           )}
 
                           {event.type === "action_suggestion" && (() => {
-                            const editData = suggestionEdits[event.id] || {
-                              points: event.metadata?.points !== undefined ? event.metadata.points : 30,
-                              damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0
-                            };
-                            return (
-                              <div className="suggestion-approval-container">
-                                <div className="suggestion-edit-fields">
-                                  <label className="edit-sug-lbl">
-                                    Points :
-                                    <input 
-                                      type="number" 
-                                      value={editData.points} 
-                                      min="0"
-                                      onChange={(e) => updateSugEdit(event.id, "points", Number(e.target.value), event.metadata)}
-                                      className="neon-input text-input-sug"
-                                    />
-                                  </label>
-                                  <label className="edit-sug-lbl">
-                                    Cœurs :
-                                    <input 
-                                      type="number" 
-                                      value={editData.damage} 
-                                      step="0.25"
-                                      min="0"
-                                      max="7"
-                                      onChange={(e) => updateSugEdit(event.id, "damage", Number(e.target.value), event.metadata)}
-                                      className="neon-input text-input-sug"
-                                    />
-                                  </label>
+                            const category = event.metadata?.category || "defi";
+                            if (category === "defi") {
+                              const editData = suggestionEdits[event.id] || {
+                                points: event.metadata?.points !== undefined ? event.metadata.points : 30,
+                                damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0
+                              };
+                              return (
+                                <div className="suggestion-approval-container">
+                                  <div className="suggestion-edit-fields">
+                                    <label className="edit-sug-lbl">
+                                      Points :
+                                      <input 
+                                        type="number" 
+                                        value={editData.points} 
+                                        min="0"
+                                        onChange={(e) => updateSugEdit(event.id, "points", Number(e.target.value), event.metadata)}
+                                        className="neon-input text-input-sug"
+                                        style={{ textAlign: "left" }}
+                                      />
+                                    </label>
+                                    <label className="edit-sug-lbl">
+                                      Cœurs :
+                                      <input 
+                                        type="number" 
+                                        value={editData.damage} 
+                                        step="0.25"
+                                        min="0"
+                                        max="7"
+                                        onChange={(e) => updateSugEdit(event.id, "damage", Number(e.target.value), event.metadata)}
+                                        className="neon-input text-input-sug"
+                                        style={{ textAlign: "left" }}
+                                      />
+                                    </label>
+                                  </div>
+                                  <div className="sug-approve-btns">
+                                    <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok">
+                                      <Check size={14} /> Ajouter à la Pool
+                                    </button>
+                                    <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no">
+                                      <X size={14} /> Rejeter
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="sug-approve-btns">
-                                  <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok">
-                                    <Check size={14} /> Ajouter à la Pool
-                                  </button>
-                                  <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no">
-                                    <X size={14} /> Rejeter
-                                  </button>
+                              );
+                            } else {
+                              const typeLabel = category === "action_fountain" ? "Fontaine : Action" : "Fontaine : Vérité";
+                              const diffLabel = event.metadata?.difficulty === "facile" ? "Facile" : event.metadata?.difficulty === "moyen" ? "Moyen" : "Difficile";
+                              return (
+                                <div className="suggestion-approval-container" style={{ flexDirection: "column", gap: "8px", width: "100%" }}>
+                                  <div style={{ fontSize: "11px", color: "var(--neon-blue)", fontWeight: "800", textTransform: "uppercase" }}>
+                                    Catégorie : {typeLabel} ({diffLabel})
+                                  </div>
+                                  <div className="sug-approve-btns" style={{ display: "flex", gap: "8px", width: "100%" }}>
+                                    <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok" style={{ flex: 1 }}>
+                                      <Check size={14} /> Valider Fontaine
+                                    </button>
+                                    <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no" style={{ flex: 1 }}>
+                                      <X size={14} /> Rejeter
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
-                            );
+                              );
+                            }
                           })()}
 
                           {event.type !== "counter_attack" && event.type !== "action_suggestion" && (
@@ -675,233 +735,541 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
           </div>
         )}
 
-        {/* --- 3. ACTIONS POOL TAB --- */}
+        {/* --- 3. RULES POOL TAB (FUSION DÉFIS & FONTAINE GM) --- */}
         {gmTab === "actions" && (
           <div className="suggest-screen-layout">
             <div className="view-scroll-content">
               <div className="glass-card-gold" style={{ width: "100%" }}>
                 <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-gold)", textAlign: "center", marginBottom: "14px", textTransform: "uppercase" }}>
-                  GESTION DES DÉFIS
+                  GESTION DES RÈGLES
                 </h2>
-                
-                {/* Direct Add/Edit Action */}
-                <div className="admin-card direct-action-card" style={{ borderColor: "rgba(245, 158, 11, 0.2)", backgroundColor: "rgba(24, 24, 31, 0.5)" }}>
-                  <h3 style={{ color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
-                    {editingActionId !== null ? "✏️ Modifier le défi" : "Créer un défi personnalisé"}
-                  </h3>
-                  <form onSubmit={handleAddActionDirectly} className="direct-action-form" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                      Titre du défi :
-                      <input
-                        type="text"
-                        placeholder="Ex: Le Vol de Tente..."
-                        value={actTitle}
-                        onChange={(e) => setActTitle(e.target.value)}
-                        className="neon-input-premium"
-                        required
-                        style={{ textAlign: "left" }}
-                      />
-                    </label>
-                    
-                    <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                      Description de la mission :
-                      <textarea
-                        placeholder="Description claire de la mission secrète..."
-                        value={actDesc}
-                        onChange={(e) => setActDesc(e.target.value)}
-                        className="neon-input-premium"
-                        style={{ height: 75, resize: "none", textAlign: "left" }}
-                        required
-                      />
-                    </label>
 
-                    <div className="direct-action-row" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                      <div style={{ display: "flex", gap: 12 }}>
-                        <label className="sug-diff-lbl" style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                          Points :
-                          <input
-                            type="number"
-                            min="0"
-                            value={actPoints}
-                            onChange={(e) => setActPoints(Number(e.target.value))}
-                            className="neon-input-premium"
-                            style={{ textAlign: "left" }}
-                            required
-                          />
-                        </label>
-                        <label className="sug-diff-lbl" style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                          Cœurs perdus :
-                          <input
-                            type="number"
-                            step="0.25"
-                            min="0"
-                            max="7"
-                            value={actDamage}
-                            onChange={(e) => setActDamage(Number(e.target.value))}
-                            className="neon-input-premium"
-                            style={{ textAlign: "left" }}
-                            required
-                          />
-                        </label>
-                      </div>
-
-                      <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 12, width: "100%", alignItems: "center", flexWrap: "wrap" }}>
-                        <div style={{ display: "flex", gap: 8 }}>
-                          <button 
-                            type="submit" 
-                            style={{
-                              backgroundColor: "var(--neon-gold)",
-                              color: "#121214",
-                              border: "none",
-                              borderRadius: "var(--border-radius-sm)",
-                              padding: "8px 12px",
-                              fontSize: "12px",
-                              fontWeight: "800",
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: 6,
-                              fontFamily: "var(--font-sans)",
-                              height: "38px",
-                              boxSizing: "border-box"
-                            }}
-                          >
-                            <Plus size={16} /> {editingActionId !== null ? "Enregistrer" : "Ajouter à la Pool"}
-                          </button>
-                          
-                          {editingActionId !== null && (
-                            <button 
-                              type="button" 
-                              onClick={cancelEditAction} 
-                              style={{ 
-                                backgroundColor: "#27272a", 
-                                border: "1px solid var(--border-color)", 
-                                color: "var(--text-primary)", 
-                                borderRadius: "var(--border-radius-sm)", 
-                                padding: "8px 12px",
-                                fontSize: "12px",
-                                fontWeight: "700", 
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontFamily: "var(--font-sans)",
-                                height: "38px",
-                                boxSizing: "border-box"
-                              }}
-                            >
-                              Annuler
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </form>
+                {/* Switch 3 Sous-onglets */}
+                <div style={{
+                  display: "flex",
+                  backgroundColor: "rgba(10, 10, 14, 0.6)",
+                  backdropFilter: "blur(8px)",
+                  borderRadius: "var(--border-radius-sm)",
+                  padding: "2px",
+                  marginBottom: "16px",
+                  border: "1px solid rgba(245, 158, 11, 0.2)"
+                }}>
+                  <button
+                    onClick={() => {
+                      setActiveRulesSubtab("defis");
+                      cancelEditAction();
+                    }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: activeRulesSubtab === "defis" ? "rgba(245, 158, 11, 0.25)" : "transparent",
+                      color: activeRulesSubtab === "defis" ? "#ffffff" : "var(--text-muted)",
+                      border: activeRulesSubtab === "defis" ? "1px solid rgba(245, 158, 11, 0.7)" : "1px solid transparent",
+                      boxShadow: activeRulesSubtab === "defis" ? "0 0 8px rgba(245, 158, 11, 0.4)" : "none",
+                      borderRadius: "4px",
+                      padding: "8px 4px",
+                      fontSize: "11px",
+                      fontWeight: "900",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      fontFamily: "var(--font-sans)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <Zap size={13} />
+                    Défis
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveRulesSubtab("actions");
+                      cancelEditFountainChallenge();
+                    }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: activeRulesSubtab === "actions" ? "rgba(245, 158, 11, 0.25)" : "transparent",
+                      color: activeRulesSubtab === "actions" ? "#ffffff" : "var(--text-muted)",
+                      border: activeRulesSubtab === "actions" ? "1px solid rgba(245, 158, 11, 0.7)" : "1px solid transparent",
+                      boxShadow: activeRulesSubtab === "actions" ? "0 0 8px rgba(245, 158, 11, 0.4)" : "none",
+                      borderRadius: "4px",
+                      padding: "8px 4px",
+                      fontSize: "11px",
+                      fontWeight: "900",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      fontFamily: "var(--font-sans)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <Droplet size={13} />
+                    Actions
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveRulesSubtab("verites");
+                      cancelEditFountainChallenge();
+                    }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: activeRulesSubtab === "verites" ? "rgba(245, 158, 11, 0.25)" : "transparent",
+                      color: activeRulesSubtab === "verites" ? "#ffffff" : "var(--text-muted)",
+                      border: activeRulesSubtab === "verites" ? "1px solid rgba(245, 158, 11, 0.7)" : "1px solid transparent",
+                      boxShadow: activeRulesSubtab === "verites" ? "0 0 8px rgba(245, 158, 11, 0.4)" : "none",
+                      borderRadius: "4px",
+                      padding: "8px 4px",
+                      fontSize: "11px",
+                      fontWeight: "900",
+                      textTransform: "uppercase",
+                      cursor: "pointer",
+                      fontFamily: "var(--font-sans)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "6px",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    <FileText size={13} />
+                    Vérités
+                  </button>
                 </div>
 
-                {/* Dynamic Pool Preview */}
-                <h3 style={{ marginTop: 20, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
-                  Défis Actifs ({gameState.actionPool?.length || 0})
-                </h3>
-                <div className="actions-list-container" style={{ maxHeight: "400px" }}>
-                  {["micro", "standard", "majeur", "legendaire"].map((category) => {
-                    const list = (gameState.actionPool || DEFAULT_ACTIONS).filter((a) => a.difficulty === category);
-                    return (
-                      <div key={category} className="action-category-group">
-                        <h4 className={`cat-title-${category}`} style={{ fontSize: "12px", fontWeight: "800", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "4px", marginBottom: "8px" }}>
-                          {category.toUpperCase()} ({list.length} actions)
-                        </h4>
-                        <div className="actions-scroll-list" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                          {list.map((act) => (
-                            <div 
-                              key={act.id} 
-                              style={{ 
-                                position: "relative", 
-                                overflow: "hidden", 
-                                borderRadius: "var(--border-radius-sm)",
-                                flexShrink: 0,
-                                width: "100%"
-                              }}
-                            >
-                              {/* Bouton de suppression rouge caché en arrière-plan */}
-                              <div 
+                {/* Rendu dynamique du sous-onglet sélectionné */}
+                {activeRulesSubtab === "defis" ? (
+                  <>
+                    {/* Formulaire Défis Classiques */}
+                    <div className="admin-card direct-action-card" style={{ borderColor: "rgba(245, 158, 11, 0.2)", backgroundColor: "rgba(24, 24, 31, 0.5)" }}>
+                      <h3 style={{ color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
+                        {editingActionId !== null ? "✏️ Modifier le défi" : "Créer un défi personnalisé"}
+                      </h3>
+                      <form onSubmit={handleAddActionDirectly} className="direct-action-form" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Titre du défi :
+                          <input
+                            type="text"
+                            placeholder="Ex: Le Vol de Tente..."
+                            value={actTitle}
+                            onChange={(e) => setSugTitle ? setActTitle(e.target.value) : setActTitle(e.target.value)}
+                            className="neon-input-premium"
+                            required
+                            style={{ textAlign: "left" }}
+                          />
+                        </label>
+                        
+                        <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          Description de la mission :
+                          <textarea
+                            placeholder="Description claire de la mission secrète..."
+                            value={actDesc}
+                            onChange={(e) => setActDesc(e.target.value)}
+                            className="neon-input-premium"
+                            style={{ height: 75, resize: "none", textAlign: "left" }}
+                            required
+                          />
+                        </label>
+
+                        <div className="direct-action-row" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                          <div style={{ display: "flex", gap: 12 }}>
+                            <label className="sug-diff-lbl" style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              Points :
+                              <input
+                                type="number"
+                                min="0"
+                                value={actPoints}
+                                onChange={(e) => setActPoints(Number(e.target.value))}
+                                className="neon-input-premium"
+                                style={{ textAlign: "left" }}
+                                required
+                              />
+                            </label>
+                            <label className="sug-diff-lbl" style={{ display: "flex", flexDirection: "column", gap: 6, flex: 1, fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              Cœurs perdus :
+                              <input
+                                type="number"
+                                step="0.25"
+                                min="0"
+                                max="7"
+                                value={actDamage}
+                                onChange={(e) => setActDamage(Number(e.target.value))}
+                                className="neon-input-premium"
+                                style={{ textAlign: "left" }}
+                                required
+                              />
+                            </label>
+                          </div>
+
+                          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 12, width: "100%", alignItems: "center", flexWrap: "wrap" }}>
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <button 
+                                type="submit" 
                                 style={{
-                                  position: "absolute",
-                                  top: 0,
-                                  right: 0,
-                                  bottom: 0,
-                                  width: "80px",
-                                  backgroundColor: "rgba(255, 51, 102, 0.15)",
-                                  border: "1px solid rgba(255, 51, 102, 0.3)",
+                                  backgroundColor: "var(--neon-gold)",
+                                  color: "#121214",
+                                  border: "none",
+                                  borderRadius: "var(--border-radius-sm)",
+                                  padding: "8px 12px",
+                                  fontSize: "12px",
+                                  fontWeight: "800",
+                                  cursor: "pointer",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  zIndex: 1,
-                                  borderRadius: "var(--border-radius-sm)"
+                                  gap: 6,
+                                  fontFamily: "var(--font-sans)",
+                                  height: "38px",
+                                  boxSizing: "border-box"
                                 }}
                               >
-                                <div style={{
-                                  textTransform: "uppercase",
-                                  fontWeight: "900",
-                                  fontSize: "10px",
-                                  letterSpacing: "0.05em",
-                                  color: "var(--neon-red)",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "center",
-                                  gap: "4px"
-                                }}>
-                                  <Trash2 size={14} />
-                                  <span>Supprimer</span>
-                                </div>
-                              </div>
-
-                              {/* Composant glissable de premier plan */}
-                              <motion.div
-                                drag="x"
-                                dragConstraints={{ left: -80, right: 0 }}
-                                dragElastic={{ left: 0.1, right: 0 }}
-                                onDragEnd={(event, info) => {
-                                  if (info.offset.x < -45) {
-                                    setDeletingActionId(act.id);
-                                  }
-                                }}
-                                className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
-                                onClick={() => startEditAction(act)}
-                                style={{
-                                  position: "relative",
-                                  zIndex: 2,
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  gap: "2px",
-                                  cursor: "grab",
-                                  x: 0,
-                                  background: "rgba(20, 20, 25, 0.95)",
-                                  width: "100%"
-                                }}
-                              >
-                                <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <span className="action-mini-title" style={{ fontWeight: "700" }}>{act.title}</span>
-                                  <span className="action-mini-rewards">+{act.points} pts / -{act.damage} HP</span>
-                                </div>
-                                <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>{act.description}</p>
-                                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2px" }}>
-                                  <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
-                                </div>
-                              </motion.div>
+                                <Plus size={16} /> {editingActionId !== null ? "Enregistrer" : "Ajouter à la Pool"}
+                              </button>
+                              
+                              {editingActionId !== null && (
+                                <button 
+                                  type="button" 
+                                  onClick={cancelEditAction} 
+                                  style={{ 
+                                    backgroundColor: "#27272a", 
+                                    border: "1px solid var(--border-color)", 
+                                    color: "var(--text-primary)", 
+                                    borderRadius: "var(--border-radius-sm)", 
+                                    padding: "8px 12px",
+                                    fontSize: "12px",
+                                    fontWeight: "700", 
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontFamily: "var(--font-sans)",
+                                    height: "38px",
+                                    boxSizing: "border-box"
+                                  }}
+                                >
+                                  Annuler
+                                </button>
+                              )}
                             </div>
-                          ))}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      </form>
+                    </div>
+
+                    {/* Liste des Défis Classiques */}
+                    <h3 style={{ marginTop: 20, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
+                      Défis Actifs ({gameState.actionPool?.length || 0})
+                    </h3>
+                    <div className="actions-list-container" style={{ maxHeight: "400px" }}>
+                      {["micro", "standard", "majeur", "legendaire"].map((category) => {
+                        const list = (gameState.actionPool || DEFAULT_ACTIONS).filter((a) => a.difficulty === category);
+                        return (
+                          <div key={category} className="action-category-group">
+                            <h4 className={`cat-title-${category}`} style={{ fontSize: "12px", fontWeight: "800", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "4px", marginBottom: "8px" }}>
+                              {category.toUpperCase()} ({list.length} actions)
+                            </h4>
+                            <div className="actions-scroll-list" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                              {list.map((act) => (
+                                <div 
+                                  key={act.id} 
+                                  style={{ 
+                                    position: "relative", 
+                                    overflow: "hidden", 
+                                    borderRadius: "var(--border-radius-sm)",
+                                    flexShrink: 0,
+                                    width: "100%"
+                                  }}
+                                >
+                                  {/* Bouton de suppression rouge caché en arrière-plan */}
+                                  <div 
+                                    style={{
+                                      position: "absolute",
+                                      top: 0,
+                                      right: 0,
+                                      bottom: 0,
+                                      width: "80px",
+                                      backgroundColor: "rgba(255, 51, 102, 0.15)",
+                                      border: "1px solid rgba(255, 51, 102, 0.3)",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      zIndex: 1,
+                                      borderRadius: "var(--border-radius-sm)"
+                                    }}
+                                  >
+                                    <div style={{
+                                      textTransform: "uppercase",
+                                      fontWeight: "900",
+                                      fontSize: "10px",
+                                      letterSpacing: "0.05em",
+                                      color: "var(--neon-red)",
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      alignItems: "center",
+                                      gap: "4px"
+                                    }}>
+                                      <Trash2 size={14} />
+                                      <span>Supprimer</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Composant glissable de premier plan */}
+                                  <motion.div
+                                    drag="x"
+                                    dragConstraints={{ left: -80, right: 0 }}
+                                    dragElastic={{ left: 0.1, right: 0 }}
+                                    onDragEnd={(event, info) => {
+                                      if (info.offset.x < -45) {
+                                        setDeletingActionId(act.id);
+                                      }
+                                    }}
+                                    className={`action-item-mini ${editingActionId === act.id ? "editing-highlight" : ""}`}
+                                    onClick={() => startEditAction(act)}
+                                    style={{
+                                      position: "relative",
+                                      zIndex: 2,
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: "2px",
+                                      cursor: "grab",
+                                      x: 0,
+                                      background: "rgba(20, 20, 25, 0.95)",
+                                      width: "100%"
+                                    }}
+                                  >
+                                    <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                      <span className="action-mini-title" style={{ fontWeight: "700" }}>{act.title}</span>
+                                      <span className="action-mini-rewards">+{act.points} pts / -{act.damage} HP</span>
+                                    </div>
+                                    <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>{act.description}</p>
+                                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2px" }}>
+                                      <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
+                                    </div>
+                                  </motion.div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Formulaire Fontaine (Actions ou Vérités) */}
+                    <div className="admin-card fountain-form-card" style={{ borderColor: "rgba(245, 158, 11, 0.2)", backgroundColor: "rgba(24, 24, 31, 0.5)", width: "100%", marginBottom: "16px" }}>
+                      <h3 style={{ color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
+                        {editingFountainId !== null ? "✏️ Modifier le défi Fontaine" : `Créer une ${activeRulesSubtab === "actions" ? "action" : "vérité"} Fontaine`}
+                      </h3>
+                      <form onSubmit={handleAddOrEditFountainChallenge} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                          Titre du défi :
+                          <input
+                            type="text"
+                            value={fountainTitle}
+                            onChange={(e) => setFountainTitle(e.target.value)}
+                            required
+                            placeholder={activeRulesSubtab === "actions" ? "Ex: Confesser ton plus grand secret" : "Ex: Raconter ta pire honte"}
+                            className="neon-input-premium"
+                            style={{ textAlign: "left" }}
+                          />
+                        </label>
+
+                        <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                          Description :
+                          <textarea
+                            value={fountainDesc}
+                            onChange={(e) => setFountainDesc(e.target.value)}
+                            required
+                            placeholder="Décrire ce que le joueur doit faire ou dire..."
+                            className="neon-input-premium"
+                            rows={3}
+                            style={{ textAlign: "left", height: "60px", resize: "none", paddingTop: "8px" }}
+                          />
+                        </label>
+
+                        <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
+                          <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                            Difficulté :
+                            <select
+                              value={fountainDiff}
+                              onChange={(e) => setFountainDiff(e.target.value)}
+                              className="neon-input-premium"
+                              style={{ textAlign: "left" }}
+                            >
+                              <option value="facile">Facile (Tier 1)</option>
+                              <option value="moyen">Moyen (Tier 2)</option>
+                              <option value="difficile">Difficile (Tier 3)</option>
+                            </select>
+                          </label>
+
+                          <div style={{ display: "flex", gap: "8px" }}>
+                            <button
+                              type="submit"
+                              disabled={loadingFountain}
+                              className="ca-submit-btn"
+                              style={{
+                                padding: "10px 16px",
+                                fontSize: "12px",
+                                fontWeight: "900",
+                                backgroundColor: "var(--neon-gold)",
+                                color: "#121214",
+                                border: "none",
+                                borderRadius: "var(--border-radius-sm)",
+                                cursor: "pointer",
+                                height: "38px"
+                              }}
+                            >
+                              {loadingFountain ? "Enregistrement..." : (editingFountainId !== null ? "Enregistrer" : "Ajouter")}
+                            </button>
+                            {editingFountainId !== null && (
+                              <button
+                                type="button"
+                                onClick={cancelEditFountainChallenge}
+                                style={{
+                                  backgroundColor: "#27272a",
+                                  border: "1px solid var(--border-color)",
+                                  color: "var(--text-primary)",
+                                  borderRadius: "var(--border-radius-sm)",
+                                  padding: "8px 12px",
+                                  fontSize: "12px",
+                                  fontWeight: "700",
+                                  cursor: "pointer",
+                                  height: "38px"
+                                }}
+                              >
+                                Annuler
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+
+                    {/* Liste des Défis Fontaine */}
+                    <h3 style={{ marginTop: 20, color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase" }}>
+                      Pool Fontaine ({activeRulesSubtab === "actions" ? "Actions" : "Vérités"})
+                    </h3>
+                    <div className="actions-list-container" style={{ maxHeight: "400px" }}>
+                      {["facile", "moyen", "difficile"].map((diff) => {
+                        const currentType = activeRulesSubtab === "actions" ? "action" : "verite";
+                        const items = fountainPool.filter(c => c.type === currentType && c.difficulty === diff);
+                        return (
+                          <div key={diff} style={{ marginBottom: "16px" }}>
+                            <h4 style={{
+                              fontSize: "12px",
+                              fontWeight: "900",
+                              textTransform: "uppercase",
+                              color: diff === "facile" ? "var(--neon-green)" : diff === "moyen" ? "var(--neon-blue)" : "var(--neon-gold)",
+                              borderBottom: "1px solid rgba(255,255,255,0.08)",
+                              paddingBottom: "4px",
+                              marginBottom: "8px"
+                            }}>
+                              {diff === "facile" ? "🟢 Facile" : diff === "moyen" ? "🔵 Moyen" : "🔥 Difficile"} ({items.length})
+                            </h4>
+
+                            {items.length === 0 ? (
+                              <div style={{ fontSize: "11px", color: "var(--text-muted)", padding: "4px 8px" }}>
+                                Aucun défi de cette difficulté.
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                {items.map((item) => (
+                                  <div
+                                    key={item.id}
+                                    style={{
+                                      position: "relative",
+                                      overflow: "hidden",
+                                      borderRadius: "var(--border-radius-sm)",
+                                      flexShrink: 0,
+                                      width: "100%"
+                                    }}
+                                  >
+                                    {/* Bouton de suppression rouge caché en arrière-plan */}
+                                    <div 
+                                      style={{
+                                        position: "absolute",
+                                        top: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        width: "80px",
+                                        backgroundColor: "rgba(255, 51, 102, 0.15)",
+                                        border: "1px solid rgba(255, 51, 102, 0.3)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        zIndex: 1,
+                                        borderRadius: "var(--border-radius-sm)"
+                                      }}
+                                    >
+                                      <div style={{
+                                        textTransform: "uppercase",
+                                        fontWeight: "900",
+                                        fontSize: "10px",
+                                        letterSpacing: "0.05em",
+                                        color: "var(--neon-red)",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: "center",
+                                        gap: "4px"
+                                      }}>
+                                        <Trash2 size={14} />
+                                        <span>Supprimer</span>
+                                      </div>
+                                    </div>
+
+                                    {/* Composant glissable de premier plan */}
+                                    <motion.div
+                                      drag="x"
+                                      dragConstraints={{ left: -80, right: 0 }}
+                                      dragElastic={{ left: 0.1, right: 0 }}
+                                      onDragEnd={(event, info) => {
+                                        if (info.offset.x < -45) {
+                                          setDeletingFountainId(item.id);
+                                        }
+                                      }}
+                                      className={`action-item-mini ${editingFountainId === item.id ? "editing-highlight" : ""}`}
+                                      onClick={() => startEditFountainChallenge(item)}
+                                      style={{
+                                        position: "relative",
+                                        zIndex: 2,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        gap: "2px",
+                                        cursor: "grab",
+                                        x: 0,
+                                        background: "rgba(20, 20, 25, 0.95)",
+                                        width: "100%"
+                                      }}
+                                    >
+                                      <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                        <span className="action-mini-title" style={{ fontWeight: "700" }}>{item.title}</span>
+                                        <span className="action-mini-rewards" style={{ color: "var(--neon-blue)" }}>+0.5 ❤️ HP</span>
+                                      </div>
+                                      <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>{item.description}</p>
+                                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2px" }}>
+                                        <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
+                                      </div>
+                                    </motion.div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-            {/* Pop-up de confirmation de suppression pour le GM */}
+
+            {/* Pop-up de confirmation de suppression unifiée pour le GM */}
             <AnimatePresence>
-              {deletingActionId && (
+              {(deletingActionId || deletingFountainId) && (
                 <motion.div
                   className="confirm-modal-backdrop-v2"
                   initial={{ opacity: 0 }}
@@ -916,9 +1284,13 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                     exit={{ scale: 0.9, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   >
-                    <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)", textTransform: "uppercase" }}>Supprimer le défi ?</h3>
+                    <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)", textTransform: "uppercase" }}>
+                      {deletingActionId ? "Supprimer le défi ?" : "Supprimer le défi Fontaine ?"}
+                    </h3>
                     <p className="confirm-modal-body-v2">
-                      Es-tu sûr de vouloir supprimer définitivement ce défi de la pool active ?
+                      {deletingActionId 
+                        ? "Es-tu sûr de vouloir supprimer définitivement ce défi de la pool active ?"
+                        : "Es-tu sûr de vouloir supprimer définitivement ce défi du pool de la fontaine ?"}
                     </p>
 
                     <div className="confirm-action-btns-v2">
@@ -926,9 +1298,13 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         className="confirm-btn-primary-v2"
                         style={{ backgroundColor: "var(--neon-red)", color: "#fff" }}
                         onClick={() => {
-                          deleteAction(deletingActionId);
-                          setDeletingActionId(null);
-                          showToast("Défi supprimé avec succès !", "danger");
+                          if (deletingActionId) {
+                            deleteAction(deletingActionId);
+                            setDeletingActionId(null);
+                            showToast("Défi supprimé avec succès !", "danger");
+                          } else {
+                            handleDeleteFountainChallenge(deletingFountainId);
+                          }
                         }}
                       >
                         Supprimer
@@ -937,6 +1313,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         className="confirm-btn-cancel-v2" 
                         onClick={() => {
                           setDeletingActionId(null);
+                          setDeletingFountainId(null);
                         }}
                       >
                         Annuler
@@ -1004,223 +1381,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
             </div>
           </div>
         )}
-        {/* --- 6. FOUNTAIN TAB --- */}
-        {gmTab === "fountain" && (
-          <div className="auth-screen-layout">
-            <div className="view-scroll-content">
-              {/* Formulaire d'ajout */}
-              <div className="glass-card" style={{ width: "100%", marginBottom: "16px" }}>
-                <h2 style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", marginBottom: "12px", textAlign: "center" }}>
-                  Ajouter un Défi Fontaine
-                </h2>
-                <form onSubmit={handleAddFountainChallenge} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                    Titre du défi :
-                    <input
-                      type="text"
-                      value={fountainTitle}
-                      onChange={(e) => setFountainTitle(e.target.value)}
-                      required
-                      placeholder="Ex: Confesser ton plus grand secret"
-                      className="neon-input-premium"
-                      style={{ textAlign: "left" }}
-                    />
-                  </label>
-
-                  <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                    Description :
-                    <textarea
-                      value={fountainDesc}
-                      onChange={(e) => setFountainDesc(e.target.value)}
-                      required
-                      placeholder="Décrire ce que le joueur doit faire ou dire..."
-                      className="neon-input-premium"
-                      rows={3}
-                      style={{ textAlign: "left", height: "60px", resize: "none", paddingTop: "8px" }}
-                    />
-                  </label>
-
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                      Type :
-                      <select
-                        value={fountainType}
-                        onChange={(e) => setFountainType(e.target.value)}
-                        className="neon-input-premium"
-                        style={{ textAlign: "left" }}
-                      >
-                        <option value="action">Action</option>
-                        <option value="verite">Vérité</option>
-                      </select>
-                    </label>
-
-                    <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                      Difficulté :
-                      <select
-                        value={fountainDiff}
-                        onChange={(e) => setFountainDiff(e.target.value)}
-                        className="neon-input-premium"
-                        style={{ textAlign: "left" }}
-                      >
-                        <option value="facile">Facile (Tier 1)</option>
-                        <option value="moyen">Moyen (Tier 2)</option>
-                        <option value="difficile">Difficile (Tier 3)</option>
-                      </select>
-                    </label>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={loadingFountain}
-                    className="ca-submit-btn"
-                    style={{
-                      width: "100%",
-                      padding: "10px",
-                      fontSize: "12px",
-                      fontWeight: "900",
-                      backgroundColor: "var(--neon-blue)",
-                      border: "none",
-                      borderRadius: "var(--border-radius-sm)",
-                      cursor: "pointer",
-                      marginTop: "4px"
-                    }}
-                  >
-                    {loadingFountain ? "Ajout..." : "AJOUTER AU POOL"}
-                  </button>
-                </form>
-              </div>
-
-              {/* Liste des défis classés par difficulté */}
-              <div className="glass-card" style={{ width: "100%" }}>
-                <h2 style={{ fontSize: "18px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", marginBottom: "12px", textAlign: "center" }}>
-                  Pool de la Fontaine ({fountainPool.length})
-                </h2>
-
-                {["facile", "moyen", "difficile"].map((diff) => {
-                  const items = fountainPool.filter(c => c.difficulty === diff);
-                  return (
-                    <div key={diff} style={{ marginBottom: "16px" }}>
-                      <h3 style={{
-                        fontSize: "12px",
-                        fontWeight: "900",
-                        textTransform: "uppercase",
-                        color: diff === "facile" ? "var(--neon-green)" : diff === "moyen" ? "var(--neon-blue)" : "var(--neon-gold)",
-                        borderBottom: "1px solid rgba(255,255,255,0.08)",
-                        paddingBottom: "4px",
-                        marginBottom: "8px"
-                      }}>
-                        {diff === "facile" ? "🟢 Facile" : diff === "moyen" ? "🔵 Moyen" : "🔥 Difficile"} ({items.length})
-                      </h3>
-
-                      {items.length === 0 ? (
-                        <div style={{ fontSize: "11px", color: "var(--text-muted)", padding: "4px 8px" }}>
-                          Aucun défi de cette difficulté.
-                        </div>
-                      ) : (
-                        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                          {items.map((item) => (
-                            <div
-                              key={item.id}
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                background: "rgba(24, 24, 31, 0.65)",
-                                border: "1px solid rgba(255,255,255,0.05)",
-                                borderRadius: "var(--border-radius-sm)",
-                                padding: "8px 10px",
-                                gap: "8px"
-                              }}
-                            >
-                              <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1, textAlign: "left" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                  <span style={{
-                                    fontSize: "8px",
-                                    fontWeight: "900",
-                                    textTransform: "uppercase",
-                                    backgroundColor: item.type === "action" ? "rgba(59, 130, 246, 0.15)" : "rgba(139, 92, 246, 0.15)",
-                                    color: item.type === "action" ? "var(--neon-blue)" : "var(--neon-purple)",
-                                    borderRadius: "3px",
-                                    padding: "1px 4px"
-                                  }}>{item.type}</span>
-                                  <strong style={{ fontSize: "12px", color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.title}</strong>
-                                </div>
-                                <span style={{ fontSize: "10.5px", color: "var(--text-secondary)", marginTop: "2px", lineHeight: "1.3" }}>
-                                  {item.description}
-                                </span>
-                              </div>
-                              <button
-                                onClick={() => setDeletingFountainId(item.id)}
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "var(--neon-red)",
-                                  cursor: "pointer",
-                                  padding: "4px",
-                                  flexShrink: 0
-                                }}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
       </div>
-
-      {/* Pop-up de confirmation de suppression Fontaine pour le GM */}
-      <AnimatePresence>
-        {deletingFountainId && (
-          <motion.div
-            className="confirm-modal-backdrop-v2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{ zIndex: 11000 }}
-          >
-            <motion.div
-              className="confirm-modal-v2 type-red"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            >
-              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-red)", textTransform: "uppercase" }}>Supprimer le défi Fontaine ?</h3>
-              <p className="confirm-modal-body-v2">
-                Es-tu sûr de vouloir supprimer définitivement ce défi du pool de la fontaine ?
-              </p>
-
-              <div className="confirm-action-btns-v2">
-                <button
-                  className="confirm-btn-primary-v2"
-                  style={{ backgroundColor: "var(--neon-red)", color: "#fff" }}
-                  onClick={() => {
-                    handleDeleteFountainChallenge(deletingFountainId);
-                  }}
-                >
-                  Supprimer
-                </button>
-                <button 
-                  className="confirm-btn-cancel-v2" 
-                  onClick={() => {
-                    setDeletingFountainId(null);
-                  }}
-                >
-                  Annuler
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Double confirmation modal for game reset */}
       {showResetConfirmStep > 0 && (

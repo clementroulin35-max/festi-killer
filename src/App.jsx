@@ -11,7 +11,7 @@ import FountainTab from "./components/FountainTab";
 import PinPad from "./components/PinPad";
 import {
   Skull, Users, Shield, Trophy, User,
-  ShieldAlert, Lightbulb, Award, QrCode, LogOut, Loader2, Droplet
+  ShieldAlert, Lightbulb, Award, QrCode, LogOut, Loader2, Droplet, FileText
 } from "lucide-react";
 import heroImage from "./assets/hero-removebg.png";
 
@@ -681,27 +681,11 @@ function MainAppContent() {
         {currentUser === "GM" && (
           <>
             <button
-              onClick={() => setActiveTab("leaderboard")}
-              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
+              onClick={() => setActiveTab("actions")}
+              className={`nav-item ${activeTab === "actions" ? "active" : ""}`}
             >
-              <Trophy size={20} />
-              <span>Classement</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("gm_mode")}
-              className={`nav-item ${activeTab === "gm_mode" ? "active" : ""}`}
-            >
-              <Users size={20} />
-              <span>Joueurs</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("qrcode")}
-              className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
-            >
-              <QrCode size={20} />
-              <span>QR Code</span>
+              <FileText size={20} />
+              <span>Règles</span>
             </button>
 
             <button
@@ -719,19 +703,27 @@ function MainAppContent() {
             </button>
 
             <button
-              onClick={() => setActiveTab("actions")}
-              className={`nav-item ${activeTab === "actions" ? "active" : ""}`}
+              onClick={() => setActiveTab("qrcode")}
+              className={`nav-item ${activeTab === "qrcode" ? "active" : ""}`}
             >
-              <Award size={20} />
-              <span>Défis</span>
+              <QrCode size={20} />
+              <span>QR Code</span>
             </button>
 
             <button
-              onClick={() => setActiveTab("fountain_gm")}
-              className={`nav-item ${activeTab === "fountain_gm" ? "active" : ""}`}
+              onClick={() => setActiveTab("gm_mode")}
+              className={`nav-item ${activeTab === "gm_mode" ? "active" : ""}`}
             >
-              <Droplet size={20} />
-              <span>Fontaine</span>
+              <Users size={20} />
+              <span>Joueurs</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("leaderboard")}
+              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
+            >
+              <Trophy size={20} />
+              <span>Classement</span>
             </button>
           </>
         )}
@@ -740,19 +732,11 @@ function MainAppContent() {
         {gameState.started && currentUser !== "GM" && (
           <>
             <button
-              onClick={() => setActiveTab("leaderboard")}
-              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
+              onClick={() => setActiveTab("suggest")}
+              className={`nav-item ${activeTab === "suggest" ? "active" : ""}`}
             >
-              <Trophy size={20} />
-              <span>Classement</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("dashboard")}
-              className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
-            >
-              <Skull size={20} />
-              <span>Mission</span>
+              <Lightbulb size={20} />
+              <span>Idées</span>
             </button>
 
             <button
@@ -764,6 +748,14 @@ function MainAppContent() {
             </button>
 
             <button
+              onClick={() => setActiveTab("dashboard")}
+              className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`}
+            >
+              <Skull size={20} />
+              <span>Mission</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab("counter")}
               className={`nav-item ${activeTab === "counter" ? "active" : ""}`}
             >
@@ -772,11 +764,11 @@ function MainAppContent() {
             </button>
 
             <button
-              onClick={() => setActiveTab("suggest")}
-              className={`nav-item ${activeTab === "suggest" ? "active" : ""}`}
+              onClick={() => setActiveTab("leaderboard")}
+              className={`nav-item ${activeTab === "leaderboard" ? "active" : ""}`}
             >
-              <Lightbulb size={20} />
-              <span>Idées</span>
+              <Trophy size={20} />
+              <span>Classement</span>
             </button>
           </>
         )}

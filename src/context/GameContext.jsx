@@ -1315,12 +1315,19 @@ export const GameProvider = ({ children }) => {
   // (insertPlayerMidGame has been moved up to resolve reference in loginPlayer)
 
   // 14. Suggest action (Player)
-  const suggestAction = async (playerName, title, description, points, damage) => {
+  const suggestAction = async (playerName, title, description, points, damage, category = "defi", difficulty = null) => {
+    let msg = `${playerName} suggère d'ajouter l'action "${title}" (« ${description} », +${points} pts, -${damage} coeurs).`;
+    if (category === "action_fountain") {
+      msg = `${playerName} suggère une action fontaine : "${title}" (« ${description} », difficulté: ${difficulty}).`;
+    } else if (category === "verite_fountain") {
+      msg = `${playerName} suggère une vérité fontaine : "${title}" (« ${description} », difficulté: ${difficulty}).`;
+    }
+
     await logEvent("action_suggestion", {
       killer: playerName,
       status: "pending",
-      message: `${playerName} suggère d'ajouter l'action "${title}" (« ${description} », +${points} pts, -${damage} coeurs).`,
-      metadata: { title, description, points, damage }
+      message: msg,
+      metadata: { title, description, points, damage, category, difficulty }
     });
   };
 
@@ -1331,38 +1338,68 @@ export const GameProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      let difficulty = "standard";
-      if (points <= 15) difficulty = "micro";
-      else if (points >= 300) difficulty = "legendaire";
-      else if (points >= 100) difficulty = "majeur";
+      const category = event.metadata?.category || "defi";
 
-      const pool = gameState.actionPool;
-      const nextId = Math.max(...pool.map(a => a.id), 0) + 1;
+      if (category === "defi") {
+        let difficulty = "standard";
+        if (points <= 15) difficulty = "micro";
+        else if (points >= 300) difficulty = "legendaire";
+        else if (points >= 100) difficulty = "majeur";
 
-      // 1. Insert action in action_pools
-      await supabase
-        .from("action_pools")
-        .insert([{
-          game_code: gameCode,
-          action_id: nextId,
-          title: event.metadata.title,
-          description: event.metadata.description,
-          difficulty,
-          points: Number(points),
-          damage: Number(damage),
-          is_ephemeral: false
-        }]);
+        const pool = gameState.actionPool;
+        const nextId = Math.max(...pool.map(a => a.id), 0) + 1;
 
-      // 2. Approve event
-      await supabase
-        .from("history")
-        .update({ status: "approved" })
-        .eq("id", historyId);
+        // 1. Insert action in action_pools
+        await supabase
+          .from("action_pools")
+          .insert([{
+            game_code: gameCode,
+            action_id: nextId,
+            title: event.metadata.title,
+            description: event.metadata.description,
+            difficulty,
+            points: Number(points),
+            damage: Number(damage),
+            is_ephemeral: false
+          }]);
 
-      await logEvent("action_added", {
-        status: "approved",
-        message: `🛠️ Action approuvée et ajoutée par le GM : "${event.metadata.title}" (+${points} pts, -${damage} coeurs).`
-      });
+        // 2. Approve event
+        await supabase
+          .from("history")
+          .update({ status: "approved" })
+          .eq("id", historyId);
+
+        await logEvent("action_added", {
+          status: "approved",
+          message: `🛠️ Action approuvée et ajoutée par le GM : "${event.metadata.title}" (+${points} pts, -${damage} coeurs).`
+        });
+      } else {
+        // Fontaine suggestion
+        const type = category === "action_fountain" ? "action" : "verite";
+        const difficulty = event.metadata?.difficulty || "facile";
+
+        // Insert in fountain_pool
+        await supabase
+          .from("fountain_pool")
+          .insert({
+            game_code: gameCode,
+            type,
+            title: event.metadata.title,
+            description: event.metadata.description,
+            difficulty
+          });
+
+        // Approve event
+        await supabase
+          .from("history")
+          .update({ status: "approved" })
+          .eq("id", historyId);
+
+        await logEvent("action_added", {
+          status: "approved",
+          message: `🛠️ Défi Fontaine (${type === "action" ? "Action" : "Vérité"}) approuvé et ajouté par le GM : "${event.metadata.title}" (difficulté: ${difficulty}).`
+        });
+      }
 
       await fetchGameState(gameCode);
     } catch (err) {
