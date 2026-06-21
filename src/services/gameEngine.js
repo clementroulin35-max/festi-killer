@@ -119,3 +119,31 @@ export function getRandomAction(excludeIds = []) {
   }
   return available[Math.floor(Math.random() * available.length)];
 }
+
+export const DEFAULT_FOUNTAIN_POOL = [
+  // Actions Faciles (Tier 1)
+  { type: "action", difficulty: "facile", title: "Faire un compliment sincère à un inconnu.", description: "Faire un compliment sincère à un inconnu." },
+  { type: "action", difficulty: "facile", title: "Boire un verre d'eau cul-sec en public.", description: "Boire un verre d'eau cul-sec en public." },
+  { type: "action", difficulty: "facile", title: "Ranger 3 déchets qui traînent par terre.", description: "Ranger 3 déchets qui traînent par terre." },
+  // Actions Moyennes (Tier 2)
+  { type: "action", difficulty: "moyen", title: "Raconter une blague nulle à un groupe d'inconnus.", description: "Raconter une blague nulle à un groupe d'inconnus." },
+  { type: "action", difficulty: "moyen", title: "Faire un check de la main créatif avec quelqu'un.", description: "Faire un check de la main créatif avec quelqu'un." },
+  { type: "action", difficulty: "moyen", title: "Parler pendant 5 minutes avec un accent étranger.", description: "Parler pendant 5 minutes avec un accent étranger." },
+  // Actions Difficiles (Tier 3)
+  { type: "action", difficulty: "difficile", title: "Chanter le refrain d'une chanson connue en plein milieu du camp.", description: "Chanter le refrain d'une chanson connue en plein milieu du camp." },
+  { type: "action", difficulty: "difficile", title: "Faire une séance de 10 pompes devant une scène.", description: "Faire une séance de 10 pompes devant une scène." },
+  { type: "action", difficulty: "difficile", title: "Convaincre un inconnu de te faire un massage de 15 secondes.", description: "Convaincre un inconnu de te faire un massage de 15 secondes." },
+
+  // Vérités Faciles (Tier 1)
+  { type: "verite", difficulty: "facile", title: "Quelle est ta chanson préférée honteuse ?", description: "Quelle est ta chanson préférée honteuse ?" },
+  { type: "verite", difficulty: "facile", title: "Quel est ton pire défaut en festival ?", description: "Quel est ton pire défaut en festival ?" },
+  { type: "verite", difficulty: "facile", title: "As-tu déjà menti pour éviter de boire un verre ?", description: "As-tu déjà menti pour éviter de boire un verre ?" },
+  // Vérités Moyennes (Tier 2)
+  { type: "verite", difficulty: "moyen", title: "Quel joueur ici présent a le style vestimentaire le plus douteux ?", description: "Quel joueur ici présent a le style vestimentaire le plus douteux ?" },
+  { type: "verite", difficulty: "moyen", title: "Quelle est la chose la plus absurde que tu aies faite en festival ?", description: "Quelle est la chose la plus absurde que tu aies faite en festival ?" },
+  { type: "verite", difficulty: "moyen", title: "As-tu déjà fait semblant de connaître un groupe de musique ?", description: "As-tu déjà fait semblant de connaître un groupe de musique ?" },
+  // Vérités Difficiles (Tier 3)
+  { type: "verite", difficulty: "difficile", title: "Quel joueur du groupe as-tu le plus envie d'éliminer et pourquoi ?", description: "Quel joueur du groupe as-tu le plus envie d'éliminer et pourquoi ?" },
+  { type: "verite", difficulty: "difficile", title: "As-tu un secret inavouable que personne ici ne connaît ?", description: "As-tu un secret inavouable que personne ici ne connaît ?" },
+  { type: "verite", difficulty: "difficile", title: "Quelle est ta pire phobie ou situation embarrassante vécue au camping ?", description: "Quelle est ta pire phobie ou situation embarrassante vécue au camping ?" }
+];

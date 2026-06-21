@@ -97,7 +97,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
   const handleAddOrEditFountainChallenge = async (e) => {
     e.preventDefault();
-    if (!fountainTitle.trim() || !fountainDesc.trim()) return;
+    if (!fountainTitle.trim()) return;
     setLoadingFountain(true);
     try {
       const currentType = activeRulesSubtab === "actions" ? "action" : "verite";
@@ -106,13 +106,13 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
           .from("fountain_pool")
           .update({
             title: fountainTitle.trim(),
-            description: fountainDesc.trim(),
+            description: fountainTitle.trim(),
             difficulty: fountainDiff
           })
           .eq("id", editingFountainId);
 
         if (error) throw error;
-        showToast("Défi Fontaine mis à jour !", "success");
+        showToast(activeRulesSubtab === "actions" ? "Action mise à jour !" : "Vérité mise à jour !", "success");
         setEditingFountainId(null);
       } else {
         const { error } = await supabase
@@ -121,12 +121,12 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
             game_code: gameCode,
             type: currentType,
             title: fountainTitle.trim(),
-            description: fountainDesc.trim(),
+            description: fountainTitle.trim(),
             difficulty: fountainDiff
           });
 
         if (error) throw error;
-        showToast("Défi Fontaine ajouté !", "success");
+        showToast(activeRulesSubtab === "actions" ? "Action ajoutée !" : "Vérité ajoutée !", "success");
       }
       setFountainTitle("");
       setFountainDesc("");
@@ -140,12 +140,12 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
   const startEditFountainChallenge = (item) => {
     setEditingFountainId(item.id);
-    setFountainTitle(item.title);
+    setFountainTitle(item.title || item.description);
     setFountainDesc(item.description);
     setFountainDiff(item.difficulty);
     // Smooth scroll support
     setTimeout(() => {
-      document.querySelector(".fountain-form-card")?.scrollIntoView({ behavior: "smooth" });
+      document.querySelector(".direct-action-card")?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
@@ -642,9 +642,9 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                         <span style={{
                                           fontSize: "8.5px",
                                           fontWeight: "900",
-                                          backgroundColor: "rgba(239, 68, 68, 0.15)",
-                                          color: "var(--neon-red)",
-                                          border: "1px solid rgba(239, 68, 68, 0.4)",
+                                          backgroundColor: "rgba(16, 185, 129, 0.15)",
+                                          color: "var(--neon-green)",
+                                          border: "1px solid rgba(16, 185, 129, 0.4)",
                                           borderRadius: "4px",
                                           padding: "1px 4px",
                                           textTransform: "uppercase"
@@ -671,8 +671,8 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
                                 {/* Right side: PIN */}
                                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "1px", flexShrink: 0 }}>
-                                  <span style={{ fontSize: "9px", color: "var(--neon-green)", fontWeight: "800", letterSpacing: "0.05em" }}>PIN</span>
-                                  <span style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-primary)" }}>{p.pin}</span>
+                                  <span style={{ fontSize: "9px", color: "var(--text-muted)", fontWeight: "800", letterSpacing: "0.05em" }}>PIN</span>
+                                  <span style={{ fontSize: "12px", fontWeight: "800", color: "var(--text-muted)" }}>{p.pin}</span>
                                 </div>
                               </div>
 
@@ -1060,90 +1060,90 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                 ) : (
                   <>
                     {/* Formulaire Fontaine (Actions ou Vérités) */}
-                    <div className="admin-card fountain-form-card" style={{ borderColor: "rgba(245, 158, 11, 0.2)", backgroundColor: "rgba(24, 24, 31, 0.5)", width: "100%", marginBottom: "16px" }}>
+                    <div className="admin-card direct-action-card" style={{ borderColor: "rgba(245, 158, 11, 0.2)", backgroundColor: "rgba(24, 24, 31, 0.5)" }}>
                       <h3 style={{ color: "var(--neon-gold)", fontSize: "14px", fontWeight: "800", textTransform: "uppercase", marginBottom: "12px" }}>
-                        {editingFountainId !== null ? "✏️ Modifier le défi Fontaine" : `Créer une ${activeRulesSubtab === "actions" ? "action" : "vérité"} Fontaine`}
+                        {editingFountainId !== null 
+                          ? (activeRulesSubtab === "actions" ? "✏️ Modifier l'action" : "✏️ Modifier la vérité") 
+                          : (activeRulesSubtab === "actions" ? "Créer une action Fontaine" : "Créer une vérité Fontaine")}
                       </h3>
-                      <form onSubmit={handleAddOrEditFountainChallenge} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                        <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                          Titre du défi :
-                          <input
-                            type="text"
+                      <form onSubmit={handleAddOrEditFountainChallenge} className="direct-action-form" style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        <label style={{ display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                          {activeRulesSubtab === "actions" ? "Action :" : "Question :"}
+                          <textarea
                             value={fountainTitle}
                             onChange={(e) => setFountainTitle(e.target.value)}
                             required
-                            placeholder={activeRulesSubtab === "actions" ? "Ex: Confesser ton plus grand secret" : "Ex: Raconter ta pire honte"}
+                            placeholder={activeRulesSubtab === "actions" ? "Saisir l'action de la fontaine..." : "Saisir la question de la fontaine..."}
                             className="neon-input-premium"
-                            style={{ textAlign: "left" }}
+                            style={{ height: 75, resize: "none", textAlign: "left", paddingTop: "8px" }}
                           />
                         </label>
 
-                        <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                          Description :
-                          <textarea
-                            value={fountainDesc}
-                            onChange={(e) => setFountainDesc(e.target.value)}
-                            required
-                            placeholder="Décrire ce que le joueur doit faire ou dire..."
-                            className="neon-input-premium"
-                            rows={3}
-                            style={{ textAlign: "left", height: "60px", resize: "none", paddingTop: "8px" }}
-                          />
-                        </label>
+                        <div className="direct-action-row" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                          <div style={{ display: "flex", gap: 12, alignItems: "flex-end" }}>
+                            <label className="sug-diff-lbl" style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6, fontSize: "12px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                              Difficulté :
+                              <select
+                                value={fountainDiff}
+                                onChange={(e) => setFountainDiff(e.target.value)}
+                                className="neon-input-premium"
+                                style={{ textAlign: "left" }}
+                              >
+                                <option value="facile">Facile (Tier 1)</option>
+                                <option value="moyen">Moyen (Tier 2)</option>
+                                <option value="difficile">Difficile (Tier 3)</option>
+                              </select>
+                            </label>
 
-                        <div style={{ display: "flex", gap: "10px", alignItems: "flex-end" }}>
-                          <label style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px", fontSize: "11px", color: "var(--text-muted)", textTransform: "uppercase" }}>
-                            Difficulté :
-                            <select
-                              value={fountainDiff}
-                              onChange={(e) => setFountainDiff(e.target.value)}
-                              className="neon-input-premium"
-                              style={{ textAlign: "left" }}
-                            >
-                              <option value="facile">Facile (Tier 1)</option>
-                              <option value="moyen">Moyen (Tier 2)</option>
-                              <option value="difficile">Difficile (Tier 3)</option>
-                            </select>
-                          </label>
-
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            <button
-                              type="submit"
-                              disabled={loadingFountain}
-                              className="ca-submit-btn"
-                              style={{
-                                padding: "10px 16px",
-                                fontSize: "12px",
-                                fontWeight: "900",
-                                backgroundColor: "var(--neon-gold)",
-                                color: "#121214",
-                                border: "none",
-                                borderRadius: "var(--border-radius-sm)",
-                                cursor: "pointer",
-                                height: "38px"
-                              }}
-                            >
-                              {loadingFountain ? "Enregistrement..." : (editingFountainId !== null ? "Enregistrer" : "Ajouter")}
-                            </button>
-                            {editingFountainId !== null && (
+                            <div style={{ display: "flex", gap: 8 }}>
                               <button
-                                type="button"
-                                onClick={cancelEditFountainChallenge}
+                                type="submit"
+                                disabled={loadingFountain}
                                 style={{
-                                  backgroundColor: "#27272a",
-                                  border: "1px solid var(--border-color)",
-                                  color: "var(--text-primary)",
+                                  backgroundColor: "var(--neon-gold)",
+                                  color: "#121214",
+                                  border: "none",
                                   borderRadius: "var(--border-radius-sm)",
                                   padding: "8px 12px",
                                   fontSize: "12px",
-                                  fontWeight: "700",
+                                  fontWeight: "800",
                                   cursor: "pointer",
-                                  height: "38px"
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  gap: 6,
+                                  fontFamily: "var(--font-sans)",
+                                  height: "38px",
+                                  boxSizing: "border-box"
                                 }}
                               >
-                                Annuler
+                                <Plus size={16} /> {loadingFountain ? "Enregistrement..." : (editingFountainId !== null ? "Enregistrer" : "Ajouter à la Pool")}
                               </button>
-                            )}
+                              {editingFountainId !== null && (
+                                <button
+                                  type="button"
+                                  onClick={cancelEditFountainChallenge}
+                                  style={{
+                                    backgroundColor: "#27272a",
+                                    border: "1px solid var(--border-color)",
+                                    color: "var(--text-primary)",
+                                    borderRadius: "var(--border-radius-sm)",
+                                    padding: "8px 12px",
+                                    fontSize: "12px",
+                                    fontWeight: "700",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontFamily: "var(--font-sans)",
+                                    height: "38px",
+                                    boxSizing: "border-box"
+                                  }}
+                                >
+                                  Annuler
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </form>
@@ -1158,7 +1158,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                         const currentType = activeRulesSubtab === "actions" ? "action" : "verite";
                         const items = fountainPool.filter(c => c.type === currentType && c.difficulty === diff);
                         return (
-                          <div key={diff} style={{ marginBottom: "16px" }}>
+                          <div key={diff} className="action-category-group" style={{ marginBottom: "16px" }}>
                             <h4 style={{
                               fontSize: "12px",
                               fontWeight: "900",
@@ -1168,12 +1168,12 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                               paddingBottom: "4px",
                               marginBottom: "8px"
                             }}>
-                              {diff === "facile" ? "🟢 Facile" : diff === "moyen" ? "🔵 Moyen" : "🔥 Difficile"} ({items.length})
+                              {diff === "facile" ? "Facile (Tier 1)" : diff === "moyen" ? "Moyen (Tier 2)" : "Difficile (Tier 3)"} ({items.length})
                             </h4>
 
                             {items.length === 0 ? (
                               <div style={{ fontSize: "11px", color: "var(--text-muted)", padding: "4px 8px" }}>
-                                Aucun défi de cette difficulté.
+                                Aucun élément de cette difficulté.
                               </div>
                             ) : (
                               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -1245,12 +1245,11 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                                         width: "100%"
                                       }}
                                     >
-                                      <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                        <span className="action-mini-title" style={{ fontWeight: "700" }}>{item.title}</span>
-                                        <span className="action-mini-rewards" style={{ color: "var(--neon-blue)" }}>+0.5 ❤️ HP</span>
+                                      <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                                        <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--text-primary)", lineHeight: "1.4" }}>{item.title || item.description}</span>
+                                        <span className="action-mini-rewards" style={{ color: "var(--neon-blue)", flexShrink: 0 }}>+0.5 ❤️ HP</span>
                                       </div>
-                                      <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>{item.description}</p>
-                                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "2px" }}>
+                                      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px" }}>
                                         <span style={{ fontSize: "9px", color: "var(--text-muted)" }}>◀ Supprimer</span>
                                       </div>
                                     </motion.div>

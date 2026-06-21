@@ -38,6 +38,7 @@ export default function HelperTooltip({ text, position = "top", align = "center"
         width: "max-content",
         maxWidth: "180px",
         fontSize: "11px",
+        fontFamily: "var(--font-sans)",
         color: "#fff",
         lineHeight: "1.4",
         fontWeight: "600",

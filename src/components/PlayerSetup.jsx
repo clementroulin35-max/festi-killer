@@ -384,7 +384,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
                 )}
 
                 {/* Bouton Annuler pour l'édition de photo depuis l'écran de mission */}
-                {initialSlide === 5 && (
+                {initialSlide === 6 && (
                   <button 
                     onClick={onComplete}
                     className="panic-btn"
@@ -395,7 +395,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
                 )}
 
                 {/* Bouton Skip (Passer sans photo) pour l'initialisation */}
-                {initialSlide !== 5 && !capturedPhoto && (
+                {initialSlide !== 6 && !capturedPhoto && (
                   <button 
                     onClick={() => {
                       savePlayerPhoto(playerName, "skipped");

@@ -4,6 +4,7 @@ import {
   generateTargetLoop, 
   getRandomAction, 
   DEFAULT_ACTIONS, 
+  DEFAULT_FOUNTAIN_POOL,
   GAME_CONFIG 
 } from "../services/gameEngine";
 
@@ -255,6 +256,21 @@ export const GameProvider = ({ children }) => {
         .insert(actionsToInsert);
 
       if (poolError) throw poolError;
+
+      // 2b. Populate starting fountain pool
+      const fountainToInsert = DEFAULT_FOUNTAIN_POOL.map(f => ({
+        game_code: upperCode,
+        type: f.type,
+        difficulty: f.difficulty,
+        title: f.title,
+        description: f.description
+      }));
+
+      const { error: fountainPoolError } = await supabase
+        .from("fountain_pool")
+        .insert(fountainToInsert);
+
+      if (fountainPoolError) throw fountainPoolError;
 
       setGameCode(upperCode);
       return upperCode;

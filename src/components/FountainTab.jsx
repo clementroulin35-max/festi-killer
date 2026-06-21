@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Droplet, RefreshCw, Check, Sparkles, AlertCircle, Skull } from "lucide-react";
+import { Droplet, RefreshCw, Check, Sparkles, AlertCircle, Skull, Heart } from "lucide-react";
 import HelperTooltip from "./HelperTooltip";
 import fountainTier1 from "../assets/fountain_tier1.png";
 import fountainTier2 from "../assets/fountain_tier2.png";
@@ -15,6 +15,7 @@ export default function FountainTab({ playerName }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [loadingAction, setLoadingAction] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState(null);
+  const [isRevealed, setIsRevealed] = useState(false);
 
   const player = gameState.players.find((p) => p.name === playerName);
   if (!player) return null;
@@ -44,10 +45,12 @@ export default function FountainTab({ playerName }) {
   
   const isFullHealth = player.lives >= 7.0;
   const isFountainDisabled = player.isZombie || isFullHealth || usesLeft <= 0;
-  const isFountainActive = !isFountainDisabled && !hasActiveChallenge;
+  
+  // Fontaine active si non zombie, non full lives et utilisations restantes (peu importe si défi en cours ou non)
+  const isFountainActive = !player.isZombie && !isFullHealth && usesLeft > 0;
 
   const handleDraw = async () => {
-    if (isFountainDisabled || !isFountainActive) return;
+    if (isFountainDisabled) return;
     setLoadingAction(true);
     setErrorMsg("");
     try {
@@ -56,6 +59,16 @@ export default function FountainTab({ playerName }) {
       setErrorMsg(err.message || "Erreur lors de la pioche.");
     } finally {
       setLoadingAction(false);
+    }
+  };
+
+  const handleFountainClick = async () => {
+    if (!isFountainActive) return;
+    if (hasActiveChallenge) {
+      setIsRevealed(true);
+    } else {
+      await handleDraw();
+      setIsRevealed(true);
     }
   };
 
@@ -78,6 +91,7 @@ export default function FountainTab({ playerName }) {
     setErrorMsg("");
     try {
       await confirmFountainChallenge(playerName);
+      setIsRevealed(false); // Masquer à nouveau après validation
     } catch (err) {
       setErrorMsg(err.message || "Erreur lors de la validation.");
     } finally {
@@ -217,7 +231,7 @@ export default function FountainTab({ playerName }) {
             color: "var(--neon-green)"
           }}>
             <span>Gain : +0.5</span>
-            <img src={heartImage} alt="Cœur" style={{ width: "12px", height: "12px", objectFit: "contain" }} />
+            <Heart size={12} fill="currentColor" style={{ display: "inline-block" }} />
           </div>
         </div>
 
@@ -262,11 +276,12 @@ export default function FountainTab({ playerName }) {
                 height: "36px",
                 cursor: "pointer",
                 position: "relative",
-                boxShadow: "0 0 5px rgba(245, 158, 11, 0.2)"
+                boxShadow: "0 0 5px rgba(245, 158, 11, 0.2)",
+                boxSizing: "border-box"
               }}
             >
-              <img src={heartImage} alt="Heal" style={{ width: "16px", height: "16px", objectFit: "contain" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: "#ffffff" }}>{usesLeft}</span>
+              <Heart size={13} fill="var(--neon-gold)" style={{ color: "var(--neon-gold)", display: "block" }} />
+              <span style={{ fontSize: "11px", fontWeight: "900", color: "#ffffff", lineHeight: 1 }}>{usesLeft}</span>
               <AnimatePresence>
                 {activeTooltip === "uses" && (
                   <HelperTooltip
@@ -298,11 +313,12 @@ export default function FountainTab({ playerName }) {
                 height: "36px",
                 cursor: "pointer",
                 position: "relative",
-                boxShadow: "0 0 5px rgba(245, 158, 11, 0.2)"
+                boxShadow: "0 0 5px rgba(245, 158, 11, 0.2)",
+                boxSizing: "border-box"
               }}
             >
-              <img src={tokenImage} alt="Refresh" style={{ width: "16px", height: "16px", objectFit: "contain" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: "#ffffff" }}>{refreshesLeft}</span>
+              <RefreshCw size={13} style={{ color: "var(--neon-gold)", display: "block" }} />
+              <span style={{ fontSize: "11px", fontWeight: "900", color: "#ffffff", lineHeight: 1 }}>{refreshesLeft}</span>
               <AnimatePresence>
                 {activeTooltip === "refreshes" && (
                   <HelperTooltip
@@ -318,7 +334,7 @@ export default function FountainTab({ playerName }) {
 
           {/* Prop Fontaine */}
           <div
-            onClick={handleDraw}
+            onClick={handleFountainClick}
             style={{
               cursor: isFountainActive ? "pointer" : "default",
               display: "flex",
@@ -365,7 +381,7 @@ export default function FountainTab({ playerName }) {
         {/* 5. Cadre de défi sous la fontaine */}
         <div style={{ width: "100%", flexShrink: 0, marginTop: "10px" }}>
           <AnimatePresence mode="wait">
-            {!hasActiveChallenge ? (
+            {!hasActiveChallenge || !isRevealed ? (
               <motion.div
                 key="no-challenge"
                 initial={{ opacity: 0, y: 10 }}
@@ -387,7 +403,7 @@ export default function FountainTab({ playerName }) {
                   letterSpacing: "0.05em"
                 }}
               >
-                Révéler en buvant
+                Boire la source pour réveler
               </motion.div>
             ) : (
               <motion.div
@@ -410,37 +426,10 @@ export default function FountainTab({ playerName }) {
                   textAlign: "center"
                 }}
               >
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <span style={{
-                    fontSize: "8.5px",
-                    fontWeight: "900",
-                    textTransform: "uppercase",
-                    backgroundColor: "rgba(59, 130, 246, 0.15)",
-                    color: "var(--neon-blue)",
-                    border: "1px solid rgba(59, 130, 246, 0.4)",
-                    borderRadius: "4px",
-                    padding: "2px 8px",
-                    letterSpacing: "0.08em"
-                  }}>
-                    {player.fountainActiveType === "action" ? "Action Recommandée" : "Vérité à Révéler"}
-                  </span>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <h3 style={{ fontSize: "14px", fontWeight: "900", color: "#ffffff", margin: 0 }}>
-                    « {player.fountainActiveTitle} »
+                <div style={{ display: "flex", flexDirection: "column", padding: "10px 0" }}>
+                  <h3 style={{ fontSize: "17px", fontWeight: "900", color: "#ffffff", margin: 0, lineHeight: "1.4" }}>
+                    « {player.fountainActiveTitle || player.fountainActiveDescription} »
                   </h3>
-                  <p style={{
-                    fontSize: "11.5px",
-                    color: "var(--text-secondary)",
-                    lineHeight: "1.4",
-                    margin: 0,
-                    padding: "6px 0",
-                    borderTop: "1px dashed rgba(255,255,255,0.08)",
-                    borderBottom: "1px dashed rgba(255,255,255,0.08)"
-                  }}>
-                    {player.fountainActiveDescription}
-                  </p>
                 </div>
 
                 <div style={{ display: "flex", gap: "8px", marginTop: "2px" }}>
