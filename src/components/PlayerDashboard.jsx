@@ -372,6 +372,32 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
             setActiveTooltip={setActiveTooltip}
           />
         </div>
+      ) : gameState.started && gameState.players.length < 3 ? (
+        <motion.div
+          className="no-target-alert animate-fade-in"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 12,
+            padding: "24px 16px",
+            background: "rgba(139, 92, 246, 0.08)",
+            border: "1px solid rgba(139, 92, 246, 0.3)",
+            borderRadius: "var(--border-radius-md)",
+            textAlign: "center"
+          }}
+        >
+          <Loader2 size={32} className="animate-spin" style={{ color: "var(--neon-purple)" }} />
+          <h4 style={{ margin: 0, color: "var(--text-primary)" }}>En attente de joueurs...</h4>
+          <p style={{ color: "var(--text-muted)", fontSize: 13, margin: 0 }}>
+            Nombre actuellement connecté : <strong style={{ color: "var(--neon-purple)" }}>{gameState.players.length}</strong> / 3 requis.
+          </p>
+          <p style={{ color: "var(--text-secondary)", fontSize: 11, margin: 0 }}>
+            Dès que le 3ème joueur s'inscrira, la partie commencera.
+          </p>
+        </motion.div>
       ) : (
         <motion.div
           className="no-target-alert"

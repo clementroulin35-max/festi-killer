@@ -66,6 +66,38 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
   // Suggestion custom edits map (stores { points, damage } for each pending suggestion)
   const [suggestionEdits, setSuggestionEdits] = useState({});
 
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (!gameState.lastSkipAwardedDate) {
+      setTimeLeft(0);
+      return;
+    }
+    const updateTimer = () => {
+      const lastAwarded = new Date(gameState.lastSkipAwardedDate);
+      const now = new Date();
+      const diffMs = now.getTime() - lastAwarded.getTime();
+      const duration24hMs = 24 * 60 * 60 * 1000;
+      const remainingMs = duration24hMs - diffMs;
+      if (remainingMs > 0) {
+        setTimeLeft(Math.floor(remainingMs / 1000));
+      } else {
+        setTimeLeft(0);
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [gameState.lastSkipAwardedDate]);
+
+  const formatTimeLeft = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `H-${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
   // --- FONTAINE DE VIE GM STATE & HANDLERS ---
   const [fountainPool, setFountainPool] = useState([]);
   const [fountainTitle, setFountainTitle] = useState("");
@@ -179,10 +211,6 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
   const handleStartGame = () => {
     const playerNames = gameState.players.map(p => p.name);
-    if (playerNames.length < 3) {
-      setInitError("Il faut au moins 3 joueurs connectés pour démarrer la partie.");
-      return;
-    }
     initializeGame(playerNames);
   };
 
@@ -316,13 +344,89 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
         {/* --- 1. ARBITRAGE TAB --- */}
         {gmTab === "arbitrage" && (
           <div className="counter-screen-layout">
-            <div className="view-scroll-content">
-              <div className="glass-card-red" style={{ width: "100%" }}>
-                <h2 style={{ fontSize: "20px", fontWeight: "900", letterSpacing: "0.05em", color: "var(--neon-red)", textAlign: "center", marginBottom: "14px", textTransform: "uppercase" }}>
-                  ACTIONS EN ATTENTE ({pendingEvents.length})
+            <div className="view-scroll-content" style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
+              
+              {/* Titre Principal */}
+              <div style={{ textAlign: "center", marginBottom: "8px" }}>
+                <h2 style={{ fontSize: "24px", fontWeight: "900", letterSpacing: "0.05em", color: "#ffffff", textTransform: "uppercase", margin: 0 }}>
+                  Arbitrage
                 </h2>
+              </div>
+
+              {/* Encart 1: Action quotidienne */}
+              <div className="glass-card" style={{ width: "100%", padding: "16px", boxSizing: "border-box" }}>
+                <h3 style={{ fontSize: "14px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--neon-purple)", marginBottom: "14px", textTransform: "uppercase", marginTop: 0 }}>
+                  Action quotidienne
+                </h3>
+                
+                {/* Deux indicateurs */}
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginBottom: "16px" }}>
+                  <div style={{ flex: 1, padding: "10px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "var(--border-radius-sm)", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-blue)", fontWeight: "700" }}>
+                      <Droplet size={14} /> Fontaine
+                    </div>
+                    <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+3 Relances & Soins reset</span>
+                  </div>
+                  <div style={{ flex: 1, padding: "10px", background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "var(--border-radius-sm)", display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-gold)", fontWeight: "700" }}>
+                      <Zap size={14} /> Mission
+                    </div>
+                    <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+1 Jeton Relance Défi</span>
+                  </div>
+                </div>
+
+                {/* Bouton Mutuel */}
+                {(() => {
+                  const timerActive = timeLeft > 0;
+                  return (
+                    <button
+                      onClick={() => {
+                        if (!timerActive) {
+                          triggerMorningSkips();
+                        }
+                      }}
+                      disabled={timerActive}
+                      className="save-edit-btn"
+                      style={{
+                        width: "100%",
+                        padding: "12px",
+                        borderRadius: "var(--border-radius-sm)",
+                        fontWeight: "bold",
+                        cursor: timerActive ? "not-allowed" : "pointer",
+                        opacity: timerActive ? 0.7 : 1,
+                        backgroundColor: timerActive ? "#27272a" : "var(--neon-purple)",
+                        border: timerActive ? "1px solid var(--border-color)" : "none",
+                        color: timerActive ? "var(--text-muted)" : "#ffffff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        fontSize: "13px"
+                      }}
+                    >
+                      {timerActive ? (
+                        <>
+                          <span>Relances distribuées</span>
+                          <span style={{ color: "var(--neon-gold)", fontWeight: 800 }}>{formatTimeLeft(timeLeft)}</span>
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw size={16} />
+                          <span>Distribuer les relances quotidiennes</span>
+                        </>
+                      )}
+                    </button>
+                  );
+                })()}
+              </div>
+
+              {/* Encart 2: Actions en attente */}
+              <div className="glass-card-red" style={{ width: "100%", padding: "16px", boxSizing: "border-box" }}>
+                <h3 style={{ fontSize: "14px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--neon-red)", marginBottom: "14px", textTransform: "uppercase", marginTop: 0 }}>
+                  Actions en attente ({pendingEvents.length})
+                </h3>
                 {pendingEvents.length === 0 ? (
-                  <div className="empty-pending-card">Aucune demande en attente. Camping calme.</div>
+                  <div className="empty-pending-card" style={{ margin: 0 }}>Aucune demande en attente. Camping calme.</div>
                 ) : (
                   <div className="pending-list">
                     {pendingEvents.map((event) => (
@@ -532,7 +636,32 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                     {/* God Form Editing */}
                     {editingPlayer && (
                       <form onSubmit={handleSaveEdit} id="god-player-editor" className="god-edit-form animate-fade-in" style={{ scrollMarginTop: "80px", marginBottom: "20px" }}>
-                        <h4 style={{ marginBottom: "12px", borderBottom: "1px solid var(--border-color)", paddingBottom: "6px" }}>Gérer {editingPlayer}</h4>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", borderBottom: "1px solid var(--border-color)", paddingBottom: "6px" }}>
+                          <h4 style={{ margin: 0 }}>Gérer {editingPlayer}</h4>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`Voulez-vous vraiment supprimer définitivement le joueur "${editingPlayer}" du jeu ?`)) {
+                                removePlayer(editingPlayer);
+                                setEditingPlayer(null);
+                              }
+                            }}
+                            style={{
+                              backgroundColor: "transparent",
+                              border: "1px solid var(--neon-red)",
+                              color: "var(--neon-red)",
+                              padding: "4px 8px",
+                              borderRadius: "var(--border-radius-sm)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              cursor: "pointer"
+                            }}
+                            title="Supprimer le joueur"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                         <div className="form-row" style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                           <div style={{ display: "flex", gap: "10px", width: "100%", flexWrap: "wrap" }}>
                             <label style={{ flex: "1 1 180px", display: "flex", flexDirection: "column", gap: "4px", fontSize: "12px", fontWeight: "600", color: "var(--text-secondary)" }}>

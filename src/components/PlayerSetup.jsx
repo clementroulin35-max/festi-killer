@@ -276,7 +276,7 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
         {/* Onboarding Header with Skip Button */}
         <div className="carousel-top-bar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", marginBottom: "16px" }}>
           <div />
-          {currentSlide < 5 && (
+          {currentSlide < 6 && (
             <button 
               onClick={handleSkipTutorial} 
               className="skip-tutorial-btn"
@@ -301,10 +301,10 @@ export default function PlayerSetup({ playerName, initialSlide = 0, onComplete }
 
         {/* Carousel Slide Area */}
         <div className="carousel-body" style={{ flex: 1, width: "100%", display: "flex", flexDirection: "column" }}>
-          {currentSlide < 5 ? (
+          {currentSlide < 6 ? (
             renderTutorialSlide()
           ) : (
-            /* Slide 5: Photo Profil setup (Original Form) */
+            /* Slide 6: Photo Profil setup (Original Form) */
             <div className="photo-setup-step animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "6px", width: "100%", marginTop: "-10px" }}>
               <div className="setup-header" style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <h2 style={{ fontSize: "20px", lineHeight: 1.2 }}>Bonjour {playerName} !</h2>

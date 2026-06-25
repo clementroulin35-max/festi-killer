@@ -10,7 +10,7 @@ import heartImage from "../assets/heart_neon.png";
 import tokenImage from "../assets/token_neon.png";
 
 export default function FountainTab({ playerName }) {
-  const { gameState, drawFountainChallenge, skipFountainChallenge, confirmFountainChallenge } = useGame();
+  const { gameState, drawFountainChallenge, skipFountainChallenge, confirmFountainChallenge, switchFountainCategory } = useGame();
   const [selectedType, setSelectedType] = useState("action"); // 'action' or 'verite'
   const [errorMsg, setErrorMsg] = useState("");
   const [loadingAction, setLoadingAction] = useState(false);
@@ -51,6 +51,21 @@ export default function FountainTab({ playerName }) {
   const refreshesLeft = Math.max(0, player.fountainRefreshesToday || 0);
   const hasActiveChallenge = !!player.fountainActiveTitle;
   
+  let activeChallengeText = "";
+  if (hasActiveChallenge && player.fountainActiveDescription) {
+    if (player.fountainActiveTitle === "PAIRE_ACTIVE") {
+      try {
+        const pair = JSON.parse(player.fountainActiveDescription);
+        activeChallengeText = selectedType === "action" ? pair.action : pair.verite;
+      } catch (e) {
+        console.error(e);
+        activeChallengeText = player.fountainActiveDescription;
+      }
+    } else {
+      activeChallengeText = player.fountainActiveTitle || player.fountainActiveDescription;
+    }
+  }
+  
   const isFullHealth = player.lives >= 7.0;
   const isFountainDisabled = player.isZombie || isFullHealth || usesLeft <= 0;
   
@@ -67,7 +82,7 @@ export default function FountainTab({ playerName }) {
       setLoadingAction(true);
       setErrorMsg("");
       try {
-        await drawFountainChallenge(playerName, type);
+        await switchFountainCategory(playerName, type);
       } catch (err) {
         setErrorMsg(err.message || "Erreur lors du changement de catégorie.");
       } finally {
@@ -442,7 +457,7 @@ export default function FountainTab({ playerName }) {
               >
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   <h3 style={{ fontSize: "15px", fontWeight: "900", color: "#ffffff", margin: 0, lineHeight: "1.4" }}>
-                    « {player.fountainActiveTitle || player.fountainActiveDescription} »
+                    « {activeChallengeText} »
                   </h3>
                 </div>
 

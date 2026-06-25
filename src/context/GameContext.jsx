@@ -442,10 +442,16 @@ export const GameProvider = ({ children }) => {
     } else {
       // If game started, dynamically inject the player with their chosen pin!
       const { data: game } = await supabase.from("games").select("started").eq("game_code", code).single();
-      if (game?.started) {
+      
+      const { count } = await supabase
+        .from("players")
+        .select("*", { count: 'exact', head: true })
+        .eq("game_code", code);
+
+      if (game?.started && (count || 0) >= 3) {
         await insertPlayerMidGame(cleanName, cleanPin);
       } else {
-        // Allow signup during setup
+        // Allow signup during setup or if there are less than 3 players in a started game
         const { error: insertError } = await supabase
           .from("players")
           .insert([{
@@ -459,6 +465,16 @@ export const GameProvider = ({ children }) => {
           }]);
 
         if (insertError) throw insertError;
+
+        // If this makes it exactly 3 players, and the game is started, trigger the real game loop
+        if (game?.started && (count || 0) === 2) {
+          const { data: currentPlayers } = await supabase
+            .from("players")
+            .select("name")
+            .eq("game_code", code);
+          const newPlayerNames = currentPlayers ? currentPlayers.map(p => p.name) : [cleanName];
+          await startRealGameLoop(code, newPlayerNames);
+        }
       }
     }
 
@@ -486,48 +502,64 @@ export const GameProvider = ({ children }) => {
     return "GM";
   };
 
+  const startRealGameLoop = async (code, playerNames) => {
+    const targets = generateTargetLoop(playerNames);
+    
+    // Get current actions from pool
+    const { data: dbActions } = await supabase.from("action_pools").select("*").eq("game_code", code);
+    const actionPool = dbActions && dbActions.length > 0 ? dbActions : DEFAULT_ACTIONS;
+
+    // Update each player with targets and actions
+    for (const name of playerNames) {
+      // Draw distinct random action
+      const randomAction = actionPool[Math.floor(Math.random() * actionPool.length)];
+
+      await supabase
+        .from("players")
+        .update({
+          target: targets[name],
+          action_id: randomAction.action_id || randomAction.id,
+          action_ephemeral: false
+        })
+        .eq("game_code", code)
+        .eq("name", name);
+    }
+
+    // Update last skip awarded date
+    await supabase
+      .from("games")
+      .update({
+        last_skip_awarded_date: new Date().toISOString()
+      })
+      .eq("game_code", code);
+
+    await logEvent("game_started", {
+      message: "La partie a commencé !",
+      status: "approved"
+    });
+  };
+
   // 1. Initialiser la partie (GM)
   const initializeGame = async (playerNames) => {
-    if (!playerNames || playerNames.length < 3) {
-      throw new Error("Il faut au moins 3 joueurs pour démarrer une partie de Cooki'llers.");
-    }
     setLoading(true);
     try {
-      const targets = generateTargetLoop(playerNames);
-      
-      // Get current actions from pool
-      const { data: dbActions } = await supabase.from("action_pools").select("*").eq("game_code", gameCode);
-      const actionPool = dbActions && dbActions.length > 0 ? dbActions : DEFAULT_ACTIONS;
-
-      // Update each player with targets and actions
-      for (const name of playerNames) {
-        // Draw distinct random action
-        const randomAction = actionPool[Math.floor(Math.random() * actionPool.length)];
-
-        await supabase
-          .from("players")
-          .update({
-            target: targets[name],
-            action_id: randomAction.action_id || randomAction.id,
-            action_ephemeral: false
-          })
-          .eq("game_code", gameCode)
-          .eq("name", name);
-      }
-
       // Update game status
       await supabase
         .from("games")
         .update({
           started: true,
-          last_skip_awarded_date: new Date().toDateString()
+          last_skip_awarded_date: new Date().toISOString()
         })
         .eq("game_code", gameCode);
 
-      await logEvent("game_started", {
-        message: "La partie a commencé !",
-        status: "approved"
-      });
+      if (playerNames && playerNames.length >= 3) {
+        await startRealGameLoop(gameCode, playerNames);
+      } else {
+        await logEvent("game_started_waiting", {
+          message: "Le salon est ouvert ! En attente de joueurs pour démarrer...",
+          status: "approved"
+        });
+      }
 
       await fetchGameState(gameCode);
     } catch (err) {
@@ -1122,6 +1154,66 @@ export const GameProvider = ({ children }) => {
 
   // --- FONTAINE DE VIE SYSTEM ---
 
+  const getFountainPair = async (code, totalUses, currentActionTitle = null, currentVeriteTitle = null) => {
+    let difficulty = "facile";
+    if (totalUses >= 3 && totalUses <= 4) {
+      difficulty = "moyen";
+    } else if (totalUses >= 5) {
+      difficulty = "difficile";
+    }
+
+    // Récupérer les actions
+    let { data: actions, error: errA } = await supabase
+      .from("fountain_pool")
+      .select("*")
+      .eq("game_code", code)
+      .eq("type", "action")
+      .eq("difficulty", difficulty);
+
+    if (errA) throw errA;
+
+    // Récupérer les vérités
+    let { data: verites, error: errV } = await supabase
+      .from("fountain_pool")
+      .select("*")
+      .eq("game_code", code)
+      .eq("type", "verite")
+      .eq("difficulty", difficulty);
+
+    if (errV) throw errV;
+
+    // Choisir l'action
+    let chosenAction = null;
+    if (actions && actions.length > 0) {
+      const filtered = currentActionTitle ? actions.filter(a => a.title !== currentActionTitle) : actions;
+      const list = filtered.length > 0 ? filtered : actions;
+      chosenAction = list[Math.floor(Math.random() * list.length)];
+    } else {
+      chosenAction = {
+        title: `Action ${difficulty.toUpperCase()}`,
+        description: `Faire une action amusante/absurde liée au festival de niveau ${difficulty}. (Ex: trinquer avec 3 inconnus en même temps)`
+      };
+    }
+
+    // Choisir la vérité
+    let chosenVerite = null;
+    if (verites && verites.length > 0) {
+      const filtered = currentVeriteTitle ? verites.filter(v => v.title !== currentVeriteTitle) : verites;
+      const list = filtered.length > 0 ? filtered : verites;
+      chosenVerite = list[Math.floor(Math.random() * list.length)];
+    } else {
+      chosenVerite = {
+        title: `Vérité ${difficulty.toUpperCase()}`,
+        description: `Révéler une vérité croustillante/honnête de niveau ${difficulty} à ton groupe de jeu.`
+      };
+    }
+
+    return {
+      action: chosenAction.title || chosenAction.description,
+      verite: chosenVerite.title || chosenVerite.description
+    };
+  };
+
   const drawFountainChallenge = async (playerName, type) => {
     const player = gameState.players.find(p => p.name === playerName);
     if (!player) return;
@@ -1133,46 +1225,14 @@ export const GameProvider = ({ children }) => {
     setLoading(true);
     try {
       const totalUses = player.fountainTotalUses || 0;
-      let difficulty = "facile";
-      if (totalUses >= 3 && totalUses <= 4) {
-        difficulty = "moyen";
-      } else if (totalUses >= 5) {
-        difficulty = "difficile";
-      }
-
-      let { data: challenges, error } = await supabase
-        .from("fountain_pool")
-        .select("*")
-        .eq("game_code", gameCode)
-        .eq("type", type)
-        .eq("difficulty", difficulty);
-
-      if (error) throw error;
-
-      let chosenChallenge = null;
-      if (challenges && challenges.length > 0) {
-        const randIndex = Math.floor(Math.random() * challenges.length);
-        chosenChallenge = challenges[randIndex];
-      } else {
-        if (type === "action") {
-          chosenChallenge = {
-            title: `Action ${difficulty.toUpperCase()}`,
-            description: `Faire une action amusante/absurde liée au festival de niveau ${difficulty}. (Ex: trinquer avec 3 inconnus en même temps)`
-          };
-        } else {
-          chosenChallenge = {
-            title: `Vérité ${difficulty.toUpperCase()}`,
-            description: `Révéler une vérité croustillante/honnête de niveau ${difficulty} à ton groupe de jeu.`
-          };
-        }
-      }
+      const pair = await getFountainPair(gameCode, totalUses);
 
       await supabase
         .from("players")
         .update({
           fountain_active_type: type,
-          fountain_active_title: chosenChallenge.title,
-          fountain_active_description: chosenChallenge.description
+          fountain_active_title: "PAIRE_ACTIVE",
+          fountain_active_description: JSON.stringify(pair)
         })
         .eq("game_code", gameCode)
         .eq("name", playerName);
@@ -1195,50 +1255,28 @@ export const GameProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const type = player.fountainActiveType || "action";
       const totalUses = player.fountainTotalUses || 0;
-      let difficulty = "facile";
-      if (totalUses >= 3 && totalUses <= 4) {
-        difficulty = "moyen";
-      } else if (totalUses >= 5) {
-        difficulty = "difficile";
-      }
-
-      let { data: challenges, error } = await supabase
-        .from("fountain_pool")
-        .select("*")
-        .eq("game_code", gameCode)
-        .eq("type", type)
-        .eq("difficulty", difficulty);
-
-      if (error) throw error;
-
-      let chosenChallenge = null;
-      if (challenges && challenges.length > 0) {
-        const filtered = challenges.filter(c => c.title !== player.fountainActiveTitle);
-        const list = filtered.length > 0 ? filtered : challenges;
-        const randIndex = Math.floor(Math.random() * list.length);
-        chosenChallenge = list[randIndex];
-      } else {
-        if (type === "action") {
-          chosenChallenge = {
-            title: `Action ${difficulty.toUpperCase()}`,
-            description: `Faire une action amusante/absurde liée au festival de niveau ${difficulty}. (Ex: trinquer avec 3 inconnus en même temps)`
-          };
-        } else {
-          chosenChallenge = {
-            title: `Vérité ${difficulty.toUpperCase()}`,
-            description: `Révéler une vérité croustillante/honnête de niveau ${difficulty} à ton groupe de jeu.`
-          };
+      
+      let currentAction = null;
+      let currentVerite = null;
+      if (player.fountainActiveTitle === "PAIRE_ACTIVE" && player.fountainActiveDescription) {
+        try {
+          const parsed = JSON.parse(player.fountainActiveDescription);
+          currentAction = parsed.action;
+          currentVerite = parsed.verite;
+        } catch (e) {
+          console.error(e);
         }
       }
+
+      const pair = await getFountainPair(gameCode, totalUses, currentAction, currentVerite);
 
       await supabase
         .from("players")
         .update({
           fountain_refreshes_today: Math.max(0, player.fountainRefreshesToday - 1),
-          fountain_active_title: chosenChallenge.title,
-          fountain_active_description: chosenChallenge.description
+          fountain_active_title: "PAIRE_ACTIVE",
+          fountain_active_description: JSON.stringify(pair)
         })
         .eq("game_code", gameCode)
         .eq("name", playerName);
@@ -1249,6 +1287,20 @@ export const GameProvider = ({ children }) => {
       throw err;
     } finally {
       setLoading(false);
+    }
+  };
+
+  const switchFountainCategory = async (playerName, category) => {
+    if (!gameCode) return;
+    try {
+      await supabase
+        .from("players")
+        .update({ fountain_active_type: category })
+        .eq("game_code", gameCode)
+        .eq("name", playerName);
+      await fetchGameState(gameCode);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -1754,7 +1806,8 @@ export const GameProvider = ({ children }) => {
       togglePlayerActiveStatus,
       drawFountainChallenge,
       skipFountainChallenge,
-      confirmFountainChallenge
+      confirmFountainChallenge,
+      switchFountainCategory
     }}>
       {children}
     </GameContext.Provider>
