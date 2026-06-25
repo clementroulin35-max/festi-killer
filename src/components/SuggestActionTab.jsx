@@ -172,7 +172,7 @@ export default function SuggestActionTab({ playerName }) {
           {/* Tab contents */}
           {subTab === "new_request" && (
             <form onSubmit={handleSuggestSubmit} className="suggest-action-form-v2" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <h3 style={{ color: sugCategory === "defi" ? "var(--neon-purple)" : sugCategory === "action_fountain" ? "var(--neon-blue)" : "var(--neon-red)", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", textTransform: "uppercase", fontWeight: "800", marginBottom: "2px" }}>
+              <h3 style={{ color: sugCategory === "defi" ? "var(--neon-purple)" : sugCategory === "action_fountain" ? "var(--neon-red)" : "var(--neon-blue)", display: "flex", alignItems: "center", gap: "8px", fontSize: "14px", textTransform: "uppercase", fontWeight: "800", marginBottom: "2px" }}>
                 {sugCategory === "defi" ? (
                   <><Target size={16} /> Suggérer un défi</>
                 ) : sugCategory === "action_fountain" ? (
@@ -237,9 +237,9 @@ export default function SuggestActionTab({ playerName }) {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "4px",
-                    backgroundColor: sugCategory === "action_fountain" ? "rgba(59, 130, 246, 0.2)" : "transparent",
+                    backgroundColor: sugCategory === "action_fountain" ? "rgba(255, 51, 102, 0.15)" : "transparent",
                     color: sugCategory === "action_fountain" ? "#ffffff" : "var(--text-muted)",
-                    border: sugCategory === "action_fountain" ? "1px solid var(--neon-blue)" : "1px solid transparent",
+                    border: sugCategory === "action_fountain" ? "1px solid var(--neon-red)" : "1px solid transparent",
                     borderRadius: "4px",
                     padding: "4px 2px",
                     fontSize: "9.5px",
@@ -247,7 +247,7 @@ export default function SuggestActionTab({ playerName }) {
                     textTransform: "uppercase",
                     cursor: "pointer",
                     fontFamily: "var(--font-sans)",
-                    boxShadow: sugCategory === "action_fountain" ? "0 0 8px rgba(59, 130, 246, 0.3)" : "none",
+                    boxShadow: sugCategory === "action_fountain" ? "0 0 8px rgba(255, 51, 102, 0.3)" : "none",
                     transition: "all 0.2s"
                   }}
                 >
@@ -263,9 +263,9 @@ export default function SuggestActionTab({ playerName }) {
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "4px",
-                    backgroundColor: sugCategory === "verite_fountain" ? "rgba(255, 51, 102, 0.15)" : "transparent",
+                    backgroundColor: sugCategory === "verite_fountain" ? "rgba(59, 130, 246, 0.2)" : "transparent",
                     color: sugCategory === "verite_fountain" ? "#ffffff" : "var(--text-muted)",
-                    border: sugCategory === "verite_fountain" ? "1px solid var(--neon-red)" : "1px solid transparent",
+                    border: sugCategory === "verite_fountain" ? "1px solid var(--neon-blue)" : "1px solid transparent",
                     borderRadius: "4px",
                     padding: "4px 2px",
                     fontSize: "9.5px",
@@ -273,7 +273,7 @@ export default function SuggestActionTab({ playerName }) {
                     textTransform: "uppercase",
                     cursor: "pointer",
                     fontFamily: "var(--font-sans)",
-                    boxShadow: sugCategory === "verite_fountain" ? "0 0 8px rgba(255, 51, 102, 0.3)" : "none",
+                    boxShadow: sugCategory === "verite_fountain" ? "0 0 8px rgba(59, 130, 246, 0.3)" : "none",
                     transition: "all 0.2s"
                   }}
                 >
@@ -420,33 +420,33 @@ export default function SuggestActionTab({ playerName }) {
                             <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                               {/* Partie gauche */}
                               {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--neon-blue)", fontSize: "12px", fontWeight: "800" }}>
-                                  <Droplet size={13} fill="var(--neon-blue)" style={{ color: "var(--neon-blue)" }} />
-                                  <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)", fontSize: "12px", fontWeight: "800" }}>
+                                  <Droplet size={13} fill="var(--text-primary)" style={{ color: "var(--text-primary)" }} />
+                                  <span>Fontaine - {getRomainDifficulty(sug.metadata?.difficulty)}</span>
                                 </div>
                               ) : (
                                 <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)", fontSize: "12px", fontWeight: "800" }}>
-                                  <Target size={13} fill="var(--neon-purple)" style={{ color: "var(--neon-purple)" }} />
+                                  <Target size={13} fill="var(--text-primary)" style={{ color: "var(--text-primary)" }} />
                                   <span>Défi - {title}</span>
                                 </div>
                               )}
 
                               {/* Partie droite */}
                               {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
-                                <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-secondary)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
                                   <span>{sug.metadata?.category === "action_fountain" ? "Action" : "Vérité"}</span>
                                   {sug.metadata?.category === "action_fountain" ? (
-                                    <Zap size={12} style={{ color: "var(--neon-blue)" }} />
+                                    <Zap size={12} style={{ color: "var(--text-secondary)" }} />
                                   ) : (
-                                    <HelpCircle size={12} style={{ color: "var(--neon-blue)" }} />
+                                    <HelpCircle size={12} style={{ color: "var(--text-secondary)" }} />
                                   )}
                                 </div>
                               ) : (
                                 <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-secondary)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
-                                  <span>+{pts} pts</span>
-                                  <img src={tokenImage} alt="pts" style={{ width: "11px", height: "11px", objectFit: "contain" }} />
+                                  <span>+{pts}</span>
+                                  <span style={{ fontSize: "11px", marginLeft: "-2px" }}>🪙</span>
                                   <span style={{ margin: "0 2px", color: "var(--text-muted)" }}>/</span>
-                                  <span>-{dmg} coeur</span>
+                                  <span>-{dmg}</span>
                                   <Heart size={11} fill="var(--neon-red)" style={{ color: "var(--neon-red)" }} />
                                 </div>
                               )}
@@ -504,33 +504,33 @@ export default function SuggestActionTab({ playerName }) {
                           <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
                             {/* Partie gauche */}
                             {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
-                              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--neon-blue)", fontSize: "12px", fontWeight: "800" }}>
-                                <Droplet size={13} fill="var(--neon-blue)" style={{ color: "var(--neon-blue)" }} />
-                                <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)", fontSize: "12px", fontWeight: "800" }}>
+                                <Droplet size={13} fill="var(--text-primary)" style={{ color: "var(--text-primary)" }} />
+                                <span>Fontaine - {getRomainDifficulty(sug.metadata?.difficulty)}</span>
                               </div>
                             ) : (
                               <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)", fontSize: "12px", fontWeight: "800" }}>
-                                <Target size={13} fill="var(--neon-purple)" style={{ color: "var(--neon-purple)" }} />
+                                <Target size={13} fill="var(--text-primary)" style={{ color: "var(--text-primary)" }} />
                                 <span>Défi - {title}</span>
                               </div>
                             )}
 
                             {/* Partie droite */}
                             {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
-                              <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-secondary)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
                                 <span>{sug.metadata?.category === "action_fountain" ? "Action" : "Vérité"}</span>
                                 {sug.metadata?.category === "action_fountain" ? (
-                                  <Zap size={12} style={{ color: "var(--neon-blue)" }} />
+                                  <Zap size={12} style={{ color: "var(--text-secondary)" }} />
                                 ) : (
-                                  <HelpCircle size={12} style={{ color: "var(--neon-blue)" }} />
+                                  <HelpCircle size={12} style={{ color: "var(--text-secondary)" }} />
                                 )}
                               </div>
                             ) : (
                               <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-secondary)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
-                                <span>+{pts} pts</span>
-                                <img src={tokenImage} alt="pts" style={{ width: "11px", height: "11px", objectFit: "contain" }} />
+                                <span>+{pts}</span>
+                                <span style={{ fontSize: "11px", marginLeft: "-2px" }}>🪙</span>
                                 <span style={{ margin: "0 2px", color: "var(--text-muted)" }}>/</span>
-                                <span>-{dmg} coeur</span>
+                                <span>-{dmg}</span>
                                 <Heart size={11} fill="var(--neon-red)" style={{ color: "var(--neon-red)" }} />
                               </div>
                             )}

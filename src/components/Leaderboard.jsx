@@ -57,7 +57,7 @@ export default function Leaderboard({ players, history }) {
           )}
           {player.isZombie && (
             <div className="zombie-badge-small" title="Zombie">
-              <Skull size={10} color="#ff0055" />
+              <Skull size={10} color="#ffffff" />
             </div>
           )}
         </div>
@@ -227,9 +227,9 @@ export default function Leaderboard({ players, history }) {
                   marginTop: "8px",
                   paddingTop: "8px",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  textAlign: "center"
+                  textAlign: "right"
                 }}>
-                  <strong style={{ fontSize: "14px", color: "var(--text-primary)" }}>
+                  <strong style={{ fontSize: "14px", color: "var(--text-primary)", fontStyle: "italic" }}>
                     {predators.join(", ") || "Aucun pour l'instant"}
                   </strong>
                 </div>
@@ -264,9 +264,9 @@ export default function Leaderboard({ players, history }) {
                   marginTop: "8px",
                   paddingTop: "8px",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  textAlign: "center"
+                  textAlign: "right"
                 }}>
-                  <strong style={{ fontSize: "14px", color: "var(--text-primary)" }}>
+                  <strong style={{ fontSize: "14px", color: "var(--text-primary)", fontStyle: "italic" }}>
                     {survivors.join(", ") || "Aucun pour l'instant"}
                   </strong>
                 </div>
@@ -301,9 +301,9 @@ export default function Leaderboard({ players, history }) {
                   marginTop: "8px",
                   paddingTop: "8px",
                   borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-                  textAlign: "center"
+                  textAlign: "right"
                 }}>
-                  <strong style={{ fontSize: "14px", color: "var(--text-primary)" }}>
+                  <strong style={{ fontSize: "14px", color: "var(--text-primary)", fontStyle: "italic" }}>
                     {crazyPlayers.length > 0 ? `${crazyPlayers.join(", ")} (${maxSkipsCount} actions)` : "Aucun pour l'instant"}
                   </strong>
                 </div>

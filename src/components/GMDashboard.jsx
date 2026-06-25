@@ -5,7 +5,7 @@ import { DEFAULT_ACTIONS } from "../services/gameEngine";
 import { parseMessageToJSX } from "../utils/parseLogMessage";
 import { 
   Check, X, ShieldAlert, Heart, Trophy, RefreshCw,
-  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff, Trash2, Droplet, HelpCircle
+  Zap, Plus, Trash, Play, Users, Award, Shield, FileText, Edit2, Eye, EyeOff, Trash2, Droplet, HelpCircle, Target
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import defaultAvatar from "../assets/default_avatar.png";

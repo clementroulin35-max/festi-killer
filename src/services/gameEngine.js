@@ -125,25 +125,47 @@ export const DEFAULT_FOUNTAIN_POOL = [
   { type: "action", difficulty: "facile", title: "Faire un compliment sincère à un inconnu.", description: "Faire un compliment sincère à un inconnu." },
   { type: "action", difficulty: "facile", title: "Boire un verre d'eau cul-sec en public.", description: "Boire un verre d'eau cul-sec en public." },
   { type: "action", difficulty: "facile", title: "Ranger 3 déchets qui traînent par terre.", description: "Ranger 3 déchets qui traînent par terre." },
+  { type: "action", difficulty: "facile", title: "Lancer une partie de 'Je n'ai jamais...' au camp et y faire participer au moins 3 personnes pour un tour.", description: "Lancer une partie de 'Je n'ai jamais...' au camp et y faire participer au moins 3 personnes pour un tour." },
+  { type: "action", difficulty: "facile", title: "Désigner un 'Maître du Pouce' : chaque fois que tu poses ton pouce sur la table, tout le monde doit faire de même. Le dernier boit une gorgée.", description: "Désigner un 'Maître du Pouce' : chaque fois que tu poses ton pouce sur la table, tout le monde doit faire de même. Le dernier boit une gorgée." },
+  { type: "action", difficulty: "facile", title: "Faire un bras de fer avec un autre joueur. Le perdant boit une gorgée de son verre.", description: "Faire un bras de fer avec un autre joueur. Le perdant boit une gorgée de son verre." },
+
   // Actions Moyennes (Tier 2)
   { type: "action", difficulty: "moyen", title: "Raconter une blague nulle à un groupe d'inconnus.", description: "Raconter une blague nulle à un groupe d'inconnus." },
   { type: "action", difficulty: "moyen", title: "Faire un check de la main créatif avec quelqu'un.", description: "Faire un check de la main créatif avec quelqu'un." },
   { type: "action", difficulty: "moyen", title: "Parler pendant 5 minutes avec un accent étranger.", description: "Parler pendant 5 minutes avec un accent étranger." },
+  { type: "action", difficulty: "moyen", title: "Remplir un verre au milieu de la table ('King's Cup'), puis défier quelqu'un au Shifumi. Le perdant boit le verre.", description: "Remplir un verre au milieu de la table ('King's Cup'), puis défier quelqu'un au Shifumi. Le perdant boit le verre." },
+  { type: "action", difficulty: "moyen", title: "Inventer une règle absurde pour le camp (ex: interdiction de pointer du doigt) pendant 30 min. Quiconque l'enfreint boit une gorgée.", description: "Inventer une règle absurde pour le camp (ex: interdiction de pointer du doigt) pendant 30 min. Quiconque l'enfreint boit une gorgée." },
+  { type: "action", difficulty: "moyen", title: "Réussir un 'Flip Cup' (retourner un gobelet pour qu'il retombe à l'envers) 3 fois de suite.", description: "Réussir un 'Flip Cup' (retourner un gobelet pour qu'il retombe à l'envers) 3 fois de suite." },
+
   // Actions Difficiles (Tier 3)
   { type: "action", difficulty: "difficile", title: "Chanter le refrain d'une chanson connue en plein milieu du camp.", description: "Chanter le refrain d'une chanson connue en plein milieu du camp." },
   { type: "action", difficulty: "difficile", title: "Faire une séance de 10 pompes devant une scène.", description: "Faire une séance de 10 pompes devant une scène." },
   { type: "action", difficulty: "difficile", title: "Convaincre un inconnu de te faire un massage de 15 secondes.", description: "Convaincre un inconnu de te faire un massage de 15 secondes." },
+  { type: "action", difficulty: "difficile", title: "Défier un voisin de tente à un duel de 'Bière Pong' et le battre, ou boire son verre s'il gagne.", description: "Défier un voisin de tente à un duel de 'Bière Pong' et le battre, ou boire son verre s'il gagne." },
+  { type: "action", difficulty: "difficile", title: "Faire boire une gorgée à la cible de ton choix sans utiliser tes mains pour lui donner le verre (elle doit le prendre avec sa bouche).", description: "Faire boire une gorgée à la cible de ton choix sans utiliser tes mains pour lui donner le verre (elle doit le prendre avec sa bouche)." },
+  { type: "action", difficulty: "difficile", title: "Faire une 'cascade' (chanson à boire) avec au moins 4 personnes où chacun boit consécutivement.", description: "Faire une 'cascade' (chanson à boire) avec au moins 4 personnes où chacun boit consécutivement." },
 
   // Vérités Faciles (Tier 1)
   { type: "verite", difficulty: "facile", title: "Quelle est ta chanson préférée honteuse ?", description: "Quelle est ta chanson préférée honteuse ?" },
   { type: "verite", difficulty: "facile", title: "Quel est ton pire défaut en festival ?", description: "Quel est ton pire défaut en festival ?" },
   { type: "verite", difficulty: "facile", title: "As-tu déjà menti pour éviter de boire un verre ?", description: "As-tu déjà menti pour éviter de boire un verre ?" },
+  { type: "verite", difficulty: "facile", title: "Quel est le surnom le plus ridicule qu'on t'ait jamais donné et quelle est son histoire ?", description: "Quel est le surnom le plus ridicule qu'on t'ait jamais donné et quelle est son histoire ?" },
+  { type: "verite", difficulty: "facile", title: "Si tu devais échanger ton corps avec un des joueurs ici présent pour une journée, qui choisirais-tu ?", description: "Si tu devais échanger ton corps avec un des joueurs ici présent pour une journée, qui choisirais-tu ?" },
+  { type: "verite", difficulty: "facile", title: "Quelle la pire excuse que tu as sortie pour annuler une soirée à la dernière minute ?", description: "Quelle la pire excuse que tu as sortie pour annuler une soirée à la dernière minute ?" },
+
   // Vérités Moyennes (Tier 2)
   { type: "verite", difficulty: "moyen", title: "Quel joueur ici présent a le style vestimentaire le plus douteux ?", description: "Quel joueur ici présent a le style vestimentaire le plus douteux ?" },
   { type: "verite", difficulty: "moyen", title: "Quelle est la chose la plus absurde que tu aies faite en festival ?", description: "Quelle est la chose la plus absurde que tu aies faite en festival ?" },
   { type: "verite", difficulty: "moyen", title: "As-tu déjà fait semblant de connaître un groupe de musique ?", description: "As-tu déjà fait semblant de connaître un groupe de musique ?" },
+  { type: "verite", difficulty: "moyen", title: "Qui dans ce groupe serait le premier à se faire arrêter par la police et pour quel motif absurde ?", description: "Qui dans ce groupe serait le premier à se faire arrêter par la police et pour quel motif absurde ?" },
+  { type: "verite", difficulty: "moyen", title: "Quel est ton plus grand plaisir coupable ('guilty pleasure') inavouable au quotidien ?", description: "Quel est ton plus grand plaisir coupable ('guilty pleasure') inavouable au quotidien ?" },
+  { type: "verite", difficulty: "moyen", title: "As-tu déjà eu un crush secret sur un(e) ami(e) d'un des joueurs présents dans cette pièce ?", description: "As-tu déjà eu un crush secret sur un(e) ami(e) d'un des joueurs présents dans cette pièce ?" },
+
   // Vérités Difficiles (Tier 3)
   { type: "verite", difficulty: "difficile", title: "Quel joueur du groupe as-tu le plus envie d'éliminer et pourquoi ?", description: "Quel joueur du groupe as-tu le plus envie d'éliminer et pourquoi ?" },
   { type: "verite", difficulty: "difficile", title: "As-tu un secret inavouable que personne ici ne connaît ?", description: "As-tu un secret inavouable que personne ici ne connaît ?" },
-  { type: "verite", difficulty: "difficile", title: "Quelle est ta pire phobie ou situation embarrassante vécue au camping ?", description: "Quelle est ta pire phobie ou situation embarrassante vécue au camping ?" }
+  { type: "verite", difficulty: "difficile", title: "Quelle est ta pire phobie ou situation embarrassante vécue au camping ?", description: "Quelle est ta pire phobie ou situation embarrassante vécue au camping ?" },
+  { type: "verite", difficulty: "difficile", title: "Si tu devais avouer un énorme mensonge que tu as dit à l'un des joueurs du groupe par le passé, ce serait quoi ?", description: "Si tu devais avouer un énorme mensonge que tu as dit à l'un des joueurs du groupe par le passé, ce serait quoi ?" },
+  { type: "verite", difficulty: "difficile", title: "Quelle est la pire bêtise que tu aies commise sous l'effet de l'alcool et dont tu as encore honte aujourd'hui ?", description: "Quelle est la pire bêtise que tu aies commise sous l'effet de l'alcool et dont tu as encore honte aujourd'hui ?" },
+  { type: "verite", difficulty: "difficile", title: "Si ta vie amoureuse était un film, quel en serait le titre ?", description: "Si ta vie amoureuse était un film, quel en serait le titre ?" }
 ];
