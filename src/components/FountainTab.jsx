@@ -201,7 +201,7 @@ export default function FountainTab({ playerName }) {
             maxWidth: "300px",
             flexShrink: 0
           }}>
-            💖 VITALITÉ MAXIMALE : Vous êtes déjà au maximum de vos points de vie (7.0 ❤️).
+            VITALITÉ MAXIMALE : Vous êtes déjà au maximum de vos points de vie (7.0 ❤️).
           </div>
         )}
 
@@ -561,7 +561,7 @@ export default function FountainTab({ playerName }) {
               exit={{ scale: 0.9, opacity: 0 }}
               style={{ borderColor: "rgba(16, 185, 129, 0.4)", boxShadow: "0 0 20px rgba(16, 185, 129, 0.25)" }}
             >
-              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-green)" }}>Soin Reçu ! 💖</h3>
+              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-green)" }}>Soin Reçu !</h3>
               <p className="confirm-modal-body-v2" style={{ marginBottom: 0 }}>
                 Félicitations ! Vous venez de récupérer <strong style={{ color: "var(--neon-red)" }}>+0.5 cœur</strong>.
               </p>

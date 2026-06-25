@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
-import { Lightbulb, Loader2, X, PlusCircle, AlignJustify, Trash2, History, Check, Target, Droplet, HelpCircle } from "lucide-react";
+import { Lightbulb, Loader2, X, PlusCircle, AlignJustify, Trash2, History, Check, Target, Droplet, HelpCircle, Zap, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import tokenImage from "../assets/token_neon.png";
 import SwipeToDeleteItem from "./SwipeToDeleteItem";
 
 export default function SuggestActionTab({ playerName }) {
@@ -175,7 +176,7 @@ export default function SuggestActionTab({ playerName }) {
                 {sugCategory === "defi" ? (
                   <><Target size={16} /> Suggérer un défi</>
                 ) : sugCategory === "action_fountain" ? (
-                  <><Droplet size={16} /> Suggérer une action</>
+                  <><Zap size={16} /> Suggérer une action</>
                 ) : (
                   <><HelpCircle size={16} /> Suggérer une vérité</>
                 )}
@@ -250,7 +251,7 @@ export default function SuggestActionTab({ playerName }) {
                     transition: "all 0.2s"
                   }}
                 >
-                  <Droplet size={10} />
+                  <Zap size={10} />
                   Action
                 </button>
                 <button
@@ -416,18 +417,39 @@ export default function SuggestActionTab({ playerName }) {
                           }}
                         >
                           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
-                            <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
-                              <span className="action-mini-rewards">
-                                {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
-                                  <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "800" }}>
-                                    <Droplet size={12} style={{ color: "var(--neon-blue)" }} />
-                                    <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
-                                  </div>
-                                ) : (
-                                  `+${pts} pts / -${dmg} HP`
-                                )}
-                              </span>
+                            <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                              {/* Partie gauche */}
+                              {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--neon-blue)", fontSize: "12px", fontWeight: "800" }}>
+                                  <Droplet size={13} fill="var(--neon-blue)" style={{ color: "var(--neon-blue)" }} />
+                                  <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
+                                </div>
+                              ) : (
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)", fontSize: "12px", fontWeight: "800" }}>
+                                  <Target size={13} fill="var(--neon-purple)" style={{ color: "var(--neon-purple)" }} />
+                                  <span>Défi - {title}</span>
+                                </div>
+                              )}
+
+                              {/* Partie droite */}
+                              {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
+                                <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
+                                  <span>{sug.metadata?.category === "action_fountain" ? "Action" : "Vérité"}</span>
+                                  {sug.metadata?.category === "action_fountain" ? (
+                                    <Zap size={12} style={{ color: "var(--neon-blue)" }} />
+                                  ) : (
+                                    <HelpCircle size={12} style={{ color: "var(--neon-blue)" }} />
+                                  )}
+                                </div>
+                              ) : (
+                                <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-secondary)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
+                                  <span>+{pts} pts</span>
+                                  <img src={tokenImage} alt="pts" style={{ width: "11px", height: "11px", objectFit: "contain" }} />
+                                  <span style={{ margin: "0 2px", color: "var(--text-muted)" }}>/</span>
+                                  <span>-{dmg} coeur</span>
+                                  <Heart size={11} fill="var(--neon-red)" style={{ color: "var(--neon-red)" }} />
+                                </div>
+                              )}
                             </div>
                             {desc && (
                               <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "normal" }}>
@@ -479,18 +501,39 @@ export default function SuggestActionTab({ playerName }) {
                         }}
                       >
                         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "2px" }}>
-                          <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
-                            <span className="action-mini-rewards">
-                               {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
-                                 <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "800" }}>
-                                   <Droplet size={12} style={{ color: "var(--neon-blue)" }} />
-                                   <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
-                                 </div>
-                               ) : (
-                                 `+${pts} pts / -${dmg} HP`
-                               )}
-                             </span>
+                          <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                            {/* Partie gauche */}
+                            {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--neon-blue)", fontSize: "12px", fontWeight: "800" }}>
+                                <Droplet size={13} fill="var(--neon-blue)" style={{ color: "var(--neon-blue)" }} />
+                                <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-primary)", fontSize: "12px", fontWeight: "800" }}>
+                                <Target size={13} fill="var(--neon-purple)" style={{ color: "var(--neon-purple)" }} />
+                                <span>Défi - {title}</span>
+                              </div>
+                            )}
+
+                            {/* Partie droite */}
+                            {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
+                                <span>{sug.metadata?.category === "action_fountain" ? "Action" : "Vérité"}</span>
+                                {sug.metadata?.category === "action_fountain" ? (
+                                  <Zap size={12} style={{ color: "var(--neon-blue)" }} />
+                                ) : (
+                                  <HelpCircle size={12} style={{ color: "var(--neon-blue)" }} />
+                                )}
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--text-secondary)", fontSize: "10px", fontWeight: "850", textTransform: "uppercase" }}>
+                                <span>+{pts} pts</span>
+                                <img src={tokenImage} alt="pts" style={{ width: "11px", height: "11px", objectFit: "contain" }} />
+                                <span style={{ margin: "0 2px", color: "var(--text-muted)" }}>/</span>
+                                <span>-{dmg} coeur</span>
+                                <Heart size={11} fill="var(--neon-red)" style={{ color: "var(--neon-red)" }} />
+                              </div>
+                            )}
                           </div>
                           {desc && (
                             <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>

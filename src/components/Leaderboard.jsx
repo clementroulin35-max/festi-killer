@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify, Shield } from "lucide-react";
+import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify, Shield, Skull } from "lucide-react";
 import { getRank } from "./PlayerDashboard";
 
 export default function Leaderboard({ players, history }) {
@@ -57,7 +57,7 @@ export default function Leaderboard({ players, history }) {
           )}
           {player.isZombie && (
             <div className="zombie-badge-small" title="Zombie">
-              <ShieldAlert size={10} color="#ff0055" />
+              <Skull size={10} color="#ff0055" />
             </div>
           )}
         </div>
@@ -176,7 +176,7 @@ export default function Leaderboard({ players, history }) {
                            <div className="row-trophies" style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
                              {(() => { const r = getRank(player.score); return <span className={`rank-badge ${r.css}`} style={{ fontSize: 9, padding: '1px 5px', lineHeight: "1" }}>{r.icon} {r.label}</span>; })()}
                              {isPredator && <Trophy size={11} className="row-trophy trophy-gold" title="Prédateur Alpha" />}
-                             {isSurvivor && <Shield size={11} className="row-trophy trophy-red" fill="#ef4444" color="#ef4444" title="Survivant Ultime" />}
+                             {isSurvivor && <ShieldAlert size={11} className="row-trophy trophy-red" fill="#ef4444" color="#ef4444" title="Survivant Ultime" />}
                              {isCrazy && <Shuffle size={11} className="row-trophy trophy-purple" title="Joueur Fou" />}
                            </div>
                          </div>
@@ -253,7 +253,7 @@ export default function Leaderboard({ players, history }) {
                     justifyContent: "center",
                     border: "1px solid rgba(255, 51, 102, 0.3)"
                   }}>
-                    <Shield className="trophy-red" fill="#ef4444" color="#ef4444" size={20} />
+                    <ShieldAlert className="trophy-red" fill="#ef4444" color="#ef4444" size={20} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <h4 style={{ color: "var(--neon-red)", fontSize: "14px", fontWeight: "800" }}>Survivant Ultime</h4>

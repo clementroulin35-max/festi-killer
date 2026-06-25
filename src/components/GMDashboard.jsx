@@ -347,7 +347,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
           <div className="counter-screen-layout">
             <div className="view-scroll-content" style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
               
-              <div className="glass-card-red" style={{ width: "100%", padding: "16px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "20px" }}>
+              <div className="glass-card-white" style={{ width: "100%", padding: "16px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "20px" }}>
                 {/* Titre Principal */}
                 <div style={{ textAlign: "center" }}>
                   <h2 style={{ fontSize: "24px", fontWeight: "900", letterSpacing: "0.05em", color: "#ffffff", textTransform: "uppercase", margin: 0 }}>
@@ -367,7 +367,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-blue)", fontWeight: "700" }}>
                         <Droplet size={14} /> Fontaine
                       </div>
-                      <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+3 Relances & Soins reset</span>
+                      <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+3 Relances, +2 Util. & Soins reset</span>
                     </div>
                     <div style={{ flex: 1, padding: "10px", background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "var(--border-radius-sm)", display: "flex", flexDirection: "column", gap: "4px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-gold)", fontWeight: "700" }}>
@@ -906,7 +906,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       transition: "all 0.2s"
                     }}
                   >
-                    <Zap size={13} />
+                    <Target size={13} />
                     Défis
                   </button>
                   <button
@@ -934,7 +934,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       transition: "all 0.2s"
                     }}
                   >
-                    <Droplet size={13} />
+                    <Zap size={13} />
                     Actions
                   </button>
                   <button
@@ -962,7 +962,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                       transition: "all 0.2s"
                     }}
                   >
-                    <FileText size={13} />
+                    <HelpCircle size={13} />
                     Vérités
                   </button>
                 </div>

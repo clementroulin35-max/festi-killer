@@ -4090,6 +4090,18 @@ select option {
   max-width: 420px;
 }
 
+.glass-card-white {
+  background: rgba(24, 24, 31, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.7), 0 0 15px rgba(255, 255, 255, 0.15);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+}
+
 .glass-card-gold {
   background: rgba(24, 24, 31, 0.65);
   backdrop-filter: blur(14px);
@@ -4322,8 +4334,9 @@ select option {
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
+  height: 100%;
   max-height: 100%;
-  flex: 0 1 auto;
+  flex: 1;
   justify-content: space-between;
 }
 
@@ -4387,10 +4400,12 @@ select option {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 16px;
   /* Augmenté gap */
   background: linear-gradient(180deg, rgba(24, 24, 32, 0.4), transparent);
   cursor: grab;
+  flex: 1;
 }
 
 .tarot-card-top:active {
@@ -4555,10 +4570,12 @@ select option {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   /* Réduit gap */
   background: linear-gradient(0deg, rgba(24, 24, 32, 0.4), transparent);
   cursor: grab;
+  flex: 1;
 }
 
 .tarot-card-bottom:active {
@@ -5352,8 +5369,8 @@ select option {
 .hud-xp-row-v2 {
   position: absolute;
   bottom: 1px;
-  left: 14px;
-  right: 14px;
+  left: 12px;
+  right: 12px;
   width: auto;
   padding: 0;
   margin: 0;
