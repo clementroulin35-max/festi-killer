@@ -239,7 +239,9 @@ export default function FountainTab({ playerName }) {
                 fontSize: "11px",
                 fontWeight: "900",
                 textTransform: "uppercase",
-                cursor: (isFountainDisabled || hasActiveChallenge) ? "default" : "pointer",
+                cursor: isFountainDisabled ? "not-allowed" : "pointer",
+                opacity: isFountainDisabled ? 0.35 : 1,
+                filter: isFountainDisabled ? "grayscale(100%)" : "none",
                 boxShadow: selectedType === "action" ? "0 0 10px rgba(59, 130, 246, 0.3)" : "none",
                 transition: "all 0.2s"
               }}
@@ -259,7 +261,9 @@ export default function FountainTab({ playerName }) {
                 fontSize: "11px",
                 fontWeight: "900",
                 textTransform: "uppercase",
-                cursor: isFountainDisabled ? "default" : "pointer",
+                cursor: isFountainDisabled ? "not-allowed" : "pointer",
+                opacity: isFountainDisabled ? 0.35 : 1,
+                filter: isFountainDisabled ? "grayscale(100%)" : "none",
                 boxShadow: selectedType === "verite" ? "0 0 10px rgba(59, 130, 246, 0.3)" : "none",
                 transition: "all 0.2s"
               }}

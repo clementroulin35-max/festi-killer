@@ -338,7 +338,9 @@ export const GameProvider = ({ children }) => {
           is_zombie: false,
           target: playerBName,
           action_id: initialActionId,
-          action_ephemeral: false
+          action_ephemeral: false,
+          fountain_refreshes_today: 3,
+          fountain_uses_today: 0
         }]);
 
       // 2. Update player A to target new player
@@ -366,6 +368,22 @@ export const GameProvider = ({ children }) => {
     if (!gameCode) return;
     setLoading(true);
     try {
+      const playerToRemove = gameState.players.find(p => p.name === playerName);
+      if (playerToRemove && playerToRemove.target) {
+        const killerOfRemoved = gameState.players.find(p => p.target === playerName && p.name !== playerName);
+        if (killerOfRemoved) {
+          let newTarget = playerToRemove.target;
+          if (newTarget === killerOfRemoved.name) {
+            newTarget = null;
+          }
+          await supabase
+            .from("players")
+            .update({ target: newTarget })
+            .eq("game_code", gameCode)
+            .eq("name", killerOfRemoved.name);
+        }
+      }
+
       await supabase
         .from("players")
         .delete()
@@ -461,7 +479,9 @@ export const GameProvider = ({ children }) => {
             lives: GAME_CONFIG.INITIAL_LIVES,
             score: 0,
             skips: GAME_CONFIG.INITIAL_SKIPS,
-            is_zombie: false
+            is_zombie: false,
+            fountain_refreshes_today: 3,
+            fountain_uses_today: 0
           }]);
 
         if (insertError) throw insertError;
@@ -525,13 +545,7 @@ export const GameProvider = ({ children }) => {
         .eq("name", name);
     }
 
-    // Update last skip awarded date
-    await supabase
-      .from("games")
-      .update({
-        last_skip_awarded_date: new Date().toISOString()
-      })
-      .eq("game_code", code);
+
 
     await logEvent("game_started", {
       message: "La partie a commencé !",
@@ -547,8 +561,7 @@ export const GameProvider = ({ children }) => {
       await supabase
         .from("games")
         .update({
-          started: true,
-          last_skip_awarded_date: new Date().toISOString()
+          started: true
         })
         .eq("game_code", gameCode);
 
@@ -1371,6 +1384,14 @@ export const GameProvider = ({ children }) => {
             .eq("name", p.name);
         }
       }
+
+      // Mettre à jour la date de dernière attribution dans la table games
+      await supabase
+        .from("games")
+        .update({
+          last_skip_awarded_date: new Date().toISOString()
+        })
+        .eq("game_code", gameCode);
 
       await logEvent("morning_skip", {
         status: "approved",

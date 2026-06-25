@@ -34,9 +34,23 @@ export default function SuggestActionTab({ playerName }) {
   // Liste 2 : validées (approved)
   const approvedSuggestions = mySuggestions.filter(sug => sug.status === "approved");
 
+  const getRomainDifficulty = (diff) => {
+    if (diff === "facile") return "I";
+    if (diff === "moyen") return "II";
+    if (diff === "difficile") return "III";
+    return "";
+  };
+
   const handleSuggestSubmit = (e) => {
     e.preventDefault();
-    const titleVal = sugCategory === "defi" ? sugTitle.trim() : sugDesc.trim().slice(0, 35);
+    let titleVal = "";
+    if (sugCategory === "defi") {
+      titleVal = sugTitle.trim();
+    } else if (sugCategory === "action_fountain") {
+      titleVal = "Action";
+    } else if (sugCategory === "verite_fountain") {
+      titleVal = "Vérité";
+    }
     const descVal = sugDesc.trim();
     if (!descVal || (sugCategory === "defi" && !titleVal)) return;
     suggestAction(
@@ -405,9 +419,14 @@ export default function SuggestActionTab({ playerName }) {
                             <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
                               <span className="action-mini-rewards">
-                                {sug.metadata?.category === "action_fountain" ? "⛲ Action Fontaine" : 
-                                 sug.metadata?.category === "verite_fountain" ? "⛲ Vérité Fontaine" : 
-                                 `+${pts} pts / -${dmg} HP`}
+                                {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
+                                  <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "800" }}>
+                                    <Droplet size={12} style={{ color: "var(--neon-blue)" }} />
+                                    <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
+                                  </div>
+                                ) : (
+                                  `+${pts} pts / -${dmg} HP`
+                                )}
                               </span>
                             </div>
                             {desc && (
@@ -463,10 +482,15 @@ export default function SuggestActionTab({ playerName }) {
                           <div className="action-mini-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span className="action-mini-title" style={{ fontWeight: "700" }}>{title}</span>
                             <span className="action-mini-rewards">
-                              {sug.metadata?.category === "action_fountain" ? "⛲ Action Fontaine" : 
-                               sug.metadata?.category === "verite_fountain" ? "⛲ Vérité Fontaine" : 
-                               `+${pts} pts / -${dmg} HP`}
-                            </span>
+                               {(sug.metadata?.category === "action_fountain" || sug.metadata?.category === "verite_fountain") ? (
+                                 <div style={{ display: "flex", alignItems: "center", gap: "4px", color: "var(--neon-blue)", fontSize: "10px", fontWeight: "800" }}>
+                                   <Droplet size={12} style={{ color: "var(--neon-blue)" }} />
+                                   <span>Fontaine {getRomainDifficulty(sug.metadata?.difficulty)}</span>
+                                 </div>
+                               ) : (
+                                 `+${pts} pts / -${dmg} HP`
+                               )}
+                             </span>
                           </div>
                           {desc && (
                             <p className="action-mini-desc" style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "4px 0 2px 0", lineHeight: "1.3" }}>

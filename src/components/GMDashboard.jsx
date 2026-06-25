@@ -40,6 +40,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
 
   // Editing player state
   const [editingPlayer, setEditingPlayer] = useState(null);
+  const [playerToDelete, setPlayerToDelete] = useState(null);
   const [editName, setEditName] = useState("");
   const [editPin, setEditPin] = useState("");
   const [editScore, setEditScore] = useState(0);
@@ -346,225 +347,226 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
           <div className="counter-screen-layout">
             <div className="view-scroll-content" style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
               
-              {/* Titre Principal */}
-              <div style={{ textAlign: "center", marginBottom: "8px" }}>
-                <h2 style={{ fontSize: "24px", fontWeight: "900", letterSpacing: "0.05em", color: "#ffffff", textTransform: "uppercase", margin: 0 }}>
-                  Arbitrage
-                </h2>
-              </div>
-
-              {/* Encart 1: Action quotidienne */}
-              <div className="glass-card" style={{ width: "100%", padding: "16px", boxSizing: "border-box" }}>
-                <h3 style={{ fontSize: "14px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--neon-purple)", marginBottom: "14px", textTransform: "uppercase", marginTop: 0 }}>
-                  Action quotidienne
-                </h3>
-                
-                {/* Deux indicateurs */}
-                <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginBottom: "16px" }}>
-                  <div style={{ flex: 1, padding: "10px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "var(--border-radius-sm)", display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-blue)", fontWeight: "700" }}>
-                      <Droplet size={14} /> Fontaine
-                    </div>
-                    <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+3 Relances & Soins reset</span>
-                  </div>
-                  <div style={{ flex: 1, padding: "10px", background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "var(--border-radius-sm)", display: "flex", flexDirection: "column", gap: "4px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-gold)", fontWeight: "700" }}>
-                      <Zap size={14} /> Mission
-                    </div>
-                    <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+1 Jeton Relance Défi</span>
-                  </div>
+              <div className="glass-card-red" style={{ width: "100%", padding: "16px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "20px" }}>
+                {/* Titre Principal */}
+                <div style={{ textAlign: "center" }}>
+                  <h2 style={{ fontSize: "24px", fontWeight: "900", letterSpacing: "0.05em", color: "#ffffff", textTransform: "uppercase", margin: 0 }}>
+                    Arbitrage
+                  </h2>
                 </div>
 
-                {/* Bouton Mutuel */}
-                {(() => {
-                  const timerActive = timeLeft > 0;
-                  return (
-                    <button
-                      onClick={() => {
-                        if (!timerActive) {
-                          triggerMorningSkips();
-                        }
-                      }}
-                      disabled={timerActive}
-                      className="save-edit-btn"
-                      style={{
-                        width: "100%",
-                        padding: "12px",
-                        borderRadius: "var(--border-radius-sm)",
-                        fontWeight: "bold",
-                        cursor: timerActive ? "not-allowed" : "pointer",
-                        opacity: timerActive ? 0.7 : 1,
-                        backgroundColor: timerActive ? "#27272a" : "var(--neon-purple)",
-                        border: timerActive ? "1px solid var(--border-color)" : "none",
-                        color: timerActive ? "var(--text-muted)" : "#ffffff",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
-                        fontSize: "13px"
-                      }}
-                    >
-                      {timerActive ? (
-                        <>
-                          <span>Relances distribuées</span>
-                          <span style={{ color: "var(--neon-gold)", fontWeight: 800 }}>{formatTimeLeft(timeLeft)}</span>
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw size={16} />
-                          <span>Distribuer les relances quotidiennes</span>
-                        </>
-                      )}
-                    </button>
-                  );
-                })()}
-              </div>
+                {/* Encart 1: Action quotidienne */}
+                <div style={{ width: "100%", padding: "16px", boxSizing: "border-box", background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "var(--border-radius-sm)" }}>
+                  <h3 style={{ fontSize: "14px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--neon-purple)", marginBottom: "14px", textTransform: "uppercase", marginTop: 0 }}>
+                    Action quotidienne
+                  </h3>
+                  
+                  {/* Deux indicateurs */}
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: "10px", marginBottom: "16px" }}>
+                    <div style={{ flex: 1, padding: "10px", background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)", borderRadius: "var(--border-radius-sm)", display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-blue)", fontWeight: "700" }}>
+                        <Droplet size={14} /> Fontaine
+                      </div>
+                      <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+3 Relances & Soins reset</span>
+                    </div>
+                    <div style={{ flex: 1, padding: "10px", background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.2)", borderRadius: "var(--border-radius-sm)", display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--neon-gold)", fontWeight: "700" }}>
+                        <Zap size={14} /> Mission
+                      </div>
+                      <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>+1 Jeton Relance Défi</span>
+                    </div>
+                  </div>
 
-              {/* Encart 2: Actions en attente */}
-              <div className="glass-card-red" style={{ width: "100%", padding: "16px", boxSizing: "border-box" }}>
-                <h3 style={{ fontSize: "14px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--neon-red)", marginBottom: "14px", textTransform: "uppercase", marginTop: 0 }}>
-                  Actions en attente ({pendingEvents.length})
-                </h3>
-                {pendingEvents.length === 0 ? (
-                  <div className="empty-pending-card" style={{ margin: 0 }}>Aucune demande en attente. Camping calme.</div>
-                ) : (
-                  <div className="pending-list">
-                    {pendingEvents.map((event) => (
-                      <div key={event.id} className={`pending-card event-${event.type}`}>
-                        <div className="pending-card-header">
-                          <span className="pending-type">
-                            {event.type === "hit_declaration" && "🗡️ HIT SOUHAITÉ"}
-                            {event.type === "abandon_request" && "🏳️ DEMANDE D'ABANDON"}
-                            {event.type === "counter_attack" && "🛡️ ACCUSATION CONTRE-ATTAQUE"}
-                            {event.type === "action_suggestion" && "💡 SUGGESTION DE DÉFI"}
-                            {event.type === "pin_recovery" && "🔑 CODE PIN OUBLIÉ"}
-                          </span>
-                          <span className="pending-time">{formatTime(event.timestamp)}</span>
-                        </div>
-                        <div className="pending-body">
-                          <p>{event.message}</p>
-                          
-                          {event.type === "counter_attack" && (
-                            <div className="counter-attack-details">
-                              Suspect accusé : <strong>{event.killer}</strong> <br />
-                              Défi suspecté : <strong>{event.accusedActionText || "Non précisé"}</strong>
-                            </div>
-                          )}
+                  {/* Bouton Mutuel */}
+                  {(() => {
+                    const timerActive = timeLeft > 0;
+                    return (
+                      <button
+                        onClick={() => {
+                          if (!timerActive) {
+                            triggerMorningSkips();
+                          }
+                        }}
+                        disabled={timerActive}
+                        className="save-edit-btn"
+                        style={{
+                          width: "100%",
+                          padding: "12px",
+                          borderRadius: "var(--border-radius-sm)",
+                          fontWeight: "bold",
+                          cursor: timerActive ? "not-allowed" : "pointer",
+                          opacity: timerActive ? 0.7 : 1,
+                          backgroundColor: timerActive ? "#27272a" : "var(--neon-purple)",
+                          border: timerActive ? "1px solid var(--border-color)" : "none",
+                          color: timerActive ? "var(--text-muted)" : "#ffffff",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                          fontSize: "13px"
+                        }}
+                      >
+                        {timerActive ? (
+                          <>
+                            <span>Relances distribuées</span>
+                            <span style={{ color: "var(--neon-gold)", fontWeight: 800 }}>{formatTimeLeft(timeLeft)}</span>
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw size={16} />
+                            <span>Distribuer les relances quotidiennes</span>
+                          </>
+                        )}
+                      </button>
+                    );
+                  })()}
+                </div>
 
-                          {event.type === "pin_recovery" && (
-                            <div className="counter-attack-details" style={{ borderTop: "1px dashed var(--border-color)", paddingTop: 8, marginTop: 8 }}>
-                              Code PIN enregistré : <strong style={{ color: "var(--neon-green)", fontSize: "16px" }}>{event.message.includes("PIN enregistré : ") ? event.message.split("PIN enregistré : ")[1] : "Non trouvé"}</strong>
-                            </div>
-                          )}
-                        </div>
+                {/* Encart 2: Actions en attente */}
+                <div style={{ width: "100%", padding: "16px", boxSizing: "border-box", background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "var(--border-radius-sm)" }}>
+                  <h3 style={{ fontSize: "14px", fontWeight: "800", letterSpacing: "0.05em", color: "var(--neon-red)", marginBottom: "14px", textTransform: "uppercase", marginTop: 0 }}>
+                    Actions en attente ({pendingEvents.length})
+                  </h3>
+                  {pendingEvents.length === 0 ? (
+                    <div className="empty-pending-card" style={{ margin: 0 }}>Aucune demande en attente. Camping calme.</div>
+                  ) : (
+                    <div className="pending-list">
+                      {pendingEvents.map((event) => (
+                        <div key={event.id} className={`pending-card event-${event.type}`}>
+                          <div className="pending-card-header">
+                            <span className="pending-type">
+                              {event.type === "hit_declaration" && "🗡️ HIT SOUHAITÉ"}
+                              {event.type === "abandon_request" && "🏳️ DEMANDE D'ABANDON"}
+                              {event.type === "counter_attack" && "🛡️ ACCUSATION CONTRE-ATTAQUE"}
+                              {event.type === "action_suggestion" && "💡 SUGGESTION DE DÉFI"}
+                              {event.type === "pin_recovery" && "🔑 CODE PIN OUBLIÉ"}
+                            </span>
+                            <span className="pending-time">{formatTime(event.timestamp)}</span>
+                          </div>
+                          <div className="pending-body">
+                            <p>{event.message}</p>
+                            
+                            {event.type === "counter_attack" && (
+                              <div className="counter-attack-details">
+                                Suspect accusé : <strong>{event.killer}</strong> <br />
+                                Défi suspecté : <strong>{event.accusedActionText || "Non précisé"}</strong>
+                              </div>
+                            )}
 
-                        <div className="pending-actions">
-                          {event.type === "counter_attack" && (
-                            <>
-                              <button onClick={() => resolveCounterAttack(event.id, true)} className="btn-approve CA-correct">
-                                <Check size={16} /> Bonne Accusation
-                              </button>
-                              <button onClick={() => resolveCounterAttack(event.id, false)} className="btn-reject CA-incorrect">
-                                <X size={16} /> Fausse Accusation
-                              </button>
-                            </>
-                          )}
+                            {event.type === "pin_recovery" && (
+                              <div className="counter-attack-details" style={{ borderTop: "1px dashed var(--border-color)", paddingTop: 8, marginTop: 8 }}>
+                                Code PIN enregistré : <strong style={{ color: "var(--neon-green)", fontSize: "16px" }}>{event.message.includes("PIN enregistré : ") ? event.message.split("PIN enregistré : ")[1] : "Non trouvé"}</strong>
+                              </div>
+                            )}
+                          </div>
 
-                          {event.type === "action_suggestion" && (() => {
-                            const category = event.metadata?.category || "defi";
-                            if (category === "defi") {
-                              const editData = suggestionEdits[event.id] || {
-                                points: event.metadata?.points !== undefined ? event.metadata.points : 30,
-                                damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0
-                              };
-                              return (
-                                <div className="suggestion-approval-container">
-                                  <div className="suggestion-edit-fields">
-                                    <label className="edit-sug-lbl">
-                                      Points :
-                                      <input 
-                                        type="number" 
-                                        value={editData.points} 
-                                        min="0"
-                                        onChange={(e) => updateSugEdit(event.id, "points", Number(e.target.value), event.metadata)}
-                                        className="neon-input text-input-sug"
-                                        style={{ textAlign: "left" }}
-                                      />
-                                    </label>
-                                    <label className="edit-sug-lbl">
-                                      Cœurs :
-                                      <input 
-                                        type="number" 
-                                        value={editData.damage} 
-                                        step="0.25"
-                                        min="0"
-                                        max="7"
-                                        onChange={(e) => updateSugEdit(event.id, "damage", Number(e.target.value), event.metadata)}
-                                        className="neon-input text-input-sug"
-                                        style={{ textAlign: "left" }}
-                                      />
-                                    </label>
+                          <div className="pending-actions">
+                            {event.type === "counter_attack" && (
+                              <>
+                                <button onClick={() => resolveCounterAttack(event.id, true)} className="btn-approve CA-correct">
+                                  <Check size={16} /> Bonne Accusation
+                                </button>
+                                <button onClick={() => resolveCounterAttack(event.id, false)} className="btn-reject CA-incorrect">
+                                  <X size={16} /> Fausse Accusation
+                                </button>
+                              </>
+                            )}
+
+                            {event.type === "action_suggestion" && (() => {
+                              const category = event.metadata?.category || "defi";
+                              if (category === "defi") {
+                                const editData = suggestionEdits[event.id] || {
+                                  points: event.metadata?.points !== undefined ? event.metadata.points : 30,
+                                  damage: event.metadata?.damage !== undefined ? event.metadata.damage : 1.0
+                                };
+                                return (
+                                  <div className="suggestion-approval-container">
+                                    <div className="suggestion-edit-fields">
+                                      <label className="edit-sug-lbl">
+                                        Points :
+                                        <input 
+                                          type="number" 
+                                          value={editData.points} 
+                                          min="0"
+                                          onChange={(e) => updateSugEdit(event.id, "points", Number(e.target.value), event.metadata)}
+                                          className="neon-input text-input-sug"
+                                        />
+                                      </label>
+                                      <label className="edit-sug-lbl">
+                                        Dégâts :
+                                        <input 
+                                          type="number" 
+                                          step="0.25" 
+                                          value={editData.damage} 
+                                          min="0" 
+                                          max="7"
+                                          onChange={(e) => updateSugEdit(event.id, "damage", Number(e.target.value), event.metadata)}
+                                          className="neon-input text-input-sug"
+                                        />
+                                      </label>
+                                    </div>
+                                    <div className="sug-approve-btns">
+                                      <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok">
+                                        <Check size={14} /> Ajouter à la Pool
+                                      </button>
+                                      <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no">
+                                        <X size={14} /> Rejeter
+                                      </button>
+                                    </div>
                                   </div>
-                                  <div className="sug-approve-btns">
-                                    <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok">
-                                      <Check size={14} /> Ajouter à la Pool
-                                    </button>
-                                    <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no">
-                                      <X size={14} /> Rejeter
-                                    </button>
+                                );
+                              } else {
+                                const typeLabel = category === "action_fountain" ? "Fontaine : Action" : "Fontaine : Vérité";
+                                const diffLabel = event.metadata?.difficulty === "facile" ? "Facile" : event.metadata?.difficulty === "moyen" ? "Moyen" : "Difficile";
+                                return (
+                                  <div className="suggestion-approval-container" style={{ flexDirection: "column", gap: "8px", width: "100%" }}>
+                                    <div style={{ fontSize: "11px", color: "var(--neon-blue)", fontWeight: "800", textTransform: "uppercase" }}>
+                                      Catégorie : {typeLabel} ({diffLabel})
+                                    </div>
+                                    <div className="sug-approve-btns" style={{ display: "flex", gap: "8px", width: "100%" }}>
+                                      <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok" style={{ flex: 1 }}>
+                                        <Check size={14} /> Valider Fontaine
+                                      </button>
+                                      <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no" style={{ flex: 1 }}>
+                                        <X size={14} /> Rejeter
+                                      </button>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            } else {
-                              const typeLabel = category === "action_fountain" ? "Fontaine : Action" : "Fontaine : Vérité";
-                              const diffLabel = event.metadata?.difficulty === "facile" ? "Facile" : event.metadata?.difficulty === "moyen" ? "Moyen" : "Difficile";
-                              return (
-                                <div className="suggestion-approval-container" style={{ flexDirection: "column", gap: "8px", width: "100%" }}>
-                                  <div style={{ fontSize: "11px", color: "var(--neon-blue)", fontWeight: "800", textTransform: "uppercase" }}>
-                                    Catégorie : {typeLabel} ({diffLabel})
-                                  </div>
-                                  <div className="sug-approve-btns" style={{ display: "flex", gap: "8px", width: "100%" }}>
-                                    <button onClick={() => handleApproveSuggestion(event)} className="btn-approve sug-btn-ok" style={{ flex: 1 }}>
-                                      <Check size={14} /> Valider Fontaine
-                                    </button>
-                                    <button onClick={() => rejectSuggestedAction(event.id)} className="btn-reject sug-btn-no" style={{ flex: 1 }}>
-                                      <X size={14} /> Rejeter
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            }
-                          })()}
+                                );
+                              }
+                            })()}
 
-                          {event.type !== "counter_attack" && event.type !== "action_suggestion" && (
-                            <>
-                              <button 
-                                onClick={() => {
-                                  if (event.type === "hit_declaration") approveHit(event.id);
-                                  else if (event.type === "pin_recovery") dismissPinRecovery(event.id);
-                                }}
-                                className="btn-approve"
-                              >
-                                <Check size={16} /> {event.type === "pin_recovery" ? "Lu / Effacer" : "Valider"}
-                              </button>
-                              {event.type !== "pin_recovery" && (
+                            {event.type !== "counter_attack" && event.type !== "action_suggestion" && (
+                              <>
                                 <button 
                                   onClick={() => {
-                                    if (event.type === "hit_declaration") rejectHit(event.id);
+                                    if (event.type === "hit_declaration") approveHit(event.id);
+                                    else if (event.type === "pin_recovery") dismissPinRecovery(event.id);
                                   }}
-                                  className="btn-reject"
+                                  className="btn-approve"
                                 >
-                                  <X size={16} /> Refuser
+                                  <Check size={16} /> {event.type === "pin_recovery" ? "Lu / Effacer" : "Valider"}
                                 </button>
-                              )}
-                            </>
-                          )}
+                                {event.type !== "pin_recovery" && (
+                                  <button 
+                                    onClick={() => {
+                                      if (event.type === "hit_declaration") rejectHit(event.id);
+                                    }}
+                                    className="btn-reject"
+                                  >
+                                    <X size={16} /> Refuser
+                                  </button>
+                                )}
+                              </>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
+
             </div>
           </div>
         )}
@@ -618,7 +620,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                               <span style={{ fontSize: "11px", color: "var(--neon-green)", fontWeight: "700" }}>PIN : {p.pin}</span>
                               <button 
                                 type="button" 
-                                onClick={() => removePlayer(p.name)} 
+                                onClick={() => setPlayerToDelete(p.name)} 
                                 className="btn-reject" 
                                 style={{ height: 28, width: 28, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
                                 title="Exclure le joueur"
@@ -640,12 +642,7 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
                           <h4 style={{ margin: 0 }}>Gérer {editingPlayer}</h4>
                           <button
                             type="button"
-                            onClick={() => {
-                              if (window.confirm(`Voulez-vous vraiment supprimer définitivement le joueur "${editingPlayer}" du jeu ?`)) {
-                                removePlayer(editingPlayer);
-                                setEditingPlayer(null);
-                              }
-                            }}
+                            onClick={() => setPlayerToDelete(editingPlayer)}
                             style={{
                               backgroundColor: "transparent",
                               border: "1px solid var(--neon-red)",
@@ -1565,6 +1562,93 @@ export default function GMDashboard({ gmTab = "arbitrage" }) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Modal confirmation exclusion joueur stylisée */}
+      {playerToDelete && (
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.85)",
+            backdropFilter: "blur(8px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px"
+          }}
+        >
+          <div 
+            className="admin-card text-center animate-fade-in" 
+            style={{
+              width: "100%",
+              maxWidth: "380px",
+              border: "2px solid var(--neon-red)",
+              boxShadow: "0 0 25px rgba(255, 51, 102, 0.25)",
+              padding: "24px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "20px",
+              alignItems: "center"
+            }}
+          >
+            <Trash size={48} style={{ color: "var(--neon-red)" }} />
+            <h3 style={{ margin: 0, fontSize: "18px", color: "#fff", fontWeight: "900" }}>EXCLURE UN JOUEUR</h3>
+            <p style={{ margin: 0, fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5" }}>
+              Voulez-vous vraiment supprimer définitivement le joueur <strong>{playerToDelete}</strong> du jeu ?
+              {gameState.started && (
+                <>
+                  <br />
+                  <span style={{ fontSize: "12px", color: "var(--neon-gold)", marginTop: "8px", display: "inline-block" }}>
+                    La boucle de cibles sera recousue (son assassin ciblera sa victime).
+                  </span>
+                </>
+              )}
+            </p>
+            <div style={{ display: "flex", gap: "12px", width: "100%", marginTop: "8px" }}>
+              <button 
+                onClick={async () => {
+                  await removePlayer(playerToDelete);
+                  setEditingPlayer(null);
+                  setPlayerToDelete(null);
+                }}
+                className="reset-game-btn"
+                style={{
+                  flex: 1,
+                  height: "44px",
+                  margin: 0,
+                  fontWeight: "700",
+                  backgroundColor: "var(--neon-red)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "var(--border-radius-sm)",
+                  cursor: "pointer"
+                }}
+              >
+                Confirmer
+              </button>
+              <button 
+                onClick={() => setPlayerToDelete(null)}
+                style={{
+                  flex: 1,
+                  height: "44px",
+                  background: "var(--bg-input)",
+                  border: "1px solid var(--border-color)",
+                  color: "var(--text-primary)",
+                  borderRadius: "var(--border-radius-sm)",
+                  fontWeight: "700",
+                  cursor: "pointer"
+                }}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -130,6 +130,22 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
   const [showTokenTooltip, setShowTokenTooltip] = useState(false);
   const [showSuicideAlert, setShowSuicideAlert] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState(null);
+  const [showSkipsAwardedModal, setShowSkipsAwardedModal] = useState(false);
+  const [skipsAddedAmount, setSkipsAddedAmount] = useState(0);
+
+  const player = gameState.players.find(p => p.name === playerName);
+  const prevSkipsRef = useRef(player?.skips);
+
+  useEffect(() => {
+    if (player) {
+      const prevSkips = prevSkipsRef.current;
+      if (prevSkips !== undefined && player.skips > prevSkips) {
+        setSkipsAddedAmount(player.skips - prevSkips);
+        setShowSkipsAwardedModal(true);
+      }
+      prevSkipsRef.current = player.skips;
+    }
+  }, [player?.skips]);
 
   useEffect(() => {
     if (activeTooltip) {
@@ -148,8 +164,6 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
       return () => clearTimeout(timer);
     }
   }, [showTokenTooltip]);
-
-  const player = gameState.players.find(p => p.name === playerName);
 
   if (!player) {
     return (
@@ -570,6 +584,75 @@ export default function PlayerDashboard({ playerName, onEditPhoto }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {showSkipsAwardedModal && (
+          <motion.div 
+            className="confirm-modal-backdrop-v2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor: "rgba(0, 0, 0, 0.85)",
+              backdropFilter: "blur(8px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "20px"
+            }}
+          >
+            <motion.div 
+              className="admin-card text-center" 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              style={{
+                width: "100%",
+                maxWidth: "320px",
+                border: "2px solid var(--neon-gold)",
+                boxShadow: "0 0 25px rgba(245, 158, 11, 0.25)",
+                padding: "24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+                alignItems: "center"
+              }}
+            >
+              <div style={{ fontSize: "40px", animation: "bounce 1s infinite" }}>🔋</div>
+              <h3 style={{ margin: 0, fontSize: "18px", color: "var(--neon-gold)", fontWeight: "900", textTransform: "uppercase" }}>
+                Relances Reçues !
+              </h3>
+              <p style={{ margin: 0, fontSize: "14.5px", color: "#fff", lineHeight: "1.45" }}>
+                Félicitations ! Vous venez de récupérer <strong>+{skipsAddedAmount}</strong> jeton(s) de relance pour vos missions.
+              </p>
+              <button 
+                onClick={() => setShowSkipsAwardedModal(false)}
+                style={{
+                  width: "100%",
+                  height: "44px",
+                  background: "var(--neon-gold)",
+                  color: "#000",
+                  border: "none",
+                  borderRadius: "var(--border-radius-sm)",
+                  fontWeight: "900",
+                  cursor: "pointer",
+                  fontSize: "14px"
+                }}
+              >
+                GÉNIAL !
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       </motion.div>
     </div>
   );
