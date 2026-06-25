@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify, Shield, Skull, Activity, MessageSquare, Droplet } from "lucide-react";
 import { getRank } from "./PlayerDashboard";
 
-export default function Leaderboard({ players, history }) {
+export default function Leaderboard({ players, history, actionPool = [] }) {
   const [subTab, setSubTab] = useState("scores"); // scores, trophies, flux
   const [expandedPhoto, setExpandedPhoto] = useState(null);
 
@@ -388,6 +388,32 @@ export default function Leaderboard({ players, history }) {
                         title = "Soin Fontaine";
                       }
 
+                      // Nettoyage et formatage des messages
+                      let displayMessage = evt.message;
+                      if (evt.type === "fountain_heal") {
+                        // Supprime "Soin Fontaine :" et les parenthèses de gain
+                        displayMessage = displayMessage.replace(/^Soin Fontaine\s*:\s*/i, "");
+                        displayMessage = displayMessage.replace(/\s*\([^)]*\)/g, "");
+                      } else if (evt.type === "hit_validation") {
+                        // Remplacer "gagne +X pts" par "gagne +X pts 🪙"
+                        displayMessage = displayMessage.replace(/gagne \+(\d+)\s*pts/i, (match, p1) => `gagne +${p1} pts 🪙`);
+                        // Remplacer "perd X coeurs (reste Y coeurs)" par "perd X ❤️"
+                        displayMessage = displayMessage.replace(/perd ([\d.]+)\s*coeurs\s*\([^)]*\)/i, (match, p1) => `perd ${p1} ❤️`);
+                        // Remplacer "ne perd pas de coeur (Mode Zombie)" par "ne perd pas de ❤️ (Zombie)"
+                        displayMessage = displayMessage.replace(/ne perd pas de coeur\s*\(Mode Zombie\)/i, "ne perd pas de ❤️ (Zombie)");
+                        // Remplacer "coeurs" restant n'importe où
+                        displayMessage = displayMessage.replace(/coeurs/gi, "❤️");
+                      }
+
+                      // Récupération de la description du défi pour Mission Accomplie
+                      const actItem = actionPool.find(a => a.id === evt.actionId || a.title === evt.actionTitle);
+                      const actTitle = evt.metadata?.actionTitle || evt.actionTitle || actItem?.title || "";
+                      const actDesc = evt.metadata?.actionDescription || actItem?.description || "";
+
+                      // Récupération du défi de la Fontaine
+                      const challengeText = evt.metadata?.challengeText;
+                      const challengeType = evt.metadata?.challengeType || "action";
+
                       return (
                         <div
                           key={evt.id}
@@ -416,11 +442,37 @@ export default function Leaderboard({ players, history }) {
                           </div>
 
                           <p style={{ fontSize: "12px", color: "var(--text-primary)", margin: 0, lineHeight: "1.4", fontWeight: "500", textAlign: "left" }}>
-                            {evt.message}
+                            {displayMessage}
                           </p>
 
-                          {/* Preuve de la Fontaine */}
-                          {evt.type === "fountain_heal" && (evt.responseText || evt.photoProof) && (
+                          {/* Encart Défi pour Mission Accomplie */}
+                          {evt.type === "hit_validation" && actTitle && (
+                            <div
+                              style={{
+                                marginTop: "4px",
+                                padding: "8px",
+                                background: "rgba(0, 0, 0, 0.25)",
+                                border: "1px solid rgba(255, 255, 255, 0.04)",
+                                borderRadius: "4px",
+                                textAlign: "left"
+                              }}
+                            >
+                              <span style={{ fontSize: "9px", fontWeight: "900", color: "var(--neon-purple)", textTransform: "uppercase", letterSpacing: "0.05em", display: "block" }}>
+                                Défi accompli :
+                              </span>
+                              <div style={{ fontSize: "11px", color: "#ffffff", fontWeight: "800", marginTop: "2px" }}>
+                                {actTitle}
+                              </div>
+                              {actDesc && (
+                                <div style={{ fontSize: "11px", color: "var(--text-secondary)", fontStyle: "italic", marginTop: "2px", lineHeight: "1.3" }}>
+                                  « {actDesc} »
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Preuve et Défi de la Fontaine */}
+                          {evt.type === "fountain_heal" && (challengeText || evt.responseText || evt.photoProof) && (
                             <div
                               style={{
                                 marginTop: "4px",
@@ -430,38 +482,53 @@ export default function Leaderboard({ players, history }) {
                                 borderRadius: "4px",
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: "4px",
+                                gap: "6px",
                                 textAlign: "left"
                               }}
                             >
-                              <span style={{ fontSize: "9px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                                Preuve de validation :
-                              </span>
-                              {evt.responseText && (
-                                <div style={{ display: "flex", gap: "6px", alignItems: "flex-start", marginTop: "2px" }}>
-                                  <MessageSquare size={12} style={{ color: "var(--text-muted)", marginTop: "2px", flexShrink: 0 }} />
-                                  <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: 0, fontStyle: "italic", lineHeight: "1.3" }}>
-                                    « {evt.responseText} »
-                                  </p>
+                              {challengeText && (
+                                <div style={{ borderBottom: evt.responseText || evt.photoProof ? "1px solid rgba(255,255,255,0.06)" : "none", paddingBottom: evt.responseText || evt.photoProof ? "6px" : "0" }}>
+                                  <span style={{ fontSize: "9px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", letterSpacing: "0.05em", display: "block" }}>
+                                    {challengeType === "verite" ? "Question Vérité :" : "Action Fontaine :"}
+                                  </span>
+                                  <div style={{ fontSize: "11px", color: "#ffffff", fontWeight: "800", marginTop: "2px", lineHeight: "1.3" }}>
+                                    {challengeText}
+                                  </div>
                                 </div>
                               )}
-                              {evt.photoProof && (
-                                <div style={{ marginTop: "4px", display: "flex", justifyContent: "left" }}>
-                                  <img
-                                    src={evt.photoProof}
-                                    alt="Preuve photo"
-                                    onClick={() => setExpandedPhoto(evt.photoProof)}
-                                    style={{
-                                      width: "120px",
-                                      height: "90px",
-                                      objectFit: "cover",
-                                      borderRadius: "4px",
-                                      border: "1px solid rgba(59, 130, 246, 0.3)",
-                                      cursor: "pointer",
-                                      transition: "all 0.2s"
-                                    }}
-                                    title="Cliquez pour agrandir"
-                                  />
+
+                              {(evt.responseText || evt.photoProof) && (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                  <span style={{ fontSize: "9px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                    Preuve de validation :
+                                  </span>
+                                  {evt.responseText && (
+                                    <div style={{ display: "flex", gap: "6px", alignItems: "flex-start", marginTop: "2px" }}>
+                                      <MessageSquare size={12} style={{ color: "var(--text-muted)", marginTop: "2px", flexShrink: 0 }} />
+                                      <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: 0, fontStyle: "italic", lineHeight: "1.3" }}>
+                                        « {evt.responseText} »
+                                      </p>
+                                    </div>
+                                  )}
+                                  {evt.photoProof && (
+                                    <div style={{ marginTop: "4px", display: "flex", justifyContent: "left" }}>
+                                      <img
+                                        src={evt.photoProof}
+                                        alt="Preuve photo"
+                                        onClick={() => setExpandedPhoto(evt.photoProof)}
+                                        style={{
+                                          width: "120px",
+                                          height: "90px",
+                                          objectFit: "cover",
+                                          borderRadius: "4px",
+                                          border: "1px solid rgba(59, 130, 246, 0.3)",
+                                          cursor: "pointer",
+                                          transition: "all 0.2s"
+                                        }}
+                                        title="Cliquez pour agrandir"
+                                      />
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </div>

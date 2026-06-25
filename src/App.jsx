@@ -209,7 +209,7 @@ function MainAppContent() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "leaderboard":
-        return <Leaderboard players={gameState.players} history={gameState.history} />;
+        return <Leaderboard players={gameState.players} history={gameState.history} actionPool={gameState.actionPool} />;
       case "counter":
         return <CounterAttackTab playerName={currentUser} logo={heroImage} />;
       case "suggest":

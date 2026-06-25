@@ -622,7 +622,11 @@ export const GameProvider = ({ children }) => {
       points: finalPoints,
       damage: action.damage,
       isEphemeral: false,
-      message: `${killerName} déclare avoir réussi son action "${action.title}" sur ${killer.target}.`
+      message: `${killerName} déclare avoir réussi son action "${action.title}" sur ${killer.target}.`,
+      metadata: {
+        actionTitle: action.title,
+        actionDescription: action.description
+      }
     });
   };
 
@@ -744,11 +748,22 @@ export const GameProvider = ({ children }) => {
         systemMsg += ` ${victim.name} est éliminé et devient un ZOMBIE ! Bonus Coup de Grâce (+${GAME_CONFIG.BONUS_KILL} pts) pour ${killer.name}.`;
       }
 
+      const actionItem = gameState.actionPool.find(a => a.id === event.actionId);
+      const actionDesc = event.metadata?.actionDescription || actionItem?.description || "";
+
       await logEvent("hit_validation", {
         killer: killer.name,
         target: victim.name,
+        actionId: event.actionId,
+        actionTitle: event.actionTitle,
+        points: pointsGained,
+        damage: damageApplied,
         status: "approved",
-        message: systemMsg
+        message: systemMsg,
+        metadata: {
+          actionTitle: event.actionTitle,
+          actionDescription: actionDesc
+        }
       });
 
       await fetchGameState(gameCode);
@@ -1338,6 +1353,24 @@ export const GameProvider = ({ children }) => {
       const currentLives = player.lives || 0;
       const newLives = Math.min(7.0, currentLives + 0.5);
 
+      const activeTitle = player.fountainActiveTitle;
+      const activeDesc = player.fountainActiveDescription;
+      const activeType = player.fountainActiveType;
+
+      let challengeText = "";
+      if (activeDesc) {
+        if (activeTitle === "PAIRE_ACTIVE") {
+          try {
+            const pair = JSON.parse(activeDesc);
+            challengeText = activeType === "action" ? pair.action : pair.verite;
+          } catch (e) {
+            challengeText = activeDesc;
+          }
+        } else {
+          challengeText = activeTitle || activeDesc;
+        }
+      }
+
       await supabase
         .from("players")
         .update({
@@ -1358,7 +1391,11 @@ export const GameProvider = ({ children }) => {
         message: logMsg,
         killer: playerName,
         responseText,
-        photoProof
+        photoProof,
+        metadata: {
+          challengeText,
+          challengeType: activeType
+        }
       });
 
       await fetchGameState(gameCode);
