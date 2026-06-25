@@ -350,7 +350,6 @@ export default function TargetCard({
             <span className="reward-dmg-v2">-{isZombie ? 0 : action.damage} HP</span>
           </div>
           
-          {/* Badge jetons relance en bas à droite */}
           <div 
             className={`tarot-skips-badge-v2 ${playerSkips === 0 ? "zero-skips" : ""}`} 
             title={`${playerSkips} relances disponibles`}
@@ -361,27 +360,29 @@ export default function TargetCard({
             style={{ 
               cursor: "pointer", 
               position: "relative",
+              zIndex: activeTooltip === "skips" ? 50 : 1,
               ...(playerSkips === 0 ? {
                 border: "1px solid var(--text-muted)",
                 color: "var(--text-muted)",
-                boxShadow: "none",
-                opacity: 0.6
+                boxShadow: "none"
               } : {})
             }}
           >
-            <img 
-              src={tokenImage} 
-              alt="token" 
-              className="skips-token-img" 
-              style={{ 
-                width: "16px", 
-                height: "16px", 
-                marginRight: "4px", 
-                objectFit: "contain",
-                filter: playerSkips === 0 ? "grayscale(100%)" : "none"
-              }} 
-            />
-            <span className="skips-val-v2">{playerSkips}</span>
+            <div style={{ display: "flex", alignItems: "center", opacity: playerSkips === 0 ? 0.6 : 1 }}>
+              <img 
+                src={tokenImage} 
+                alt="token" 
+                className="skips-token-img" 
+                style={{ 
+                  width: "16px", 
+                  height: "16px", 
+                  marginRight: "4px", 
+                  objectFit: "contain",
+                  filter: playerSkips === 0 ? "grayscale(100%)" : "none"
+                }} 
+              />
+              <span className="skips-val-v2">{playerSkips}</span>
+            </div>
             <AnimatePresence>
               {activeTooltip === "skips" && (
                 <HelperTooltip

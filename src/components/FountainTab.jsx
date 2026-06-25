@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useGame } from "../context/GameContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Droplet, RefreshCw, Check, Sparkles, AlertCircle, Skull, Heart, GlassWater } from "lucide-react";
+import { Droplet, RefreshCw, Check, Sparkles, AlertCircle, Skull, Heart, GlassWater, Upload, Camera } from "lucide-react";
 import HelperTooltip from "./HelperTooltip";
 import fountainTier1 from "../assets/fountain_tier1.png";
 import fountainTier2 from "../assets/fountain_tier2.png";
@@ -17,6 +17,54 @@ export default function FountainTab({ playerName }) {
   const [activeTooltip, setActiveTooltip] = useState(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showFountainValidationModal, setShowFountainValidationModal] = useState(false);
+  const [responseText, setResponseText] = useState("");
+  const [photoProof, setPhotoProof] = useState("");
+
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setErrorMsg("Le fichier doit être une image.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const maxDim = 500;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+        setPhotoProof(dataUrl);
+        setErrorMsg("");
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAcceptClick = () => {
+    setResponseText("");
+    setPhotoProof("");
+    setShowFountainValidationModal(true);
+  };
 
   const player = gameState.players.find((p) => p.name === playerName);
 
@@ -132,8 +180,9 @@ export default function FountainTab({ playerName }) {
     setLoadingAction(true);
     setErrorMsg("");
     try {
-      await confirmFountainChallenge(playerName);
+      await confirmFountainChallenge(playerName, responseText || null, photoProof || null);
       setIsRevealed(false); // Masquer à nouveau après validation
+      setShowFountainValidationModal(false);
       setShowSuccessModal(true);
       setTimeout(() => {
         setShowSuccessModal(false);
@@ -224,7 +273,7 @@ export default function FountainTab({ playerName }) {
         )}
 
         {/* 3. Switch sous forme de boutons-poussoirs individuels */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "24px", padding: "0 16px", boxSizing: "border-box" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "12px", padding: "0 16px", boxSizing: "border-box" }}>
           <div style={{ display: "flex", gap: "10px", justifyContent: "center", width: "100%" }}>
             <button
               onClick={() => handleSwitchType("action")}
@@ -308,7 +357,7 @@ export default function FountainTab({ playerName }) {
             left: "0px",
             top: "50%",
             transform: "translateY(-50%)",
-            zIndex: 10
+            zIndex: activeTooltip === "uses" ? 100 : 10
           }}>
             {/* Soins restants */}
             <div
@@ -324,7 +373,6 @@ export default function FountainTab({ playerName }) {
                 gap: "4px",
                 background: isUsesActive ? "rgba(16, 185, 129, 0.08)" : "rgba(255, 255, 255, 0.02)",
                 border: isUsesActive ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
-                opacity: isUsesActive ? 1 : 0.4,
                 borderRadius: "var(--border-radius-sm)",
                 width: "36px",
                 height: "36px",
@@ -334,50 +382,14 @@ export default function FountainTab({ playerName }) {
                 boxSizing: "border-box"
               }}
             >
-              <Heart size={13} fill={isUsesActive ? "var(--neon-gold)" : "var(--text-muted)"} style={{ color: isUsesActive ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: isUsesActive ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{usesLeft}</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "4px", opacity: isUsesActive ? 1 : 0.4 }}>
+                <Heart size={13} fill={isUsesActive ? "var(--neon-gold)" : "var(--text-muted)"} style={{ color: isUsesActive ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
+                <span style={{ fontSize: "11px", fontWeight: "900", color: isUsesActive ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{usesLeft}</span>
+              </div>
               <AnimatePresence>
                 {activeTooltip === "uses" && (
                   <HelperTooltip
                     text={`Utilisations restantes : Il vous reste ${usesLeft} soin(s) disponible(s) aujourd'hui.`}
-                    position="right"
-                    align="left"
-                    onClose={() => setActiveTooltip(null)}
-                  />
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Relances restantes */}
-            <div
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveTooltip(activeTooltip === "refreshes" ? null : "refreshes");
-              }}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "4px",
-                background: (refreshesLeft > 0 && !player.isZombie) ? "rgba(245, 158, 11, 0.08)" : "rgba(255, 255, 255, 0.02)",
-                border: (refreshesLeft > 0 && !player.isZombie) ? "2px solid var(--neon-gold)" : "2px solid var(--border-color)",
-                opacity: (refreshesLeft > 0 && !player.isZombie) ? 1 : 0.4,
-                borderRadius: "var(--border-radius-sm)",
-                width: "36px",
-                height: "36px",
-                cursor: "pointer",
-                position: "relative",
-                boxShadow: (refreshesLeft > 0 && !player.isZombie) ? "0 0 5px rgba(245, 158, 11, 0.2)" : "none",
-                boxSizing: "border-box"
-              }}
-            >
-              <RefreshCw size={13} style={{ color: (refreshesLeft > 0 && !player.isZombie) ? "var(--neon-gold)" : "var(--text-muted)", display: "block" }} />
-              <span style={{ fontSize: "11px", fontWeight: "900", color: (refreshesLeft > 0 && !player.isZombie) ? "#ffffff" : "var(--text-muted)", lineHeight: 1 }}>{refreshesLeft}</span>
-              <AnimatePresence>
-                {activeTooltip === "refreshes" && (
-                  <HelperTooltip
-                    text={`Relances restantes : Il vous reste ${refreshesLeft} relance(s) disponible(s) aujourd'hui.`}
                     position="right"
                     align="left"
                     onClose={() => setActiveTooltip(null)}
@@ -493,7 +505,7 @@ export default function FountainTab({ playerName }) {
                   </button>
 
                   <button
-                    onClick={handleConfirm}
+                    onClick={handleAcceptClick}
                     disabled={loadingAction}
                     style={{
                       flex: 1,
@@ -565,6 +577,118 @@ export default function FountainTab({ playerName }) {
               <p className="confirm-modal-body-v2" style={{ marginBottom: 0 }}>
                 Félicitations ! Vous venez de récupérer <strong style={{ color: "var(--neon-red)" }}>+0.5 cœur</strong>.
               </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Validation Modal popup with Response Input or Photo Proof */}
+      <AnimatePresence>
+        {showFountainValidationModal && (
+          <motion.div
+            className="confirm-modal-backdrop-v2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ zIndex: 11500 }}
+          >
+            <motion.div
+              className="confirm-modal-v2"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              style={{ borderColor: "var(--neon-blue)", boxShadow: "0 0 20px rgba(59, 130, 246, 0.3)", width: "90%", maxWidth: "340px" }}
+            >
+              <h3 className="confirm-modal-title-v2" style={{ color: "var(--neon-blue)", textTransform: "uppercase", fontSize: "15px" }}>
+                Preuve du Défi
+              </h3>
+              <p style={{ fontSize: "12px", color: "var(--text-secondary)", margin: "4px 0 12px 0", fontStyle: "italic" }}>
+                « {activeChallengeText} »
+              </p>
+
+              {selectedType === "verite" ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", width: "100%", marginBottom: "12px" }}>
+                  <label style={{ fontSize: "11px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", textAlign: "left" }}>
+                    Votre réponse :
+                  </label>
+                  <textarea
+                    placeholder="Saisissez votre réponse ici..."
+                    value={responseText}
+                    onChange={(e) => setResponseText(e.target.value)}
+                    className="neon-input-premium"
+                    style={{ height: "70px", resize: "none", textAlign: "left", fontSize: "13px" }}
+                    required
+                  />
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", width: "100%", marginBottom: "12px" }}>
+                  <label style={{ fontSize: "11px", fontWeight: "800", color: "var(--text-secondary)", textTransform: "uppercase", width: "100%", textAlign: "left" }}>
+                    Preuve photo requise :
+                  </label>
+                  
+                  {photoProof ? (
+                    <div style={{ position: "relative", width: "140px", height: "140px", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--neon-blue)" }}>
+                      <img src={photoProof} alt="Preuve" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <button
+                        onClick={() => setPhotoProof("")}
+                        style={{ position: "absolute", top: "4px", right: "4px", background: "rgba(0,0,0,0.6)", border: "none", borderRadius: "50%", color: "#fff", width: "20px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "10px" }}
+                      >
+                        X
+                      </button>
+                    </div>
+                  ) : (
+                    <label 
+                      className="upload-file-btn-white" 
+                      style={{ 
+                        display: "flex", 
+                        flexDirection: "column", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        gap: "6px", 
+                        width: "100%", 
+                        height: "100px", 
+                        border: "2px dashed rgba(59, 130, 246, 0.4)", 
+                        borderRadius: "8px", 
+                        cursor: "pointer",
+                        background: "rgba(255,255,255,0.01)"
+                      }}
+                    >
+                      <Camera size={24} style={{ color: "var(--neon-blue)" }} />
+                      <span style={{ fontSize: "11px", fontWeight: "700" }}>Prendre ou importer une photo</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        capture="environment" 
+                        onChange={handlePhotoUpload} 
+                        style={{ display: "none" }} 
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+
+              <div className="confirm-action-btns-v2" style={{ marginTop: "16px" }}>
+                <button
+                  className="confirm-btn-primary-v2"
+                  disabled={loadingAction || (selectedType === "verite" ? !responseText.trim() : !photoProof)}
+                  style={{ 
+                    backgroundColor: "var(--neon-blue)", 
+                    color: "#fff",
+                    opacity: (selectedType === "verite" ? responseText.trim() : photoProof) ? 1 : 0.4,
+                    cursor: (selectedType === "verite" ? responseText.trim() : photoProof) ? "pointer" : "not-allowed"
+                  }}
+                  onClick={handleConfirm}
+                >
+                  {loadingAction ? "Validation..." : "Valider & Soigner"}
+                </button>
+                <button 
+                  className="confirm-btn-cancel-v2" 
+                  disabled={loadingAction}
+                  onClick={() => setShowFountainValidationModal(false)}
+                >
+                  Annuler
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

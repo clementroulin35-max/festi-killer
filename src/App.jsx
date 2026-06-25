@@ -34,15 +34,10 @@ function MainAppContent() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [editPhotoActive, setEditPhotoActive] = useState(false);
 
-  // Theme toggle (dark / light)
-  const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("fk_theme") || "dark";
-  });
-
+  // Theme is permanently dark
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("fk_theme", theme);
-  }, [theme]);
+    document.documentElement.setAttribute("data-theme", "dark");
+  }, []);
 
   // Prevent viewport resizing on mobile keyboard popups
   useEffect(() => {
@@ -60,9 +55,7 @@ function MainAppContent() {
     return () => window.removeEventListener("resize", updateAppHeight);
   }, []);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
-  };
+
 
   // Authentication & salon states
   const [inputCode, setInputCode] = useState("");
@@ -91,27 +84,7 @@ function MainAppContent() {
     }
   }, []);
 
-  // iOS Safari zoom reset on input blur
-  useEffect(() => {
-    const handleBlur = (e) => {
-      if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) {
-        window.scrollTo(document.body.scrollLeft, document.body.scrollTop);
-        const viewport = document.querySelector('meta[name="viewport"]');
-        if (viewport) {
-          const originalContent = viewport.content;
-          viewport.content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
-          setTimeout(() => {
-            viewport.content = originalContent;
-          }, 150);
-        }
-      }
-    };
 
-    document.addEventListener("blur", handleBlur, true);
-    return () => {
-      document.removeEventListener("blur", handleBlur, true);
-    };
-  }, []);
 
   const handleCreateRoom = async (e) => {
     if (e) e.preventDefault();
@@ -302,15 +275,12 @@ function MainAppContent() {
                 <img 
                   src={heroImage} 
                   alt="Cooki'llers logo" 
-                  onClick={toggleTheme}
                   className="floating-logo"
                   style={{ 
                     width: "100%", 
                     maxWidth: "280px", 
-                    height: "auto", 
-                    cursor: "pointer"
+                    height: "auto"
                   }} 
-                  title="Basculer thème jour/nuit"
                 />
               </div>
             )}
@@ -641,7 +611,7 @@ function MainAppContent() {
 
       {/* 2. App Header */}
       <header className="app-header">
-        <div className="header-brand" onClick={toggleTheme} style={{ cursor: "pointer" }} title="Basculer thème jour/nuit">
+        <div className="header-brand">
           <Skull size={24} className="brand-logo" />
           <h1>COOKI'LLERS</h1>
         </div>

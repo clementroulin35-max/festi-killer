@@ -138,7 +138,9 @@ export const GameProvider = ({ children }) => {
         damage: Number(h.damage),
         isEphemeral: h.is_ephemeral,
         message: h.message,
-        metadata: h.metadata
+        metadata: h.metadata,
+        responseText: h.response_text,
+        photoProof: h.photo_proof
       }));
 
       const newState = {
@@ -216,7 +218,9 @@ export const GameProvider = ({ children }) => {
       damage: details.damage || 0,
       is_ephemeral: !!details.isEphemeral,
       message: details.message,
-      metadata: details.metadata || null
+      metadata: details.metadata || null,
+      response_text: details.responseText || null,
+      photo_proof: details.photoProof || null
     };
 
     const { data, error } = await supabase.from("history").insert([newEvent]).select();
@@ -1317,7 +1321,7 @@ export const GameProvider = ({ children }) => {
     }
   };
 
-  const confirmFountainChallenge = async (playerName) => {
+  const confirmFountainChallenge = async (playerName, responseText = null, photoProof = null) => {
     const player = gameState.players.find(p => p.name === playerName);
     if (!player) return;
 
@@ -1351,7 +1355,10 @@ export const GameProvider = ({ children }) => {
 
       await logEvent("fountain_heal", {
         status: "approved",
-        message: logMsg
+        message: logMsg,
+        killer: playerName,
+        responseText,
+        photoProof
       });
 
       await fetchGameState(gameCode);

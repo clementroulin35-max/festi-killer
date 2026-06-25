@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify, Shield, Skull } from "lucide-react";
+import { Trophy, Heart, Shuffle, ShieldAlert, Award, AlignJustify, Shield, Skull, Activity, MessageSquare, Droplet } from "lucide-react";
 import { getRank } from "./PlayerDashboard";
 
 export default function Leaderboard({ players, history }) {
-  const [subTab, setSubTab] = useState("scores"); // scores, trophies
+  const [subTab, setSubTab] = useState("scores"); // scores, trophies, flux
+  const [expandedPhoto, setExpandedPhoto] = useState(null);
 
   // Sort players: score desc, lives desc, name asc
   const sortedPlayers = [...players].sort((a, b) => {
@@ -98,8 +99,8 @@ export default function Leaderboard({ players, history }) {
                 border: subTab === "scores" ? "1px solid rgba(139, 92, 246, 0.7)" : "1px solid transparent",
                 boxShadow: subTab === "scores" ? "0 0 8px rgba(139, 92, 246, 0.4)" : "none",
                 borderRadius: "4px",
-                padding: "5px 8px",
-                fontSize: "11px",
+                padding: "5px 4px",
+                fontSize: "10.5px",
                 fontWeight: "800",
                 textTransform: "uppercase",
                 cursor: "pointer",
@@ -107,12 +108,12 @@ export default function Leaderboard({ players, history }) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "5px",
+                gap: "4px",
                 transition: "all 0.2s"
               }}
             >
-              <AlignJustify size={13} />
-              Scores & Vies
+              <AlignJustify size={12} />
+              Scores
             </button>
             <button
               onClick={() => setSubTab("trophies")}
@@ -123,8 +124,8 @@ export default function Leaderboard({ players, history }) {
                 border: subTab === "trophies" ? "1px solid rgba(139, 92, 246, 0.7)" : "1px solid transparent",
                 boxShadow: subTab === "trophies" ? "0 0 8px rgba(139, 92, 246, 0.4)" : "none",
                 borderRadius: "4px",
-                padding: "5px 8px",
-                fontSize: "11px",
+                padding: "5px 4px",
+                fontSize: "10.5px",
                 fontWeight: "800",
                 textTransform: "uppercase",
                 cursor: "pointer",
@@ -132,12 +133,37 @@ export default function Leaderboard({ players, history }) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "5px",
+                gap: "4px",
                 transition: "all 0.2s"
               }}
             >
-              <Award size={13} />
-              Trophées Spéciaux
+              <Award size={12} />
+              Trophées
+            </button>
+            <button
+              onClick={() => setSubTab("flux")}
+              style={{
+                flex: 1,
+                backgroundColor: subTab === "flux" ? "rgba(139, 92, 246, 0.25)" : "transparent",
+                color: subTab === "flux" ? "#ffffff" : "var(--text-muted)",
+                border: subTab === "flux" ? "1px solid rgba(139, 92, 246, 0.7)" : "1px solid transparent",
+                boxShadow: subTab === "flux" ? "0 0 8px rgba(139, 92, 246, 0.4)" : "none",
+                borderRadius: "4px",
+                padding: "5px 4px",
+                fontSize: "10.5px",
+                fontWeight: "800",
+                textTransform: "uppercase",
+                cursor: "pointer",
+                fontFamily: "var(--font-sans)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "4px",
+                transition: "all 0.2s"
+              }}
+            >
+              <Activity size={12} />
+              Flux
             </button>
           </div>
 
@@ -311,8 +337,197 @@ export default function Leaderboard({ players, history }) {
 
             </div>
           )}
+
+          {/* --- SUB-TAB 3 : ACTIVITY FLUX --- */}
+          {subTab === "flux" && (
+            <div className="flux-tab-content animate-fade-in" style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
+              {(() => {
+                const fluxEvents = history.filter(
+                  (h) =>
+                    h.type === "hit_validation" ||
+                    h.type === "counter_attack_resolution" ||
+                    (h.type === "fountain_heal" && h.status === "approved")
+                );
+
+                const formatTime = (ts) => {
+                  if (!ts) return "";
+                  try {
+                    const d = new Date(ts);
+                    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + " - " + d.toLocaleDateString([], { day: 'numeric', month: 'short' });
+                  } catch (e) {
+                    return "";
+                  }
+                };
+
+                if (fluxEvents.length === 0) {
+                  return (
+                    <div style={{ padding: "30px 10px", textAlign: "center", color: "var(--text-muted)", fontSize: "12px", fontStyle: "italic" }}>
+                      Aucune activité enregistrée dans le flux pour l'instant.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="flux-scroll-list" style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "400px", overflowY: "auto", paddingRight: "4px" }}>
+                    {fluxEvents.map((evt) => {
+                      let icon = <Trophy size={16} style={{ color: "var(--neon-gold)" }} />;
+                      let borderColor = "rgba(245, 158, 11, 0.25)";
+                      let title = "Activité";
+
+                      if (evt.type === "hit_validation") {
+                        icon = <Trophy size={16} style={{ color: "var(--neon-purple)" }} />;
+                        borderColor = "rgba(139, 92, 246, 0.25)";
+                        title = "Mission Accomplie";
+                      } else if (evt.type === "counter_attack_resolution") {
+                        icon = <Shield size={16} style={{ color: "var(--neon-red)" }} />;
+                        borderColor = "rgba(255, 51, 102, 0.25)";
+                        title = "Contre-Attaque";
+                      } else if (evt.type === "fountain_heal") {
+                        icon = <Droplet size={16} style={{ color: "var(--neon-blue)" }} />;
+                        borderColor = "rgba(59, 130, 246, 0.25)";
+                        title = "Soin Fontaine";
+                      }
+
+                      return (
+                        <div
+                          key={evt.id}
+                          className="flux-item-card"
+                          style={{
+                            background: "rgba(20, 20, 25, 0.6)",
+                            border: "1px solid rgba(255, 255, 255, 0.05)",
+                            borderLeft: `3px solid ${borderColor.replace("0.25", "0.7")}`,
+                            borderRadius: "var(--border-radius-sm)",
+                            padding: "10px 12px",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "6px"
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              {icon}
+                              <span style={{ fontSize: "11px", fontWeight: "950", color: "#ffffff", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                                {title}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: "9px", color: "var(--text-muted)", fontWeight: "700" }}>
+                              {formatTime(evt.timestamp)}
+                            </span>
+                          </div>
+
+                          <p style={{ fontSize: "12px", color: "var(--text-primary)", margin: 0, lineHeight: "1.4", fontWeight: "500", textAlign: "left" }}>
+                            {evt.message}
+                          </p>
+
+                          {/* Preuve de la Fontaine */}
+                          {evt.type === "fountain_heal" && (evt.responseText || evt.photoProof) && (
+                            <div
+                              style={{
+                                marginTop: "4px",
+                                padding: "8px",
+                                background: "rgba(0, 0, 0, 0.25)",
+                                border: "1px solid rgba(255, 255, 255, 0.04)",
+                                borderRadius: "4px",
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "4px",
+                                textAlign: "left"
+                              }}
+                            >
+                              <span style={{ fontSize: "9px", fontWeight: "900", color: "var(--neon-blue)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                Preuve de validation :
+                              </span>
+                              {evt.responseText && (
+                                <div style={{ display: "flex", gap: "6px", alignItems: "flex-start", marginTop: "2px" }}>
+                                  <MessageSquare size={12} style={{ color: "var(--text-muted)", marginTop: "2px", flexShrink: 0 }} />
+                                  <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: 0, fontStyle: "italic", lineHeight: "1.3" }}>
+                                    « {evt.responseText} »
+                                  </p>
+                                </div>
+                              )}
+                              {evt.photoProof && (
+                                <div style={{ marginTop: "4px", display: "flex", justifyContent: "left" }}>
+                                  <img
+                                    src={evt.photoProof}
+                                    alt="Preuve photo"
+                                    onClick={() => setExpandedPhoto(evt.photoProof)}
+                                    style={{
+                                      width: "120px",
+                                      height: "90px",
+                                      objectFit: "cover",
+                                      borderRadius: "4px",
+                                      border: "1px solid rgba(59, 130, 246, 0.3)",
+                                      cursor: "pointer",
+                                      transition: "all 0.2s"
+                                    }}
+                                    title="Cliquez pour agrandir"
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Expanded Photo Lightbox */}
+      {expandedPhoto && (
+        <div
+          onClick={() => setExpandedPhoto(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0,0,0,0.9)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 99999,
+            cursor: "pointer"
+          }}
+        >
+          <img
+            src={expandedPhoto}
+            alt="Preuve Agrandie"
+            style={{
+              maxWidth: "90%",
+              maxHeight: "90%",
+              objectFit: "contain",
+              borderRadius: "8px",
+              border: "2px solid var(--neon-blue)",
+              boxShadow: "0 0 30px rgba(59, 130, 246, 0.5)"
+            }}
+          />
+          <button
+            onClick={() => setExpandedPhoto(null)}
+            style={{
+              position: "absolute",
+              top: "20px",
+              right: "20px",
+              background: "rgba(255,255,255,0.1)",
+              border: "none",
+              color: "#fff",
+              fontSize: "24px",
+              fontWeight: "bold",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              cursor: "pointer"
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }
