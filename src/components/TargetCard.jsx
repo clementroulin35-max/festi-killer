@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useAnimation } from "framer-motion";
 import { useGame } from "../context/GameContext";
 import { DEFAULT_ACTIONS } from "../services/gameEngine";
-import { ShieldAlert, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ShieldAlert, Eye, EyeOff, Loader2, HelpCircle } from "lucide-react";
 import HelperTooltip from "./HelperTooltip";
 import defaultAvatar from "../assets/default_avatar.png";
 import tokenImage from "../assets/token_neon.png";
@@ -49,6 +49,7 @@ export default function TargetCard({
 
   const topControls = useAnimation();
   const bottomControls = useAnimation();
+  const avatarControls = useAnimation();
 
   const canAbandon = (!isZombie || playerScore >= 50) && !hasPendingHit;
   const canSkip = playerSkips > 0 && !hasPendingHit;
@@ -58,6 +59,14 @@ export default function TargetCard({
     let intervalId;
 
     const startHintSequence = () => {
+      // Zoom animation sequence on the target avatar (hint to show it's clickable)
+      if (!hasPendingHit) {
+        avatarControls.start({
+          scale: [1, 1.12, 0.93, 1.07, 1],
+          transition: { duration: 1.2, ease: "easeInOut" }
+        });
+      }
+
       if (canAbandon) {
         topControls.start({
           x: [0, 15, -15, 0],
@@ -102,7 +111,7 @@ export default function TargetCard({
       window.removeEventListener("touchstart", handleActivity);
       window.removeEventListener("keydown", handleActivity);
     };
-  }, [canAbandon, canSkip, topControls, bottomControls]);
+  }, [canAbandon, canSkip, hasPendingHit, topControls, bottomControls, avatarControls]);
 
   const targetPlayer = gameState.players.find(p => p.name === targetName);
   const action = (gameState.actionPool || DEFAULT_ACTIONS).find(a => a.id === actionId);
@@ -219,14 +228,15 @@ export default function TargetCard({
           e.stopPropagation();
           setActiveTooltip(activeTooltip === "mission" ? null : "mission");
         }}
-        style={{ cursor: "pointer", position: "relative" }}
+        style={{ cursor: "pointer", position: "relative", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}
         title="Cliquez pour obtenir des explications"
       >
         <span>MISSION</span>
+        <HelpCircle size={13} style={{ color: "#ffffff", opacity: 0.8 }} />
         <AnimatePresence>
           {activeTooltip === "mission" && (
             <HelperTooltip
-              text="Cadre de Mission : Glissez la cible vers la gauche/droite pour l'abandonner (pénalité de score ou de cœur), ou glissez le défi pour le relancer (consomme 1 jeton)."
+              text="Cadre de Mission : Appuyez sur la photo de profil de la cible pour déclencher le HIT. Glissez la cible vers la gauche/droite pour l'abandonner (pénalité), ou glissez le défi pour le relancer (consomme 1 jeton)."
               position="bottom"
               onClose={() => setActiveTooltip(null)}
               isZombie={isZombie}
@@ -256,8 +266,9 @@ export default function TargetCard({
         <div className="tarot-target-label-v2">CIBLE</div>
 
         {/* Target radar scope (cliquable pour déclencher le HIT) */}
-        <div 
+        <motion.div 
           className={`tarot-target-scope ${isShatteredAnimated ? "hit-animation-active" : isShatteredStatic ? "hit-static-active" : "interactive-target"}`}
+          animate={avatarControls}
           onClick={() => {
             if (!hasPendingHit) {
               setShowConfirmHit(true);
@@ -300,7 +311,7 @@ export default function TargetCard({
               />
             )}
           </div>
-        </div>
+        </motion.div>
 
         <div>
           <div className="tarot-target-name">{targetName}</div>

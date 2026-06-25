@@ -218,59 +218,7 @@ export default function FountainTab({ playerName }) {
           Buvez à la source sacrée pour soigner vos blessures de combat en accomplissant des actions ou en révélant des vérités.
         </p>
 
-        {player.isZombie && (
-          <div style={{
-            background: "rgba(255, 51, 102, 0.15)",
-            border: "1px solid var(--neon-red)",
-            borderRadius: "var(--border-radius-sm)",
-            padding: "8px 12px",
-            color: "var(--neon-red)",
-            fontSize: "12px",
-            fontWeight: "bold",
-            textAlign: "center",
-            margin: "0 auto 12px auto",
-            maxWidth: "300px",
-            flexShrink: 0
-          }}>
-            💀 ACCÈS REFUSÉ : Les Zombies ne peuvent pas boire à la Fontaine. Pas de résurrection possible.
-          </div>
-        )}
 
-        {!player.isZombie && isFullHealth && (
-          <div style={{
-            background: "rgba(16, 185, 129, 0.15)",
-            border: "1px solid var(--neon-green)",
-            borderRadius: "var(--border-radius-sm)",
-            padding: "8px 12px",
-            color: "var(--neon-green)",
-            fontSize: "12px",
-            fontWeight: "bold",
-            textAlign: "center",
-            margin: "0 auto 12px auto",
-            maxWidth: "300px",
-            flexShrink: 0
-          }}>
-            VITALITÉ MAXIMALE : Vous êtes déjà au maximum de vos points de vie (7.0 ❤️).
-          </div>
-        )}
-
-        {!player.isZombie && !isFullHealth && usesLeft <= 0 && (
-          <div style={{
-            background: "rgba(245, 158, 11, 0.15)",
-            border: "1px solid var(--neon-gold)",
-            borderRadius: "var(--border-radius-sm)",
-            padding: "8px 12px",
-            color: "var(--neon-gold)",
-            fontSize: "12px",
-            fontWeight: "bold",
-            textAlign: "center",
-            margin: "0 auto 12px auto",
-            maxWidth: "300px",
-            flexShrink: 0
-          }}>
-            🪹 SOURCE ÉPUISÉE : Vous n'avez plus d'utilisation disponible aujourd'hui.
-          </div>
-        )}
 
         {/* 3. Switch sous forme de boutons-poussoirs individuels */}
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", width: "100%", flexShrink: 0, marginBottom: "12px", padding: "0 16px", boxSizing: "border-box" }}>
@@ -449,9 +397,66 @@ export default function FountainTab({ playerName }) {
         </div>
 
         {/* 5. Espace interactif sous la fontaine */}
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "60px", marginTop: "10px" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", width: "100%", minHeight: "80px", marginTop: "10px" }}>
           <AnimatePresence mode="wait">
-            {isRevealed && hasActiveChallenge && (
+            {player.isZombie ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  background: "rgba(255, 51, 102, 0.15)",
+                  border: "1px solid var(--neon-red)",
+                  borderRadius: "var(--border-radius-sm)",
+                  padding: "8px 12px",
+                  color: "var(--neon-red)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  maxWidth: "300px"
+                }}
+              >
+                💀 ACCÈS REFUSÉ : Les Zombies ne peuvent pas boire à la Fontaine. Pas de résurrection possible.
+              </motion.div>
+            ) : isFullHealth ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  background: "rgba(16, 185, 129, 0.15)",
+                  border: "1px solid var(--neon-green)",
+                  borderRadius: "var(--border-radius-sm)",
+                  padding: "8px 12px",
+                  color: "var(--neon-green)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  maxWidth: "300px"
+                }}
+              >
+                VITALITÉ MAXIMALE : Vous êtes déjà au maximum de vos points de vie (7.0 ❤️).
+              </motion.div>
+            ) : usesLeft <= 0 ? (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                style={{
+                  background: "rgba(245, 158, 11, 0.15)",
+                  border: "1px solid var(--neon-gold)",
+                  borderRadius: "var(--border-radius-sm)",
+                  padding: "8px 12px",
+                  color: "var(--neon-gold)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  maxWidth: "300px"
+                }}
+              >
+                🪹 SOURCE ÉPUISÉE : Vous n'avez plus d'utilisation disponible aujourd'hui.
+              </motion.div>
+            ) : isRevealed && hasActiveChallenge ? (
               <motion.div
                 key="challenge-card"
                 initial={{ opacity: 0, y: 10 }}
@@ -531,7 +536,7 @@ export default function FountainTab({ playerName }) {
                   </button>
                 </div>
               </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
         </div>
 
