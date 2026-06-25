@@ -57,9 +57,11 @@ export default function TargetCard({
   useEffect(() => {
     let timeoutId;
     let intervalId;
+    let targetTimeoutId;
+    let skipTimeoutId;
 
     const startHintSequence = () => {
-      // Zoom animation sequence on the target avatar (hint to show it's clickable)
+      // 1. Zoom animation on the target avatar (hint for CLICK)
       if (!hasPendingHit) {
         avatarControls.start({
           scale: [1, 1.12, 0.93, 1.07, 1],
@@ -67,30 +69,36 @@ export default function TargetCard({
         });
       }
 
-      if (canAbandon) {
-        topControls.start({
-          x: [0, 15, -15, 0],
-          transition: { duration: 0.8, times: [0, 0.25, 0.75, 1], ease: "easeInOut" }
-        });
-      }
+      // 2. Slide top of the card (hint for ABANDON) after 2200ms
+      targetTimeoutId = setTimeout(() => {
+        if (canAbandon) {
+          topControls.start({
+            x: [0, 15, -15, 0],
+            transition: { duration: 0.8, times: [0, 0.25, 0.75, 1], ease: "easeInOut" }
+          });
+        }
+      }, 2200);
 
-      timeoutId = setTimeout(() => {
+      // 3. Slide bottom of the card (hint for SKIP) after 4000ms
+      skipTimeoutId = setTimeout(() => {
         if (canSkip) {
           bottomControls.start({
             x: [0, -15, 15, 0],
             transition: { duration: 0.8, times: [0, 0.25, 0.75, 1], ease: "easeInOut" }
           });
         }
-      }, 1500);
+      }, 4000);
     };
 
     const resetInactivityTimer = () => {
       if (timeoutId) clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
+      if (targetTimeoutId) clearTimeout(targetTimeoutId);
+      if (skipTimeoutId) clearTimeout(skipTimeoutId);
 
       timeoutId = setTimeout(() => {
         startHintSequence();
-        intervalId = setInterval(startHintSequence, 8000);
+        intervalId = setInterval(startHintSequence, 10000); // 10s interval because the full sequence takes ~5s
       }, 6000);
     };
 
@@ -107,6 +115,8 @@ export default function TargetCard({
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
+      if (targetTimeoutId) clearTimeout(targetTimeoutId);
+      if (skipTimeoutId) clearTimeout(skipTimeoutId);
       window.removeEventListener("mousemove", handleActivity);
       window.removeEventListener("touchstart", handleActivity);
       window.removeEventListener("keydown", handleActivity);
